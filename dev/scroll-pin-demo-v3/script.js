@@ -33,16 +33,13 @@ function lockScroll() {
   if (locked) return;
   locked = true;
   permanentlyUnpinned = true;
-  lenis.scrollTo('#canvas-wrap');
-  setTimeout(() => {
-    lenis.stop();
-    window.addEventListener('wheel', preventScrollEvent, { passive: false });
-    window.addEventListener('touchmove', preventScrollEvent, { passive: false });
-    window.addEventListener('keydown', preventScrollKey);
-    window.setMapInteraction(true);
+  lenis.stop();
+  window.addEventListener('wheel', preventScrollEvent, { passive: false });
+  window.addEventListener('touchmove', preventScrollEvent, { passive: false });
+  window.addEventListener('keydown', preventScrollKey);
+  window.setMapInteraction(true);
 
-    mapToggleBtnWrapper.classList.add('locked');
-  }, 1000);
+  mapToggleBtnWrapper.classList.add('locked');
 }
 
 function unlockScroll() {
@@ -62,7 +59,7 @@ const mapTrigger = ScrollTrigger.create({
   end: '+=50px',
   pin: true,
   pinSpacing: true,
-  // markers: true,
+  markers: true,
   onEnter: pinHandler,
   onEnterBack: pinHandler
 });
@@ -78,13 +75,17 @@ function pinHandler() {
 closeBtn.addEventListener('click', () => {
   unlockScroll();
   openBtn.classList.add('show');
+  
   // mapTrigger.kill();
   // ScrollTrigger.refresh();
 });
 
 openBtn.addEventListener('click', () => {
-  lockScroll();
+  permanentlyUnpinned = false;
+
+  lenis.scrollTo('#canvas-wrap');
   openBtn.classList.remove('show');
+  
   // mapTrigger.kill();
   // ScrollTrigger.refresh();
 });
