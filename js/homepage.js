@@ -1,122 +1,142 @@
 export function homepage() {
-    document.addEventListener('wheel', () => {
-        gsap.to('.scroll', {
-            autoAlpha: 0,
-            duration: 0.15,
-        })
-    }, { once: true })
 
     const root = document.querySelector('.mwg_effect014'),
         images = [],
         classes = ['format1', 'format2', 'format3']
 
-    root.querySelectorAll('.medias img').forEach(image => {
-        images.push(image.getAttribute('src'))
-    })
+    if (root) {
+        document.addEventListener('wheel', () => {
+            gsap.to('.scroll', {
+                autoAlpha: 0,
+                duration: 0.15,
+            })
+        }, { once: true })
 
-    const imagesLength = images.length
-
-    let incr = 0,
-        currentIndex = 0
-
-    // Pin the section for a scroll distance proportional to the image count, so the
-    // shuffling effect has room to play out in place before the page continues
-    // scrolling into whatever section comes after it.
-    const trigger = ScrollTrigger.create({
-        trigger: root,
-        start: 'top top',
-        end: `+=${imagesLength * 800}`,
-        pin: true,
-        pinSpacing: true,
-        anticipatePin: 1,
-        onLeaveBack: () => {
-            // Scrolled back above the section: reset so the effect replays on re-entry
-            currentIndex = 0
-            incr = 0
-        },
-        onEnterBack: () => {
-            // Scrolled back above the section: reset so the effect replays on re-entry
-            currentIndex = 0
-            incr = 0
-        },
-    })
-
-    document.addEventListener('wheel', (e) => {
-        if (!trigger.isActive || currentIndex >= imagesLength) return
-
-        incr += Math.abs(e.deltaY); // Math.abs() to ignore the scroll direction
-
-        if (incr > 600) {
-            newImage()
-            incr = 0; // Reset incr value
-        }
-    }, { passive: true })
-
-    function newImage() {
-        // We pick a random value from the list of predefined classes
-        const randomIndex = Math.floor(Math.random() * classes.length),
-            // We create an image
-            image = document.createElement("img")
-
-        // We assign it a URL and add a randomly chosen class
-        image.setAttribute('src', images[currentIndex])
-        image.classList.add(classes[randomIndex])
-
-        // We add this image to the DOM
-        root.appendChild(image);
-
-        gsap.fromTo(image, {
-            xPercent: -50 + (Math.random() - 0.5) * 100,
-            yPercent: -50 + (Math.random() - 0.5) * 20,
-            rotation: (Math.random() - 0.5) * 20,
-            // Different values for X and Y to create a slight squish effect on appearance
-            scaleX: 1.02,
-            scaleY: 1.02,
-            opacity: 0
-        }, {
-            scaleX: 1,
-            scaleY: 1,
-            opacity: 1,
-            ease: 'power4.out',
-            duration: 0.15
+        root.querySelectorAll('.medias img').forEach(image => {
+            images.push(image.getAttribute('src'))
         })
 
-        gsap.to(image, {
-            // // Slightly reduce the image size
-            // scaleX: 0.96,
-            // scaleY: 0.96,
-            // ease: 'power4.in',
-            duration: .5,
-            opacity: 0,
-            delay: 1.5, // Wait before hiding
-            onComplete: () => {
-                // Remove the image from the DOM for better performance
-                root.removeChild(image);
+        const imagesLength = images.length
+
+        let incr = 0,
+            currentIndex = 0
+
+        // Pin the section for a scroll distance proportional to the image count, so the
+        // shuffling effect has room to play out in place before the page continues
+        // scrolling into whatever section comes after it.
+        const trigger = ScrollTrigger.create({
+            trigger: root,
+            start: 'top top',
+            // end: 'bottom bottom',
+            end: `+=${imagesLength * 600}`,
+            pin: true,
+            // markers: true,
+            pinSpacing: true,
+            anticipatePin: 1,
+            onLeaveBack: () => {
+                // Scrolled back above the section: reset so the effect replays on re-entry
+                currentIndex = 0
+                incr = 0
+            },
+            onEnterBack: () => {
+                // Scrolled back above the section: reset so the effect replays on re-entry
+                currentIndex = 0
+                incr = 0
+            },
+        })
+
+        document.addEventListener('wheel', (e) => {
+            if (!trigger.isActive || currentIndex >= imagesLength) return
+
+            incr += Math.abs(e.deltaY); // Math.abs() to ignore the scroll direction
+
+            if (incr > 500) {
+                newImage()
+                incr = 0; // Reset incr value
+            }
+        }, { passive: true })
+
+        function newImage() {
+            // We pick a random value from the list of predefined classes
+            const randomIndex = Math.floor(Math.random() * classes.length),
+                // We create an image
+                image = document.createElement("img")
+
+            // We assign it a URL and add a randomly chosen class
+            image.setAttribute('src', images[currentIndex])
+            image.classList.add(classes[randomIndex])
+
+            // We add this image to the DOM
+            root.appendChild(image);
+
+            gsap.fromTo(image, {
+                xPercent: -50 + (Math.random() - 0.5) * 100,
+                yPercent: -50 + (Math.random() - 0.5) * 20,
+                rotation: (Math.random() - 0.5) * 20,
+                // Different values for X and Y to create a slight squish effect on appearance
+                scaleX: 1.02,
+                scaleY: 1.02,
+                opacity: 0
+            }, {
+                scaleX: 1,
+                scaleY: 1,
+                opacity: 1,
+                ease: 'power4.out',
+                duration: 0.15
+            })
+
+            gsap.to(image, {
+                // // Slightly reduce the image size
+                // scaleX: 0.96,
+                // scaleY: 0.96,
+                // ease: 'power4.in',
+                duration: .5,
+                opacity: 0,
+                delay: 1.5, // Wait before hiding
+                onComplete: () => {
+                    // Remove the image from the DOM for better performance
+                    root.removeChild(image);
+                }
+            })
+
+            currentIndex++
+        }
+
+        // Transition last portfolio image reveal into fixed spot
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: '.hp_portfolio-media-end-trigger',
+                start: 'top center',
+                end: '+=100%',
+                pin: '.hp_portfolio-media-end-wrapper',
+                scrub: true,
+                // markers: true,
+                onEnter: () => {
+                    gsap.fromTo('.hp_portfolio-media-end', {
+                        opacity: 0,
+                    }, {
+                        opacity: 1,
+                        duration: .8,
+                    })
+                },
+                onLeaveBack: () => {
+                    gsap.fromTo('.hp_portfolio-media-end', {
+                        opacity: 1,
+                    }, {
+                        opacity: 0,
+                        duration: 1,
+                    })
+                }
             }
         })
+            .from('.hp_portfolio-media-end', {
+                delay: .25,
+                x: '30vw',
+                yPercent: -50,
+                rotation: () => (Math.random() - 0.5) * 20,
+            });
 
-        currentIndex++
     }
-
-    // // The headline is made of two lines ("One team." / "One method.") sitting right
-    // // after the image in the same flex column. Their finished position is whatever
-    // // the container's own CSS already lays out (flex row, nowrap, 7.25rem) — we
-    // // just measure how far each line sits from the image's top/bottom edge and
-    // // tween that distance back to 0, so they appear to start pinned to the image
-    // // and converge into the headline. Kept in normal flow the whole time (no
-    // // position/height juggling) so nothing collapses or gets clipped by the
-    // // section's overflow: hidden.
-    // const scrollerContainer = document.querySelector('.text-scroller-container'),
-    //     scrollerImage = scrollerContainer.previousElementSibling,
-    //     scrollerLines = gsap.utils.toArray('.text-scroller-container-main-text > div')
-
-    // const imageRect = scrollerImage.getBoundingClientRect(),
-    //     lineStartY = scrollerLines.map((line, i) => {
-    //         const lineRect = line.getBoundingClientRect()
-    //         return i === 0
-    //             ? imageRect.top - lineRect.top
-    //             : imageRect.bottom - lineRect.bottom
-    //     })
 
 
     // Text Scroller Timeline
@@ -127,87 +147,64 @@ export function homepage() {
     let containerWidth = document.querySelector('.container-large').offsetWidth;
     let scrollerWidth = document.querySelector('.scroller-main-text.top').offsetWidth + document.querySelector('.scroller-main-text.bottom').offsetWidth + document.querySelector('.text-scroller-container-secondary-text').offsetWidth;
 
-    const textScrollerTimeline = gsap.timeline({
-        scrollTrigger: {
-            trigger: scrollerContainer,
-            start: 'top top',
-            end: 'bottom top-=400px',
-            scrub: true,
-            // markers: true,
-        },
-        duration: 1,
-    })
-        .from(textScrollerContainer, {
-            fontSize: "3rem",
+    if (scrollerContainer) {
+        const textScrollerTimeline = gsap.timeline({
+            scrollTrigger: {
+                trigger: scrollerContainer,
+                start: 'clamp(top top)',
+                end: 'clamp(bottom top-=200px)',
+                scrub: true,
+                // markers: true,
+            },
             duration: 1,
         })
-        .to('.scroller-main-text', {
-            height: 'auto',
-            duration: 1,
-        }, "<");
-    // .to('.text-scroller-container-outer', {
-    //     paddingBottom: '12.5rem'
-    // }, "<");
+            .from(textScrollerContainer, {
+                fontSize: "3rem",
+                duration: 1,
+            })
+            .to('.scroller-main-text', {
+                height: 'auto',
+                duration: 1,
+            }, "<");
+        // .to('.text-scroller-container-outer', {
+        //     paddingBottom: '12.5rem'
+        // }, "<");
 
-    gsap.to(textScrollerContainer, {
-        scrollTrigger: {
-            trigger: '.hp_text_scroller_trigger-2',
-            start: 'top 25%',
-            end: 'bottom 60%',
-            scrub: true,
-            // markers: true,
-            onEnter: () => {
-                textScrollerContainer.classList.add('flex-no-wrap');
-                gsap.set('.text-scroller-container-secondary-text', {
-                    opacity: 1,
-                });
+        gsap.to(textScrollerContainer, {
+            scrollTrigger: {
+                trigger: '.hp_text_scroller_trigger-2',
+                start: 'top 25%',
+                end: 'bottom 60%',
+                scrub: true,
+                // markers: true,
+                onEnter: () => {
+                    textScrollerContainer.classList.add('flex-no-wrap');
+                    gsap.set('.text-scroller-container-secondary-text', {
+                        opacity: 1,
+                    });
+                },
+                onLeaveBack: () => {
+                    textScrollerContainer.classList.remove('flex-no-wrap');
+                    gsap.set('.text-scroller-container-secondary-text', {
+                        opacity: 0,
+                    });
+                }
             },
-            onLeaveBack: () => {
-                textScrollerContainer.classList.remove('flex-no-wrap');
-                gsap.set('.text-scroller-container-secondary-text', {
-                    opacity: 0,
-                });
+            x: () => {
+
+                let returnValue = -(scrollerWidth * .9725 - containerWidth);
+
+                console.log('containerWidth: ', containerWidth);
+                console.log('scrollerWidth: ', scrollerWidth);
+                console.log('returnValue: ', returnValue);
+                return returnValue
             }
-        },
-        x: () => {
-
-            let returnValue = -(scrollerWidth * .9725 - containerWidth);
-
-            console.log('containerWidth: ', containerWidth);
-            console.log('scrollerWidth: ', scrollerWidth);
-            console.log('returnValue: ', returnValue);
-            return returnValue
-        }
-    })
+        })
+    }
 
 
 
-    // .fromTo(scrollerLines, {
-    //     y: (i) => lineStartY[i],
-    // }, {
-    //     y: 0,
-    //     ease: 'none',
-    //     duration: 1,
-    // }, 0).fromTo('.text-scroller-container', {
-    //     fontSize: '2.5rem',
-    //     lineHeight: '1.3',
-    //     paddingTop: '7rem',
-    //     paddingBottom: '7rem',
-    // }, {
-    //     fontSize: '7.25rem',
-    //     lineHeight: '1.2',
-    //     paddingTop: '2rem',
-    //     paddingBottom: '2rem',
-    //     duration: 1,
-    // }, 0);
-
-
-    // Rotator: the circle has 4 fixed labels (Improve/Innovate/Inform/Inspire) and a
-    // 4-dot navigator, so it needs to land exactly on 0/90/180/270deg in step with
-    // whichever dot is active. Driving rotation straight off the scrub's own progress
-    // (instead of firing separate, un-scrubbed tweens from onComplete callbacks) keeps
-    // it perfectly in sync with scroll in both directions, with no extra handling
-    // needed for entering/leaving the section.
+    // 4 keywords Rotator with Scroll
     const rotatorSection = document.querySelector('.hp_rotator_section');
     const circle = document.querySelector('.hp_circle');
     const navigatorItems = gsap.utils.toArray('.circle_navigator_item');
