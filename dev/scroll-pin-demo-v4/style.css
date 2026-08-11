@@ -1,0 +1,213 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+}
+
+.section {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.section-1 {
+  background: #ece2dc;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 40px;
+}
+
+.section-2 {
+  background: #7a7a7a;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.section-3 {
+  background: #fdecc8;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 40px;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+#canvas-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #f3f1ec;
+}
+
+#canvas-wrap canvas {
+  display: block;
+  cursor: grab;
+}
+
+#canvas-wrap canvas.panning {
+  cursor: grabbing;
+}
+
+#hint {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  color: #171512;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.45;
+  pointer-events: none;
+  line-height: 1.6;
+}
+
+#tooltip {
+  position: absolute;
+  pointer-events: none;
+  display: none;
+  background: rgba(18, 16, 14, 0.92);
+  border: 1px solid rgba(255, 110, 62, 0.6);
+  color: #f3ede4;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 2px;
+  transform: translate(-50%, -130%);
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  z-index: 5;
+}
+
+#tooltip .loc {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+#tooltip .count {
+  color: #e0916f;
+  margin-top: 2px;
+}
+
+.view-toggles {
+  position: absolute;
+  top: 50%;
+  left: 24px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+}
+
+.view-btn {
+  background: #f3ede4;
+  border: 1px solid #171512;
+  border-radius: 2px;
+  color: #171512;
+  font-family: 'Courier New', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: 6px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: background .2s ease, color .2s ease;
+}
+
+.view-btn:hover {
+  background: #171512;
+  color: #f3ede4;
+}
+
+.view-btn.active {
+  background: #171512;
+  color: #f3ede4;
+}
+
+.map-button-toggles {
+  position: absolute;
+  bottom: 2rem;
+  right: auto;
+  left: auto;
+  margin: auto;
+}
+
+.map-button-toggles-inner {
+  position: relative;
+}
+
+.close-map-btn,
+.open-map-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3ede4;
+  border: 1px solid #171512;
+  border-radius: 2px;
+  color: #171512;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  padding: 8px 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 10;
+  transition: opacity .5s ease;
+}
+
+.open-map-btn {
+  position: absolute;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.close-map-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.map-button-toggles.locked {
+  .close-map-btn {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .open-map-btn {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.open-map-btn.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.close-map-btn:hover,
+.open-map-btn:hover {
+  background: #171512;
+  color: #f3ede4;
+}
