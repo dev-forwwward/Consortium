@@ -49,13 +49,13 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - Pin the section for a scroll distance proportional to the image count, so the
 - shuffling effect has room to play out in place before the page continues
 - scrolling into whatever section comes after it.
+- end: 'bottom bottom',
+- markers: true,
+- Scrolled back above the section: reset so the effect replays on re-entry
 - We pick a random value from the list of predefined classes
 - We create an image
 - We assign it a URL and add a randomly chosen class
 - We add this image to the DOM
-- Different values for X and Y to create a slight squish effect on appearance
-- // Slightly reduce the image size
-- scaleX: 0.96,
 
 ### [`js/main.js`](js/main.js) — `mainInit()`
 
@@ -81,7 +81,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 ### [`js/next-page.js`](js/next-page.js) — `nextPage()`
 
-_No inline section comments found — see source for details._
+- markers: true
 
 ### [`js/swiper.js`](js/swiper.js) — `swiperInit()`
 
