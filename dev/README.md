@@ -8,6 +8,8 @@ Sandbox for prototyping and testing individual features in isolation, before the
 
 - **scroll-pin-demo/** — Scroll-driven pinning behavior using GSAP ScrollTrigger and Lenis smooth scroll. A section pins in place and locks scrolling until the user explicitly closes it (via a close button), then scrolling resumes normally.
 
+- **scroll-pin-demo-v4/** — Builds on scroll-pin-demo-v3's pinned 3D map (Three.js terrain + GSAP/Lenis scroll lock) by adding `[T]`/`[I]` view-toggle buttons: clicking one types out its full label ("Top View" / "Isometric") and animates the camera to the default perspective view or a true isometric orthographic view, respectively.
+
 ## Adding a new demo
 
 Create a new folder with its own `index.html` (and any assets/scripts it needs), then add an entry to this README describing what it tests.
