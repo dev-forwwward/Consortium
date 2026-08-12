@@ -589,11 +589,14 @@ export function homepageMap() {
         mapToggleBtnWrapper.classList.remove('locked');
     }
 
+    const mapSectionTrigger = document.querySelector('.map-section-trigger');
+
     const mapTrigger = ScrollTrigger.create({
-        trigger: mapSection,
+        // trigger: mapSection,
+        trigger: mapSectionTrigger,
         start: 'top top',
         end: '+=50px',
-        pin: true,
+        // pin: true,
         pinSpacing: true,
         // markers: true,
         onEnter: pinHandler,
