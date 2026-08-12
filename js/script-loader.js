@@ -8,6 +8,7 @@ const modules = [
     { path: 'main', exportName: 'mainInit' },
     { path: 'menu', exportName: 'navBarMenu' },
     { path: 'homepage', exportName: 'homepage' },
+    { path: 'hp-map', exportName: 'homepageMap' },
     { path: 'next-page', exportName: 'nextPage' },
     { path: 'swiper', exportName: 'swiperInit' },
     { path: 'works', exportName: 'works' },
