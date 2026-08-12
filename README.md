@@ -57,6 +57,19 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - We pick a random value from the list of predefined classes
 - We create an image
 
+### [`js/hp-map.js`](js/hp-map.js) — `homepageMap()`
+
+- MAP RENDER
+- actual Census/Natural Earth coastline+border data via us-atlas, normalized
+- replaces a plain sine/cosine combo, which has an obvious repeating
+- period — this has none, at any zoom or density level
+- fractal Brownian motion: several octaves layered for organic, non-repeating relief
+- dot footprint size now driven by real elevation — mountains read as
+- larger/denser tiles, plains as smaller/sparser ones — with a little
+- independent fine-grain noise so it's not perfectly flat within a region
+- ---- real elevation data, sampled from an actual grayscale relief map ----
+- ---- live control state ----
+
 ### [`js/main.js`](js/main.js) — `mainInit()`
 
 - LENIS
