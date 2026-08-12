@@ -3,7 +3,7 @@ export function nextPage() {
     const nextPageRevealContainer = document.querySelector('.next-up-reveal-container');
 
     if (nextPageContainer) {
-        gsap.to(nextPageRevealContainer, {
+        gsap.timeline({
             scrollTrigger: {
                 trigger: nextPageContainer,
                 start: 'top top',
@@ -12,8 +12,12 @@ export function nextPage() {
                 pin: true,
                 // markers: true
             },
+        }).to(nextPageRevealContainer, {
+            duration: .8,
             clipPath: 'inset(0%)',
             ease: 'none',
+        }).to({},{
+            duration: .2
         });
     }
 }
