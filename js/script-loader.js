@@ -15,6 +15,7 @@ const modules = [
     { path: 'form', exportName: 'form' },
     { path: 'faqs', exportName: 'faqs' },
     { path: 'footer-date', exportName: 'footerDate' },
+    { path: 'navbar-color-handler', exportName: 'navbarColorHandler' },
 ];
 
 let inits = [];

@@ -9,9 +9,9 @@
 
 .scrolled {
 
-    .navbar {
+    /* .navbar {
         color: var(--_primitives---colors--white);
-    }
+    } */
 
     .nav_dropdown_list {
         color: initial;
@@ -22,11 +22,12 @@
         background-color: var(--_primitives---colors--white);
     }
 
-    .padding-global.nav-top,
+    /* MENU SOLID BACKGROUND COLOR ON SCROLL */
+    /* .padding-global.nav-top,
     .nav-left-line,
     .nav-right-line {
         background-color: var(--_primitives---colors--neutral-darkest);
-    }
+    } */
 
     .nav-left-svg,
     .nav-right-svg {
