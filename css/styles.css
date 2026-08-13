@@ -99,26 +99,10 @@
 
 /*
 *   CROSS-DOCUMENT VIEW TRANSITION (Home next-up <-> About header145)
-*   Shared hero image/heading morph between the two pages on navigation.
+*   Lives in the site's head custom code as a render-blocking inline <style>,
+*   not here — the async-injected stylesheet loads too late for the browser
+*   to pick up view-transition-name before it renders the incoming page.
 */
-.section_next-up .next-up-bg,
-.header145_image-wrapper .bg_img {
-    view-transition-name: hero-bg;
-}
-
-.section_next-up .faded-heading,
-.header145_image-wrapper .faded-heading {
-    view-transition-name: hero-heading;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    ::view-transition-group(hero-bg),
-    ::view-transition-group(hero-heading),
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-        animation: none !important;
-    }
-}
 
 
 /*
