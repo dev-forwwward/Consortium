@@ -100,6 +100,17 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 - markers: true
 
+### [`js/scroll-video-alt.js`](js/scroll-video-alt.js) — `scrollVideoAlt()`
+
+- SCROLL-SCRUBBED VIDEO
+- Take manual control of playback — the scrub drives currentTime instead
+- iOS Safari blocks currentTime scrubbing until the video has had a
+- user-gesture-triggered play/pause — unlock it on first touch.
+- Never overlap seeks — a new currentTime assignment while one is
+- still resolving makes the browser abandon the in-flight frame,
+- which is what reads as skipping/stutter during fast scrubs.
+- Skip redundant seeks smaller than a single frame's worth of time
+
 ### [`js/scroll-video.js`](js/scroll-video.js) — `scrollVideo()`
 
 - SCROLL-SCRUBBED FRAME SEQUENCE
