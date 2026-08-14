@@ -8,14 +8,14 @@ export function scrollVideo() {
 
     console.log("found container in scroll-video.js");
 
-    const video = container.querySelector('.video_background video');
+    const frameImg = container.querySelector('.bg_img');
     const frameCount = parseInt(container.dataset.frameCount, 10);
     const base = container.dataset.frameBase;
     const ext = container.dataset.frameExt || 'webp';
 
-    if (!video || !frameCount || !base) return;
+    if (!frameImg || !frameCount || !base) return;
 
-    console.log("video framecount and base found");
+    console.log("frame image, framecount and base found");
 
     const frames = Array.from({ length: frameCount }, (_, i) =>
         `${base}/frame-${String(i + 1).padStart(4, '0')}.${ext}`
@@ -40,7 +40,7 @@ export function scrollVideo() {
         onUpdate: (self) => {
             const index = Math.min(frameCount - 1, Math.floor(self.progress * frameCount));
             if (index !== lastIndex) {
-                video.src = frames[index];
+                frameImg.src = frames[index];
                 lastIndex = index;
             }
         },
