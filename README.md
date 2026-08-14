@@ -94,7 +94,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 ### [`js/navbar-color-handler.js`](js/navbar-color-handler.js) — `navbarColorHandler()`
 
-_No inline section comments found — see source for details._
+- markers: true,
 
 ### [`js/next-page.js`](js/next-page.js) — `nextPage()`
 
