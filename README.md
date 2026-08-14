@@ -100,6 +100,11 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 - markers: true
 
+### [`js/scroll-video.js`](js/scroll-video.js) — `scrollVideo()`
+
+- SCROLL-SCRUBBED FRAME SEQUENCE
+- Preload every frame so scrubbing is smooth from the first scroll
+
 ### [`js/swiper.js`](js/swiper.js) — `swiperInit()`
 
 - Init all Swipers
