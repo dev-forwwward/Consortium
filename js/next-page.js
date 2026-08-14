@@ -31,7 +31,7 @@ export function nextPage() {
                     start: 'clamp(top 65%)',
                     end: '+=100%',
                     scrub: true,
-                    markers: true
+                    // markers: true
                 },
                 onComplete: ()=> {
                     gsap.to('.next-up-load-container', {

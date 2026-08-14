@@ -64,7 +64,7 @@ export function navbarColorHandler() {
                     trigger: section,
                     start: `top ${window.innerHeight - border.offsetHeight}`,
                     end: `bottom ${window.innerHeight - border.offsetHeight}`,
-                    markers: true,
+                    // markers: true,
                     onEnter: () => {
                         border.classList.add('text-color-primary');
                     },
@@ -87,7 +87,7 @@ export function navbarColorHandler() {
                     trigger: section,
                     start: `top ${window.innerHeight - border.offsetHeight}`,
                     end: `bottom ${window.innerHeight - border.offsetHeight}`,
-                    markers: true,
+                    // markers: true,
                     onEnter: () => {
                         border.classList.add('text-color-seconday');
                     },
