@@ -590,6 +590,7 @@ export function homepageMap() {
     }
 
     const mapSectionTrigger = document.querySelector('.map-section-trigger');
+    const border = document.querySelector('.border-bottom-el-container-inner');
 
     const mapTrigger = ScrollTrigger.create({
         // trigger: mapSection,
@@ -600,7 +601,7 @@ export function homepageMap() {
         pinSpacing: true,
         // markers: true,
         onEnter: pinHandler,
-        onEnterBack: pinHandler
+        onEnterBack: pinHandler,
     });
 
     function pinHandler() {
