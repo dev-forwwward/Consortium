@@ -3,46 +3,77 @@ export function nextPage() {
     const nextPageRevealContainer = document.querySelector('.next-up-reveal-container');
     const nextUpLink = document.querySelector('a.next-up-link-wrap');
 
-    if (nextPageContainer) {
-        gsap.timeline({
-            scrollTrigger: {
-                trigger: nextPageContainer,
-                start: 'top top',
-                end: '+=100%',
-                scrub: true,
-                pin: true,
-                // markers: true
-            },
-        }).to(nextPageRevealContainer, {
-            duration: .8,
-            clipPath: 'inset(0%)',
-            ease: 'none',
-        }).to({}, {
-            duration: .2
+    const nextUpLoader = document.querySelector('.next-up-load-container');
+
+    if (!nextPageContainer) { return }
+
+    gsap.timeline({
+        scrollTrigger: {
+            trigger: nextPageContainer,
+            start: 'top top',
+            // end: `+=${nextPageContainer.offsetHeight}`,
+            end: 'bottom bottom',
+            scrub: .95,
+            // pin: '.next-up-reveal-container-outer',
+            // pinSpacing: false,
+        },
+    }).to(nextPageRevealContainer, {
+        clipPath: 'inset(0%)',
+        ease: 'none'
+    });
+
+    const footer = document.querySelector('.footer');
+    if (footer) {
+
+        gsap.set(nextUpLoader, {
+            paddingBottom: `${footer.offsetHeight}`
         });
 
-        const footer = document.querySelector('.footer');
-        if (footer) {
-            gsap.to('.next-up-load-bar', {
-                width: "100%",
-                scrollTrigger: {
-                    delay: 1,
-                    trigger: footer,
-                    start: 'clamp(top 65%)',
-                    end: '+=100%',
-                    scrub: true,
-                    // markers: true
-                },
-                onComplete: ()=> {
-                    gsap.to('.next-up-load-container', {
-                        opacity: 0,
+        window.addEventListener('resize', () => {
+            gsap.set(nextUpLoader, {
+                paddingBottom: `${footer.offsetHeight}`
+            });
+        });
+
+        gsap.to('.next-up-load-bar', {
+            delay: 2,
+            duration: 2,
+            width: "100%",
+            scrollTrigger: {
+                trigger: footer,
+                start: 'bottom bottom',
+                end: '+=400%',
+                scrub: true,
+                pin: nextPageContainer,
+                onEnter: () => {
+                    gsap.to(nextUpLoader, {
+                        opacity: 1,
                         duration: .25,
-                        onComplete: ()=> {
-                            nextUpLink.click();
-                        }
+                    })
+                },
+                onLeaveBack: () => {
+                    gsap.to(nextUpLoader, {
+                        opacity: 0,
+                        duration: .15,
                     })
                 }
-            });
-        }
+            },
+            onComplete: () => {
+                gsap.timeline()
+                    .to(nextUpLoader, {
+                        opacity: 0,
+                        duration: .5,
+                    })
+                    .fromTo('.footer', {
+                        clipPath: 'inset(0% 0 0)'
+                    }, {
+                        clipPath: 'inset(100% 0 0)',
+                        duration: .25,
+                        onComplete: () => {
+                            nextUpLink.click();
+                        }
+                    }, "<")
+            }
+        });
     }
 }

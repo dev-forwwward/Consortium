@@ -101,7 +101,7 @@
 *   NEXT PAGE REVEAL
 */
 .next-up-reveal-container {
-    clip-path: inset(48%);
+    clip-path: inset(48% 48.25%);
 }
 
 /*
