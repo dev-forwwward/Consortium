@@ -98,7 +98,8 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 ### [`js/next-page.js`](js/next-page.js) — `nextPage()`
 
-- markers: true
+- pin: '.next-up-reveal-container-outer',
+- pinSpacing: false,
 
 ### [`js/scroll-video-alt.js`](js/scroll-video-alt.js) — `scrollVideoAlt()`
 
