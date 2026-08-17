@@ -244,26 +244,66 @@ export function homepage() {
     const rotatorSection = document.querySelector('.hp_rotator_section');
     const circle = document.querySelector('.hp_circle');
     const navigatorItems = gsap.utils.toArray('.circle_navigator_item');
+    const taglineText = document.querySelector('.tagline-written-text');
+    const taglineWords = [
+        'The way is to',
+        'then we must',
+        'which means we',
+        'until we become',
+    ];
 
     if (rotatorSection && circle) {
-        gsap.timeline({
-            scrollTrigger: {
-                trigger: rotatorSection,
-                start: 'top top',
-                end: '+=400%',
-                scrub: true,
-                pin: true,
-                onUpdate: (self) => {
-                    const activeIndex = Math.min(
-                        navigatorItems.length - 1,
-                        Math.floor(self.progress * navigatorItems.length)
-                    )
-                    navigatorItems.forEach((item, i) => item.classList.toggle('active', i === activeIndex))
-                },
+        let activeIndex = -1;
+        const stepRotation = 360 / navigatorItems.length;
+        let typingTl;
+
+        const typeTagline = (word) => {
+            if (!taglineText) return;
+            if (typingTl) typingTl.kill();
+
+            const currentWord = taglineText.textContent;
+            const proxy = { chars: currentWord.length };
+
+            typingTl = gsap.timeline()
+                .to(proxy, {
+                    chars: 0,
+                    duration: Math.max(currentWord.length * 0.03, 0.08),
+                    ease: 'none',
+                    onUpdate: () => {
+                        taglineText.textContent = currentWord.slice(0, Math.round(proxy.chars));
+                    },
+                })
+                .to(proxy, {
+                    chars: word.length,
+                    duration: Math.max(word.length * 0.03, 0.08),
+                    ease: 'none',
+                    onUpdate: () => {
+                        taglineText.textContent = word.slice(0, Math.round(proxy.chars));
+                    },
+                });
+        };
+
+        ScrollTrigger.create({
+            trigger: rotatorSection,
+            start: 'top top',
+            end: '+=200%',
+            scrub: true,
+            pin: true,
+            onUpdate: (self) => {
+                const newIndex = Math.min(
+                    navigatorItems.length - 1,
+                    Math.floor(self.progress * navigatorItems.length)
+                )
+                if (newIndex === activeIndex) return;
+                activeIndex = newIndex;
+
+                gsap.set(circle, { rotation: activeIndex * stepRotation });
+                navigatorItems.forEach((item, i) => item.classList.toggle('active', i === activeIndex))
+
+                if (taglineWords[activeIndex] !== undefined) {
+                    typeTagline(taglineWords[activeIndex]);
+                }
             },
-        }).to(circle, {
-            rotation: 360,
-            ease: `steps(${navigatorItems.length})`,
         });
     }
 
