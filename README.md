@@ -76,7 +76,6 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - Sync Lenis scrolling with ScrollTrigger
 - This ensures Lenis's smooth scroll animation updates on each GSAP tick
 - Disable lag smoothing in GSAP to prevent any delay in scroll animations
-- FANCYBOX INIT
 - Copy link share
 
 ### [`js/menu.js`](js/menu.js) — `navBarMenu()`
@@ -95,6 +94,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 ### [`js/navbar-color-handler.js`](js/navbar-color-handler.js) — `navbarColorHandler()`
 
 - markers: true,
+- Visibility Handler
 
 ### [`js/next-page.js`](js/next-page.js) — `nextPage()`
 
@@ -110,11 +110,13 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - still resolving makes the browser abandon the in-flight frame,
 - which is what reads as skipping/stutter during fast scrubs.
 - Skip redundant seeks smaller than a single frame's worth of time
+- markers: true,
 
 ### [`js/scroll-video.js`](js/scroll-video.js) — `scrollVideo()`
 
 - SCROLL-SCRUBBED FRAME SEQUENCE
 - Preload every frame so scrubbing is smooth from the first scroll
+- markers: true,
 
 ### [`js/swiper.js`](js/swiper.js) — `swiperInit()`
 
