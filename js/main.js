@@ -15,21 +15,6 @@ export function mainInit() {
     // Disable lag smoothing in GSAP to prevent any delay in scroll animations
     gsap.ticker.lagSmoothing(0);
 
-    // FANCYBOX INIT
-    const fancyboxEl = document.querySelector("[data-fancybox]");
-    if (fancyboxEl) {
-        Fancybox.bind("[data-fancybox]", {
-            on: {
-                init: () => {
-                    lenis.stop();
-                },
-                close: () => {
-                    lenis.start();
-                }
-            }
-        });
-    }
-
 
     gsap.to('.preloader', {
         opacity: 0,
