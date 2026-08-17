@@ -53,8 +53,9 @@ export function navbarColorHandler() {
 
     } // if navbar
 
-    
+
     if (border) {
+
         const lightSections = document.querySelectorAll('.light-section');
         const darkSections = document.querySelectorAll('.dark-section');
 
@@ -103,5 +104,33 @@ export function navbarColorHandler() {
                 });
             });
         }
+
+
+        // Visibility Handler
+        const hideWrapper = document.querySelectorAll('.hide-border');
+        if (hideWrapper <= 0) {
+            return
+        }
+
+        hideWrapper.forEach((wrapper) => {
+            ScrollTrigger.create({
+                trigger: wrapper,
+                start: `top ${window.innerHeight - border.offsetHeight}`,
+                end: `bottom ${window.innerHeight - border.offsetHeight}`,
+                onEnter: () => {
+                    border.classList.add('hide-down');
+                },
+                onLeave: () => {
+                    border.classList.remove('hide-down');
+                },
+                onEnterBack: () => {
+                    border.classList.add('hide-down');
+                },
+                onLeaveBack: () => {
+                    border.classList.remove('hide-down');
+                }
+            });
+        });
+
     } // if border
 }
