@@ -92,7 +92,7 @@ export function scrollVideoAlt() {
                 start: 'top top',
                 end: 'bottom bottom',
                 scrub: .6,
-                markers: true,
+                // markers: true,
             }
         });
 

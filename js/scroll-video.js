@@ -36,7 +36,7 @@ export function scrollVideo() {
         start: 'top top',
         end: 'bottom bottom',
         scrub: true,
-        markers: true,
+        // markers: true,
         onUpdate: (self) => {
             const index = Math.min(frameCount - 1, Math.floor(self.progress * frameCount));
             if (index !== lastIndex) {
