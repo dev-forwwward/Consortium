@@ -102,6 +102,10 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - pin: '.next-up-reveal-container-outer',
 - pinSpacing: false,
 
+### [`js/scroll-video-alt-2.js`](js/scroll-video-alt-2.js) — `scrollVideoAlt()`
+
+- SCROLL-SCRUBBED VIDEO
+
 ### [`js/scroll-video-alt.js`](js/scroll-video-alt.js) — `scrollVideoAlt()`
 
 - SCROLL-SCRUBBED VIDEO
