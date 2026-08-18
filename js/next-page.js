@@ -7,6 +7,41 @@ export function nextPage() {
 
     if (!nextPageContainer) { return }
 
+    let skipExitAnimation = false;
+
+    function playExitAnimation(e) {
+        // prevent redirect trigger if the loader animation is executing
+        if (skipExitAnimation) { return }
+        e.preventDefault();
+
+        const href = nextUpLink.href;
+
+        lenis.scrollTo('.footer');
+
+        gsap.timeline({
+            onComplete: () => {
+                window.location.href = href;
+            }
+        })
+            .to(nextUpLoader, {
+                opacity: 1,
+                duration: .25,
+            })
+            .to(nextUpLoader, {
+                opacity: 0,
+                duration: .5,
+                delay: .25,
+            })
+            .fromTo('.footer', {
+                clipPath: 'inset(0% 0 0)'
+            }, {
+                clipPath: 'inset(100% 0 0)',
+                duration: .25,
+            }, "<");
+    }
+
+    nextUpLink?.addEventListener('click', playExitAnimation);
+
     gsap.timeline({
         scrollTrigger: {
             trigger: nextPageContainer,
@@ -70,6 +105,7 @@ export function nextPage() {
                         clipPath: 'inset(100% 0 0)',
                         duration: .25,
                         onComplete: () => {
+                            skipExitAnimation = true;
                             nextUpLink.click();
                         }
                     }, "<")
