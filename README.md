@@ -98,6 +98,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 ### [`js/next-page.js`](js/next-page.js) — `nextPage()`
 
+- prevent redirect trigger if the loader animation is executing
 - pin: '.next-up-reveal-container-outer',
 - pinSpacing: false,
 
