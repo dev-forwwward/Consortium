@@ -201,3 +201,7 @@
         color: #ffffff;
     }
 }
+
+.border-bottom-el-container-inner.text-color-primary {
+    color: var(--_primitives---colors--neutral-darkest);
+}
