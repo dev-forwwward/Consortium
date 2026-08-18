@@ -16,15 +16,23 @@ export function mainInit() {
     gsap.ticker.lagSmoothing(0);
 
 
-    gsap.to('.preloader', {
-        opacity: 0,
-        delay: .1,
-        duration: .5,
-        ease: "power2.out",
-        onComplete: ()=> {
-            document.querySelector('.preloader').remove();
+    const preloader = document.querySelector('.preloader');
+    if (preloader) {
+        if (sessionStorage.getItem('skipPreloader')) {
+            sessionStorage.removeItem('skipPreloader');
+            preloader.style.display = 'none';
+        } else {
+            gsap.to('.preloader', {
+                opacity: 0,
+                delay: .1,
+                duration: .5,
+                ease: "power2.out",
+                onComplete: () => {
+                    preloader.remove();
+                }
+            });
         }
-    });
+    }
 
     // Copy link share
     const copyShare = document.querySelectorAll(".copy-to-clipboard");

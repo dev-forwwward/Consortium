@@ -16,6 +16,8 @@ export function nextPage() {
 
         const href = nextUpLink.href;
 
+        sessionStorage.setItem('skipPreloader', '1');
+
         lenis.scrollTo('.footer');
 
         gsap.timeline({
@@ -106,6 +108,7 @@ export function nextPage() {
                         duration: .25,
                         onComplete: () => {
                             skipExitAnimation = true;
+                            sessionStorage.setItem('skipPreloader', '1');
                             nextUpLink.click();
                         }
                     }, "<")
