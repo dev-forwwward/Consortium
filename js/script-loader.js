@@ -6,7 +6,7 @@ const v = Date.now();
 // Add a script here to have it loaded and initialized automatically
 const modules = [
     { path: 'main', exportName: 'mainInit' },
-    { path: 'scroll-video-alt', exportName: 'scrollVideoAlt' },
+    { path: 'scroll-video-alt-2', exportName: 'scrollVideoAlt' },
     { path: 'menu', exportName: 'navBarMenu' },
     { path: 'homepage', exportName: 'homepage' },
     { path: 'hp-map', exportName: 'homepageMap' },
