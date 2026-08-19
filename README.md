@@ -60,6 +60,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 ### [`js/hp-map.js`](js/hp-map.js) — `homepageMap()`
 
 - MAP RENDER
+- MAP INTERFACE CONST
 - actual Census/Natural Earth coastline+border data via us-atlas, normalized
 - replaces a plain sine/cosine combo, which has an obvious repeating
 - period — this has none, at any zoom or density level
@@ -68,7 +69,6 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - larger/denser tiles, plains as smaller/sparser ones — with a little
 - independent fine-grain noise so it's not perfectly flat within a region
 - ---- real elevation data, sampled from an actual grayscale relief map ----
-- ---- live control state ----
 
 ### [`js/main.js`](js/main.js) — `mainInit()`
 
@@ -102,27 +102,9 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - pin: '.next-up-reveal-container-outer',
 - pinSpacing: false,
 
-### [`js/scroll-video-alt-2.js`](js/scroll-video-alt-2.js) — `scrollVideoAlt()`
+### [`js/scroll-video-v1.js`](js/scroll-video-v1.js) — `scrollVideo()`
 
 - SCROLL-SCRUBBED VIDEO
-
-### [`js/scroll-video-alt.js`](js/scroll-video-alt.js) — `scrollVideoAlt()`
-
-- SCROLL-SCRUBBED VIDEO
-- Take manual control of playback — the scrub drives currentTime instead
-- iOS Safari blocks currentTime scrubbing until the video has had a
-- user-gesture-triggered play/pause — unlock it on first touch.
-- Never overlap seeks — a new currentTime assignment while one is
-- still resolving makes the browser abandon the in-flight frame,
-- which is what reads as skipping/stutter during fast scrubs.
-- Skip redundant seeks smaller than a single frame's worth of time
-- markers: true,
-
-### [`js/scroll-video.js`](js/scroll-video.js) — `scrollVideo()`
-
-- SCROLL-SCRUBBED FRAME SEQUENCE
-- Preload every frame so scrubbing is smooth from the first scroll
-- markers: true,
 
 ### [`js/swiper.js`](js/swiper.js) — `swiperInit()`
 
