@@ -2,36 +2,36 @@ export function homepage() {
 
     // HERO REVEAL
     const hpHero = document.querySelector('.section_hero_hp');
-    if(hpHero) {
+    if (hpHero) {
         gsap.set('.hp_hero_main_text_content-top', {
             yPercent: 100
         });
 
         gsap.timeline()
-        .from('.hp_hero_logo_container', {
-            delay: .5,
-            opacity: 0,
-            duration: 1
-        })
-        .from('.hp_hero_main_text_content-top', {
-            delay: .1,
-            opacity: 0,
-            duration: .5
-        }, "<")
-        .to('.hp_hero_main_text_content-top', {
-            delay: .4,
-            yPercent: 0,
-            duration: .8
-        })
-        .from('.hp_hero_main_text_content-top .heading-style-h3_custom', {
-            opacity: 1,
-            duration: .8
-        }, "<")
-        .from('.hp_hero_main_text_content-bottom', {
-            yPercent: 100,
-            opacity: 0,
-            duration: .8
-        }, "<");
+            .from('.hp_hero_logo_container', {
+                delay: .5,
+                opacity: 0,
+                duration: 1
+            })
+            .from('.hp_hero_main_text_content-top', {
+                delay: .1,
+                opacity: 0,
+                duration: .5
+            }, "<")
+            .to('.hp_hero_main_text_content-top', {
+                delay: .4,
+                yPercent: 0,
+                duration: .8
+            })
+            .from('.hp_hero_main_text_content-top .heading-style-h3_custom', {
+                opacity: 1,
+                duration: .8
+            }, "<")
+            .from('.hp_hero_main_text_content-bottom', {
+                yPercent: 100,
+                opacity: 0,
+                duration: .8
+            }, "<");
     }
 
 
@@ -180,10 +180,10 @@ export function homepage() {
     const textScrollerContainer = document.querySelector('.text-scroller-container');
     const scrollerMainText = document.querySelector('.text-scroller-container-main-text');
 
-    let containerWidth = document.querySelector('.container-large').offsetWidth;
-    let scrollerWidth = document.querySelector('.scroller-main-text.top').offsetWidth + document.querySelector('.scroller-main-text.bottom').offsetWidth + document.querySelector('.text-scroller-container-secondary-text').offsetWidth;
-
     if (scrollerContainer) {
+        let containerWidth = document.querySelector('.container-large').offsetWidth;
+        let scrollerWidth = document.querySelector('.scroller-main-text.top').offsetWidth + document.querySelector('.scroller-main-text.bottom').offsetWidth + document.querySelector('.text-scroller-container-secondary-text').offsetWidth;
+
         const textScrollerTimeline = gsap.timeline({
             scrollTrigger: {
                 trigger: scrollerContainer,
