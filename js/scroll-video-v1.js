@@ -1,4 +1,4 @@
-export function scrollVideoAlt() {
+export function scrollVideo() {
     // SCROLL-SCRUBBED VIDEO
     const video = document.querySelector(".video_background");
     let src = video.currentSrc || video.src;
