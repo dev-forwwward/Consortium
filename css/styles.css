@@ -25,20 +25,49 @@
 */
 /* 3d Map Interface */
 .map-button-toggles.locked {
-  .close-map-btn {
-    opacity: 1;
-    pointer-events: all;
-  }
+    .close-map-btn {
+        opacity: 1;
+        pointer-events: all;
+    }
 
-  .open-map-btn {
-    opacity: 0;
-    pointer-events: none;
-  }
+    .open-map-btn {
+        opacity: 0;
+        pointer-events: none;
+    }
 }
 
 .open-map-btn.show {
-  opacity: 1;
-  pointer-events: all;
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Map */
+.map-hint,
+.view-toggles {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hpmapsection.active {
+    box-shadow: inset 0px 0px 4px 4px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: inset 0px 0px 4px 4px rgba(0, 0, 0, 0.5);
+
+    .map-hint,
+    .view-toggles {
+        pointer-events: all;
+    }
+
+    .view-toggles {
+        opacity: 1;
+    }
+
+    .map-hint {
+        opacity: .5;
+    }
+}
+
+.map-toggle-btn:hover .map-toggle-btn-text {
+    opacity: .7;
 }
 
 /* Work Selection */
@@ -162,7 +191,7 @@
 *   HOME SCROLL-SCRUBBED VIDEO
 */
 .video_background {
-  object-fit: cover;
+    object-fit: cover;
 }
 
 /*

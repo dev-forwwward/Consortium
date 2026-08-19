@@ -4,6 +4,17 @@ export function homepageMap() {
     const canvas = document.querySelector('.scene');
     const tooltip = document.getElementById('tooltip');
 
+    // MAP INTERFACE CONST
+    const mapSection = document.getElementById('mapSection');
+    const closeBtn = document.getElementById('closeMap');
+    const openBtn = document.getElementById('openMap');
+    const mapToggleBtnWrapper = document.querySelector('.map-button-toggles');
+
+    if (!canvas && !mapSection) {
+        return
+    }
+
+
     const BG = 0xf3f1ec;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(BG);
@@ -544,11 +555,7 @@ export function homepageMap() {
     animate();
 
 
-    // MAP INTERFACE
-    const mapSection = document.getElementById('mapSection');
-    const closeBtn = document.getElementById('closeMap');
-    const openBtn = document.getElementById('openMap');
-    const mapToggleBtnWrapper = document.querySelector('.map-button-toggles');
+    // MAP DOM INTERFACE
 
     let permanentlyUnpinned = false;
     let locked = false;
@@ -576,6 +583,13 @@ export function homepageMap() {
         window.setMapInteraction(true);
 
         mapToggleBtnWrapper.classList.add('locked');
+        mapSection.classList.add('active');
+
+        gsap.to('.border-bottom-el-container-inner', {
+            y: '4rem',
+            opacity: 0,
+            duration: .2
+        });
     }
 
     function unlockScroll() {
@@ -586,7 +600,14 @@ export function homepageMap() {
         window.removeEventListener('keydown', preventScrollKey);
         window.setMapInteraction(false);
 
+        mapSection.classList.remove('active');
         mapToggleBtnWrapper.classList.remove('locked');
+
+        gsap.to('.border-bottom-el-container-inner', {
+            y: '0rem',
+            opacity: 1,
+            duration: .2
+        });
     }
 
     const mapSectionTrigger = document.querySelector('.map-section-trigger');
@@ -608,12 +629,20 @@ export function homepageMap() {
         if (!permanentlyUnpinned) {
             lockScroll();
         } else {
+            mapSection.classList.remove('active');
             openBtn.classList.add('show');
+
+            gsap.to('.border-bottom-el-container-inner', {
+                y: '0rem',
+                opacity: 1,
+                duration: .2
+            });
         }
     }
 
     closeBtn.addEventListener('click', () => {
         unlockScroll();
+        mapSection.classList.remove('active');
         openBtn.classList.add('show');
     });
 
@@ -621,7 +650,14 @@ export function homepageMap() {
         permanentlyUnpinned = false;
 
         lenis.scrollTo('#canvas-wrap');
+        mapSection.classList.add('active');
         openBtn.classList.remove('show');
+
+        gsap.to('.border-bottom-el-container-inner', {
+            y: '-4rem',
+            opacity: 0,
+            duration: .2
+        });
     });
 
     const viewBtns = document.querySelectorAll('.view-btn');
