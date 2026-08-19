@@ -132,5 +132,22 @@ export function navbarColorHandler() {
             });
         });
 
+        const footer = document.querySelector('.footer');
+        if(!footer) {
+            return
+        }
+        gsap.to('.border-bottom-el-container-inner', {
+            y: '4rem',
+            opacity: 0,
+            duration: .15,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: footer,
+                start: `top ${window.innerHeight - border.offsetHeight}`,
+                end: 'bottom top',
+                toggleActions: 'play complete none reverse '
+            }
+        })
+
     } // if border
 }
