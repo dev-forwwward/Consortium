@@ -111,6 +111,19 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 - SCROLL-SCRUBBED VIDEO
 
+### [`js/services.js`](js/services.js) — `services()`
+
+- EXPANDABLE "OUR PROCESS" TAGS
+- empty .process-tag_details placeholder already sitting in the Webflow
+- structure, then just shown/hidden via the .is-active class after that.
+- Accordion behaviour: collapse any other open tag first.
+- CURVED PARTNER-LOGO CAROUSEL
+- its bottom-left end, with straight off-canvas tails extended past both
+- ends, so a plain forward 0 -> 1 traversal is enough: 0 sits off-canvas
+- top-right, 1 sits off-canvas bottom-left, and autoRotate's tangent
+- the path flips autoRotate 180 degrees, which is why an earlier out-of-
+- Position every item at its path entrance point up front, so items
+
 ### [`js/swiper.js`](js/swiper.js) — `swiperInit()`
 
 - Init all Swipers
