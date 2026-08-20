@@ -195,6 +195,15 @@
     object-fit: cover;
 }
 
+
+/*
+*   ABOUT PAGE
+*/
+.accordion__trigger-process:hover {
+    .accordion__title-process {
+        opacity: 1;
+    }
+}
 /*
 *   DEGUBGING
 */
