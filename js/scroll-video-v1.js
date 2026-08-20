@@ -1,8 +1,12 @@
 export function scrollVideo() {
     // SCROLL-SCRUBBED VIDEO
     const video = document.querySelector(".video_background");
+
+    if (!video) {
+        return
+    }
+
     let src = video.currentSrc || video.src;
-    console.log(video, src);
 
     /* Make sure the video is 'activated' on iOS */
     function once(el, event, fn, opts) {
