@@ -102,6 +102,11 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - pin: '.next-up-reveal-container-outer',
 - pinSpacing: false,
 
+### [`js/process.js`](js/process.js) — `process()`
+
+- Accordion behavior for the About page "Our process" section.
+- Initialize
+
 ### [`js/scroll-video-v1.js`](js/scroll-video-v1.js) — `scrollVideo()`
 
 - SCROLL-SCRUBBED VIDEO
@@ -127,6 +132,10 @@ Imported by `css/styles.css`.
 _Not currently imported by `css/styles.css` — verify it is still in use._
 
 ### [`css/menu.css`](css/menu.css)
+
+Imported by `css/styles.css`.
+
+### [`css/process.css`](css/process.css)
 
 Imported by `css/styles.css`.
 
