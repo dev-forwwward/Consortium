@@ -1,0 +1,8 @@
+/* "Our process" accordion (About page) — reuses the generic
+   [pb-accordion-element="content"] show/hide rules from faqs.css.
+   This file only adds the active/inactive title-opacity toggle, which needs
+   a descendant selector Webflow's class system can't express. */
+
+.accordion__item-process.is-active-accordion .accordion__title-process {
+  opacity: 1;
+}

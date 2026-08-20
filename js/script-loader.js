@@ -14,6 +14,7 @@ const modules = [
     { path: 'works', exportName: 'works' },
     { path: 'form', exportName: 'form' },
     { path: 'faqs', exportName: 'faqs' },
+    { path: 'process', exportName: 'process' },
     { path: 'footer-date', exportName: 'footerDate' },
     { path: 'next-page', exportName: 'nextPage' },
     { path: 'navbar-color-handler', exportName: 'navbarColorHandler' },
