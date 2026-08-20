@@ -11,6 +11,7 @@ const modules = [
     { path: 'homepage', exportName: 'homepage' },
     { path: 'hp-map', exportName: 'homepageMap' },
     { path: 'swiper', exportName: 'swiperInit' },
+    { path: 'services', exportName: 'services' },
     { path: 'works', exportName: 'works' },
     { path: 'form', exportName: 'form' },
     { path: 'faqs', exportName: 'faqs' },
