@@ -208,6 +208,21 @@
 /*
 *   SERVICES
 */
+.scroll-in-table-section.ready .grid_item_1:hover {
+    .work-title,
+    .work-grid-title-abs,
+    .work-grid-img-abs {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .work-grid-desc-abs {
+        opacity: .7;
+        pointer-events: all;
+    }
+
+}
+
 .process-tag:hover {
     .process-tag_label {
         background-color: var(--_primitives---colors--neutral-darkest);
