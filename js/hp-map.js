@@ -555,8 +555,11 @@ export function homepageMap() {
     animate();
 
 
-    // MAP DOM INTERFACE
+    // MAP DOM INTERFACE --------------------------------------
 
+    // gsap.registerPlugin(ScrollToPlugin);
+
+    const navWrapper = document.querySelector('.navbar-wrapper');
     let permanentlyUnpinned = false;
     let locked = false;
 
@@ -574,6 +577,9 @@ export function homepageMap() {
 
     function lockScroll() {
         if (locked) return;
+        // gsap.to(window, { duration: .5, scrollTo: "#canvas-wrap" });
+        lenis.scrollTo('#canvas-wrap');
+
         locked = true;
         permanentlyUnpinned = true;
         lenis.stop();
@@ -585,10 +591,20 @@ export function homepageMap() {
         mapToggleBtnWrapper.classList.add('locked');
         mapSection.classList.add('active');
 
+        // hide bottom border element
         gsap.to('.border-bottom-el-container-inner', {
             y: '4rem',
             opacity: 0,
             duration: .2
+        });
+
+        // hide navbar
+        gsap.to(navWrapper, {
+            opacity: 0,
+            duration: .25,
+            onComplete: () => {
+                gsap.set(navWrapper, { pointerEvents: 'none' });
+            }
         });
     }
 
@@ -603,10 +619,20 @@ export function homepageMap() {
         mapSection.classList.remove('active');
         mapToggleBtnWrapper.classList.remove('locked');
 
+        // reveal back bottom border element
         gsap.to('.border-bottom-el-container-inner', {
             y: '0rem',
             opacity: 1,
             duration: .2
+        });
+
+        // reveal back navbar
+        gsap.to(navWrapper, {
+            opacity: 1,
+            duration: .25,
+            onComplete: () => {
+                gsap.set(navWrapper, { pointerEvents: 'all' });
+            }
         });
     }
 
@@ -617,15 +643,21 @@ export function homepageMap() {
         // trigger: mapSection,
         trigger: mapSectionTrigger,
         start: 'top top',
-        end: '+=50px',
-        // pin: true,
+        end: '+=100px',
         pinSpacing: true,
         // markers: true,
-        onEnter: pinHandler,
+        onEnter: () => {
+            pinHandler();
+            mapToggleBtnWrapper.classList.add('show');
+        },
+        onLeaveBack: () => {
+            mapToggleBtnWrapper.classList.remove('show');
+        },
         onEnterBack: pinHandler,
     });
 
     function pinHandler() {
+
         if (!permanentlyUnpinned) {
             lockScroll();
         } else {
@@ -650,6 +682,7 @@ export function homepageMap() {
         permanentlyUnpinned = false;
 
         lenis.scrollTo('#canvas-wrap');
+        // gsap.to(window, { duration: .5, scrollTo: "#canvas-wrap" });
         mapSection.classList.add('active');
         openBtn.classList.remove('show');
 
