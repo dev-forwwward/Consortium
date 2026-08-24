@@ -196,6 +196,8 @@ export function homepage() {
         })
             .from(textScrollerContainer, {
                 fontSize: "3rem",
+                paddingTop: '2rem',
+                paddingBottom: '4rem',
                 duration: 1,
             })
             .to('.scroller-main-text', {
