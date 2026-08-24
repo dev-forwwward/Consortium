@@ -285,7 +285,7 @@ export function homepage() {
 
         ScrollTrigger.create({
             trigger: rotatorSection,
-            start: 'top top',
+            start: 'clamp(top top)',
             end: '+=200%',
             scrub: true,
             pin: true,
