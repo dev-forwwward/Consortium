@@ -1,4 +1,5 @@
 export function nextPage() {
+    const nextUpSection = document.querySelector('.section_next-up');
     const nextPageContainer = document.querySelector('.next-up-container');
     const nextPageRevealContainer = document.querySelector('.next-up-reveal-container');
     const nextUpLink = document.querySelector('a.next-up-link-wrap');
@@ -62,13 +63,14 @@ export function nextPage() {
     const footer = document.querySelector('.footer');
     if (footer) {
 
+        const newPadding = footer.offsetHeight + 100;
         gsap.set(nextUpLoader, {
-            paddingBottom: `${footer.offsetHeight}`
+            paddingBottom: `${newPadding}`
         });
 
         window.addEventListener('resize', () => {
             gsap.set(nextUpLoader, {
-                paddingBottom: `${footer.offsetHeight}`
+                paddingBottom: `${newPadding}`
             });
         });
 
