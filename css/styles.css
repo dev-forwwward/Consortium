@@ -65,6 +65,10 @@
     .map-hint {
         opacity: .5;
     }
+
+    .scene {
+        cursor: grab;
+    }
 }
 
 .map-toggle-btn:hover .map-toggle-btn-text {
