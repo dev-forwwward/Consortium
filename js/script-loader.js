@@ -34,7 +34,14 @@ try {
 window.tabletBreakpoint = 991;
 window.mobileBreakpoint = 767;
 
+// Opt out of the browser restoring the previous scroll position on refresh
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+
 function init() {
+    // scroll to top of page before any scripts load (including lenis init)
+    window.scrollTo(0, 0);
     document.fonts.ready.then(() => {
         inits.forEach((initFn) => initFn());
     });
