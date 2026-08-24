@@ -1,5 +1,4 @@
 export function nextPage() {
-    const nextUpSection = document.querySelector('.section_next-up');
     const nextPageContainer = document.querySelector('.next-up-container');
     const nextPageRevealContainer = document.querySelector('.next-up-reveal-container');
     const nextUpLink = document.querySelector('a.next-up-link-wrap');
@@ -8,21 +7,25 @@ export function nextPage() {
 
     if (!nextPageContainer) { return }
 
-    let skipExitAnimation = false;
+    // Re-entrancy guard only: prevents a second exit sequence from stacking on top
+    // of one already running. It must never be used to skip the animation itself
+    let isExiting = false;
 
-    function playExitAnimation(e) {
-        // prevent redirect trigger if the loader animation is executing
-        if (skipExitAnimation) { return }
-        e.preventDefault();
+    // Single source of truth for the exit animation, shared by both triggers:
+    // a direct click on the link, and the .next-up-load-bar tween completing
+    function runExitAnimation({ scrollTo = true } = {}) {
+        if (isExiting || !nextUpLink) { return }
+        isExiting = true;
 
         const href = nextUpLink.href;
 
-        sessionStorage.setItem('skipPreloader', '1');
-
-        lenis.scrollTo('.footer');
+        if (scrollTo) { lenis.scrollTo('.footer') }
 
         gsap.timeline({
             onComplete: () => {
+                // set as late as possible: an exit that never navigates must not
+                // leave the flag behind to suppress an unrelated later preloader
+                sessionStorage.setItem('skipPreloader', '1');
                 window.location.href = href;
             }
         })
@@ -43,7 +46,21 @@ export function nextPage() {
             }, "<");
     }
 
-    nextUpLink?.addEventListener('click', playExitAnimation);
+    nextUpLink?.addEventListener('click', (e) => {
+        // always intercept, even while exiting — letting the anchor navigate
+        // natively would cut the running animation short
+        e.preventDefault();
+        runExitAnimation();
+    });
+
+    // restored from the back/forward cache: the closure survives, so clear the
+    // guard or the next click would navigate with no animation
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) {
+            isExiting = false;
+            sessionStorage.removeItem('skipPreloader');
+        }
+    });
 
     gsap.timeline({
         scrollTrigger: {
@@ -97,24 +114,9 @@ export function nextPage() {
                     })
                 }
             },
-            onComplete: () => {
-                gsap.timeline()
-                    .to(nextUpLoader, {
-                        opacity: 0,
-                        duration: .5,
-                    })
-                    .fromTo('.footer', {
-                        clipPath: 'inset(0% 0 0)'
-                    }, {
-                        clipPath: 'inset(100% 0 0)',
-                        duration: .25,
-                        onComplete: () => {
-                            skipExitAnimation = true;
-                            sessionStorage.setItem('skipPreloader', '1');
-                            nextUpLink.click();
-                        }
-                    }, "<")
-            }
+            // skip the lenis scroll: nextPageContainer is pinned here, so driving
+            // the scroll to .footer would fight the pin
+            onComplete: () => runExitAnimation({ scrollTo: false })
         });
     }
 }
