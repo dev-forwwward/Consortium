@@ -4,8 +4,11 @@ export function nextPage() {
     const nextUpLink = document.querySelector('a.next-up-link-wrap');
 
     const nextUpLoader = document.querySelector('.next-up-load-container');
+    const footer = document.querySelector('.footer');
 
     if (!nextPageContainer) { return }
+
+    let loadBarScrollAnimation;
 
     // Re-entrancy guard only: prevents a second exit sequence from stacking on top
     // of one already running. It must never be used to skip the animation itself
@@ -18,8 +21,12 @@ export function nextPage() {
         isExiting = true;
 
         const href = nextUpLink.href;
+        const footerParent = footer.parentElement;
 
-        if (scrollTo) { lenis.scrollTo('.footer') }
+        if (scrollTo) { lenis.scrollTo(footer) }
+
+        // kill scrollTrigger load animation to avoid animation conflicts on page exit (one animation has scrub, other is auto)
+        loadBarScrollAnimation.kill();
 
         gsap.timeline({
             onComplete: () => {
@@ -33,12 +40,16 @@ export function nextPage() {
                 opacity: 1,
                 duration: .25,
             })
+            .to('.next-up-load-bar', {
+                duration: .25,
+                width: "100%",
+            }, "<")
             .to(nextUpLoader, {
                 opacity: 0,
                 duration: .5,
-                delay: .25,
+                delay: .15,
             })
-            .fromTo('.footer', {
+            .fromTo(footerParent, {
                 clipPath: 'inset(0% 0 0)'
             }, {
                 clipPath: 'inset(100% 0 0)',
@@ -77,7 +88,6 @@ export function nextPage() {
         ease: 'none'
     });
 
-    const footer = document.querySelector('.footer');
     if (footer) {
 
         const newPadding = footer.offsetHeight + 100;
@@ -91,7 +101,7 @@ export function nextPage() {
             });
         });
 
-        gsap.to('.next-up-load-bar', {
+        loadBarScrollAnimation = gsap.to('.next-up-load-bar', {
             delay: 2,
             duration: 2,
             width: "100%",
