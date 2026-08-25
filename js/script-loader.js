@@ -30,6 +30,9 @@ try {
     inits = loaded.map((mod, i) => mod[modules[i].exportName]);
 } catch (err) {
     console.error('Failed to load one or more scripts:', err);
+    // Nothing is going to animate the hero in, so release the pre-paint start
+    // states now rather than making the page wait out the head's 4s backstop
+    document.documentElement.classList.remove('pre-paint');
 }
 
 window.tabletBreakpoint = 991;
@@ -44,6 +47,11 @@ function init() {
     // scroll to top of page before any scripts load (including lenis init)
     window.scrollTo(0, 0);
     document.fonts.ready.then(() => {
+        // Hand the pre-paint start states (declared in the site's head custom
+        // code) over to GSAP. Same task as the inits, so no paint happens in
+        // between and nothing flashes; the modules re-declare these states via
+        // gsap.set() as inline styles, which outrank the class rules anyway
+        document.documentElement.classList.remove('pre-paint');
         inits.forEach((initFn) => initFn());
     });
 }

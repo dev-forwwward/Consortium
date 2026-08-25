@@ -149,6 +149,15 @@
 }
 
 /*
+*   NOTE: the initial hidden/offset states below (.next-up-reveal-container,
+*   .mwg_effect014 .medias img, .map-button-toggles, .map-hint/.view-toggles,
+*   .text-scroller-container-secondary-text) are DUPLICATED verbatim in the
+*   site's head custom code, in a render-blocking inline <style>. This file is
+*   script-injected and cache-busted per load, so it always lands after first
+*   paint. Edit both, or the flash comes back.
+*/
+
+/*
 *   CROSS-DOCUMENT VIEW TRANSITION (Home next-up <-> About header145)
 *   Lives in the site's head custom code as a render-blocking inline <style>,
 *   not here — the async-injected stylesheet loads too late for the browser
