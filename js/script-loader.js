@@ -19,6 +19,7 @@ const modules = [
     { path: 'footer-date', exportName: 'footerDate' },
     { path: 'next-page', exportName: 'nextPage' },
     { path: 'navbar-color-handler', exportName: 'navbarColorHandler' },
+    { path: 'reveals', exportName: 'reveals' },
 ];
 
 let inits = [];
