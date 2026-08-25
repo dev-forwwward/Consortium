@@ -54,3 +54,5 @@ if (document.readyState === 'loading') {
     init();
 }
 
+console.log("Running V1 - august 25th 2026");
+
