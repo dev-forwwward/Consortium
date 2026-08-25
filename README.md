@@ -102,12 +102,12 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - of one already running. It must never be used to skip the animation itself
 - Single source of truth for the exit animation, shared by both triggers:
 - a direct click on the link, and the .next-up-load-bar tween completing
-- set as late as possible: an exit that never navigates must not
-- leave the flag behind to suppress an unrelated later preloader
-- always intercept, even while exiting — letting the anchor navigate
-- natively would cut the running animation short
-- restored from the back/forward cache: the closure survives, so clear the
-- guard or the next click would navigate with no animation
+- With a cross-document View Transition the browser snapshots this page at
+- navigation commit, so whatever the exit animation leaves on screen IS the
+- "old" half of the morph. The fallback exit wipes .next-up-container away,
+- and .section_next-up — the element being morphed — lives inside it, so
+- on the transition path that wipe is dropped and the reveal is settled
+- open instead. The name pairing itself lives in the site's head custom
 
 ### [`js/process.js`](js/process.js) — `process()`
 
