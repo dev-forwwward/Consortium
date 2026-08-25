@@ -149,10 +149,27 @@
 }
 
 /*
-*   CROSS-DOCUMENT VIEW TRANSITION (Home next-up <-> About header145)
-*   Lives in the site's head custom code as a render-blocking inline <style>,
-*   not here — the async-injected stylesheet loads too late for the browser
-*   to pick up view-transition-name before it renders the incoming page.
+*   CROSS-DOCUMENT VIEW TRANSITION (a page's next-up block -> the destination
+*   page's header145 hero)
+*
+*   Lives in the site's head custom code as a render-blocking inline <style>
+*   plus a blocking inline <script>, not here. Two reasons it cannot move:
+*
+*   1. This stylesheet is script-injected and cache-busted per load, so every
+*      navigation refetches it. It still blocks first paint, but the extra
+*      round trip widens the window the transition has to hold the new page.
+*   2. The incoming page has to be marked as the hero target during head
+*      parsing, before its first render. js/script-loader.js only runs its
+*      inits after DOMContentLoaded + document.fonts.ready, far too late.
+*
+*   The head script toggles .vt-hero-out (leaving) / .vt-hero-in (arriving) on
+*   <html>, and the head CSS hangs view-transition-name off those. Do NOT go
+*   back to naming by plain class selectors: /about owns BOTH a .section_next-up
+*   block and a .header145_image-wrapper hero, so a shared rule put hero-bg on
+*   two elements there and Chrome discarded the whole transition.
+*
+*   js/next-page.js reads the same capability ('onpagereveal' in window) to
+*   decide whether its exit animation may wipe .next-up-container away.
 */
 
 

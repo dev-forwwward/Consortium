@@ -9,6 +9,7 @@ export function nextPage() {
     if (!nextPageContainer) { return }
 
     let loadBarScrollAnimation;
+    let revealScrollAnimation;
 
     // Re-entrancy guard only: prevents a second exit sequence from stacking on top
     // of one already running. It must never be used to skip the animation itself
@@ -23,12 +24,23 @@ export function nextPage() {
         const href = nextUpLink.href;
         const footerParent = footer.parentElement;
 
-        if (scrollTo) { lenis.scrollTo(footer) }
+        // With a cross-document View Transition the browser snapshots this page at
+        // navigation commit, so whatever the exit animation leaves on screen IS the
+        // "old" half of the morph. The fallback exit wipes .next-up-container away,
+        // and .section_next-up — the element being morphed — lives inside it, so
+        // on the transition path that wipe is dropped and the reveal is settled
+        // open instead. The name pairing itself lives in the site's head custom
+        // code; see the CROSS-DOCUMENT VIEW TRANSITION note in css/styles.css
+        const useViewTransition = 'onpagereveal' in window;
+
+        // Park the shared hero in the viewport rather than the footer: on the
+        // transition path it is what gets captured
+        if (scrollTo) { lenis.scrollTo(useViewTransition ? nextPageContainer : footer) }
 
         // kill scrollTrigger load animation to avoid animation conflicts on page exit (one animation has scrub, other is auto)
         loadBarScrollAnimation.kill();
 
-        gsap.timeline({
+        const exitTimeline = gsap.timeline({
             onComplete: () => {
                 // set as late as possible: an exit that never navigates must not
                 // leave the flag behind to suppress an unrelated later preloader
@@ -48,13 +60,25 @@ export function nextPage() {
                 opacity: 0,
                 duration: .5,
                 delay: .15,
-            })
-            .fromTo(footerParent, {
+            });
+
+        if (useViewTransition) {
+            // A direct click can land while the reveal scrub is only part-way
+            // open. Kill the scrub and finish the reveal on the timeline so the
+            // transition is handed a fully open block instead of a clipped one
+            revealScrollAnimation?.scrollTrigger?.kill();
+            exitTimeline.to(nextPageRevealContainer, {
+                clipPath: 'inset(0%)',
+                duration: .25,
+            }, 0);
+        } else {
+            exitTimeline.fromTo(footerParent, {
                 clipPath: 'inset(0% 0 0)'
             }, {
                 clipPath: 'inset(100% 0 0)',
                 duration: .25,
             }, "<");
+        }
     }
 
     nextUpLink?.addEventListener('click', (e) => {
@@ -73,7 +97,7 @@ export function nextPage() {
         }
     });
 
-    gsap.timeline({
+    revealScrollAnimation = gsap.timeline({
         scrollTrigger: {
             trigger: nextPageContainer,
             start: 'top top',
