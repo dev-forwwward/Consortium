@@ -92,12 +92,12 @@ export function nextPage() {
 
         const newPadding = footer.offsetHeight + 100;
         gsap.set(nextUpLoader, {
-            paddingBottom: `${newPadding}`
+            bottom: `${newPadding}`
         });
 
         window.addEventListener('resize', () => {
             gsap.set(nextUpLoader, {
-                paddingBottom: `${newPadding}`
+                bottom: `${newPadding}`
             });
         });
 
