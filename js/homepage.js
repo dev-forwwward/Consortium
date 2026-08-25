@@ -3,35 +3,19 @@ export function homepage() {
     // HERO REVEAL
     const hpHero = document.querySelector('.section_hero_hp');
     if (hpHero) {
-        // Start states are declared up front and the reveals are plain .to()
-        // tweens with explicit end values. They used to be .from() tweens, but
-        // .from() infers its end value from whatever the element computes to at
-        // creation time -- and the matching pre-paint rules in the site's head
-        // custom code hold these elements at opacity 0 until this runs, so a
-        // .from() here would read 0 as the destination and reveal nothing.
-        // Written this way the tween is independent of when .pre-paint is
-        // dropped, so head code and this file can deploy in either order.
-        gsap.set('.hp_hero_logo_container', {
-            opacity: 0
-        });
         gsap.set('.hp_hero_main_text_content-top', {
-            yPercent: 100,
-            opacity: 0
-        });
-        gsap.set('.hp_hero_main_text_content-bottom', {
-            yPercent: 100,
-            opacity: 0
+            yPercent: 100
         });
 
         gsap.timeline()
-            .to('.hp_hero_logo_container', {
+            .from('.hp_hero_logo_container', {
                 delay: .5,
-                opacity: 1,
+                opacity: 0,
                 duration: 1
             })
-            .to('.hp_hero_main_text_content-top', {
+            .from('.hp_hero_main_text_content-top', {
                 delay: .1,
-                opacity: 1,
+                opacity: 0,
                 duration: .5
             }, "<")
             .to('.hp_hero_main_text_content-top', {
@@ -39,9 +23,13 @@ export function homepage() {
                 yPercent: 0,
                 duration: .8
             })
-            .to('.hp_hero_main_text_content-bottom', {
-                yPercent: 0,
+            .from('.hp_hero_main_text_content-top .heading-style-h3_custom', {
                 opacity: 1,
+                duration: .8
+            }, "<")
+            .from('.hp_hero_main_text_content-bottom', {
+                yPercent: 100,
+                opacity: 0,
                 duration: .8
             }, "<");
     }
