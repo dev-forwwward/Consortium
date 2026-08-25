@@ -114,6 +114,10 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - Accordion behavior for the About page "Our process" section.
 - Initialize
 
+### [`js/reveals.js`](js/reveals.js) — `reveals()`
+
+_No inline section comments found — see source for details._
+
 ### [`js/scroll-video-v1.js`](js/scroll-video-v1.js) — `scrollVideo()`
 
 - SCROLL-SCRUBBED VIDEO
