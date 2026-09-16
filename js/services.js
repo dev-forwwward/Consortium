@@ -130,6 +130,7 @@ export function services() {
                     end: '+=250%',
                     scrub: true,
                     pin: true,
+                    pinSpacing: true,
                 },
             }).fromTo(words, {
                 x: '100vw',

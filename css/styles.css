@@ -239,7 +239,7 @@
 /*
 *   SERVICES
 */
-.scroll-in-table-section.ready .grid_item_1:hover {
+.scroll-in-table-section.ready .grid_item:hover {
     .work-title,
     .work-grid-title-abs,
     .work-grid-img-abs {
