@@ -254,6 +254,21 @@
 
 }
 
+.work-swiper {
+    /* dim every card while any one of them is hovered. matching on the wrapper
+       rather than between cards, since each .work-preview-container is the only
+       child of its own .swiper-slide and so never a sibling of another card */
+    &:has(.work-preview-container:hover) .work-preview-bg-img-overlay {
+        opacity: 1;
+    }
+
+    .work-preview-container:hover .work-preview-bg-img-overlay {
+        opacity: 0;
+    }
+
+
+}
+
 .process-tag:hover {
     .process-tag_label {
         background-color: var(--_primitives---colors--neutral-darkest);

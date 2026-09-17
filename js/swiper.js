@@ -18,7 +18,7 @@ export function swiperInit() {
                 slidesPerView: 1.25,
                 spaceBetween: 16,
                 direction: 'horizontal',
-                loop: true,
+                loop: false,
                 autoWidth: true,
                 speed: 1000,
 
@@ -33,7 +33,7 @@ export function swiperInit() {
                     // for screens 768px wide and up
                     768: {
                         slidesPerView: 3.25,
-                    }
+                    },
                 },
                 pagination: {
                     el: swiperPagination,
