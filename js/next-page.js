@@ -114,7 +114,7 @@ export function nextPage() {
 
     if (footer) {
 
-        const newPadding = footer.offsetHeight + 100;
+        const newPadding = footer.offsetHeight + 116;
         gsap.set(nextUpLoader, {
             bottom: `${newPadding}`
         });
