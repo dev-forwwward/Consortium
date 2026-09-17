@@ -171,7 +171,7 @@ export function services() {
     const carouselItems = gsap.utils.toArray('.brand-carousel-item', brandCarouselSection);
     if (carouselItems.length === 0) { return }
 
-    const itemStagger = 0.18;
+    const itemStagger = 0.13;
     const itemDuration = 1.5;
 
     // The path itself (#carousel-path) is authored from its top-right end to
@@ -185,16 +185,20 @@ export function services() {
     // Position every item at its path entrance point up front, so items
     // whose turn hasn't come up yet sit correctly queued on the path
     // instead of at their raw CSS (top:0/left:0) default.
-    gsap.set(carouselItems, {
-        motionPath: {
-            path: '#carousel-path',
-            align: '#carousel-path',
-            alignOrigin: [0.5, 0.5],
-            autoRotate: true,
-            start: 1,
-            end: 1,
-        },
-    });
+    const queueItemsAtPathEntrance = () => {
+        gsap.set(carouselItems, {
+            motionPath: {
+                path: '#carousel-path',
+                align: '#carousel-path',
+                alignOrigin: [0.5, 0.5],
+                autoRotate: true,
+                start: 1,
+                end: 1,
+            },
+        });
+    };
+
+    queueItemsAtPathEntrance();
 
     const carouselTimeline = gsap.timeline({
         scrollTrigger: {
@@ -205,6 +209,15 @@ export function services() {
             pinSpacing: true,
             anticipatePin: 1,
             scrub: true,
+            // The path SVG is full-bleed (100vw, height from its viewBox
+            // ratio), and MotionPathPlugin bakes the path into each item's
+            // coordinate space when the tween is built. Without these two the
+            // baked positions stay locked to the width the page loaded at and
+            // the items drift off the curve on resize: invalidateOnRefresh
+            // re-measures the path for the timeline, and the queued placement
+            // needs re-applying too since it lives outside the timeline.
+            invalidateOnRefresh: true,
+            onRefresh: queueItemsAtPathEntrance,
             // markers: true,
         }
     });
