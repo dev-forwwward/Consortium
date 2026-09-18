@@ -76,6 +76,9 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - Sync Lenis scrolling with ScrollTrigger
 - This ensures Lenis's smooth scroll animation updates on each GSAP tick
 - Disable lag smoothing in GSAP to prevent any delay in scroll animations
+- List-Grid View Toggle
+- clear previously active btn
+- reset any open grid accordion items
 - Copy link share
 
 ### [`js/menu.js`](js/menu.js) — `navBarMenu()`
