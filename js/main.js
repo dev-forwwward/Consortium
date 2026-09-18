@@ -34,6 +34,34 @@ export function mainInit() {
         }
     }
 
+    // List-Grid View Toggle
+    const listGridToggle = document.querySelectorAll('.view-toggle-container');
+    const viewContainer = document.querySelector('.grid-list-view-container');
+    if(listGridToggle && viewContainer) {
+        const toggleBtns = document.querySelectorAll('.view-toggle-btn');
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // clear previously active btn
+                document.querySelector('.view-toggle-btn.active')?.classList.remove('active');
+                btn.classList.add('active');
+
+                if(btn.getAttribute('data-view-type') === 'grid') {
+                    viewContainer.classList.add('grid-view');
+                } else {
+                    viewContainer.classList.remove('grid-view');
+
+                    // reset any open grid accordion items
+                    const openItems = document.querySelectorAll('[pb-accordion-element="trigger"]');
+                    openItems.forEach(item => {
+                        if(item.getAttribute('aria-expanded') === 'true') {
+                            item.click();
+                        }
+                    });
+                }
+            });
+        });
+    }
+
     // Copy link share
     const copyShare = document.querySelectorAll(".copy-to-clipboard");
     copyShare?.forEach(shareBtn => {

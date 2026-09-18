@@ -343,6 +343,38 @@
 }
 
 
+/*
+*   JOURNAL
+*/
+.journal-accordion,
+.journal-accordion * {
+    transition: all .25s ease;
+}
+
+/* .accordion_portfolio20_title {
+    max-width: 26.75rem;
+} */
+
+.grid-view {
+    .journal-row-container {
+        pointer-events: none;
+    }
+
+    .accordion__item-process.journal-accordion {
+        width: 33.33%;
+    }
+
+    .portfolio20_item-link-inner {
+        display: none;
+    }
+
+    .journal-accordion-item {
+        display: flex;
+        pointer-events: all;
+    }
+}
+
+
 
 /*
 *   DEGUBGING
