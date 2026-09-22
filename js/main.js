@@ -64,8 +64,12 @@ export function mainInit() {
 
     // Timeline in About
     const timelineSection = document.querySelector('.timeline-section');
-    if (timelineSection) {
+    const timelineContainer = document.querySelector('.timeline-container');
+
+    if (timelineSection && timelineContainer) {
         const years = timelineSection.querySelectorAll('.timeline-year-item');
+
+        // set random left position for mock achievements in timeline
         if (years.length > 0) {
             years.forEach(year => {
                 const achievsList = year.querySelectorAll('.achevements-list-item');
@@ -73,12 +77,39 @@ export function mainInit() {
 
                 if (hasMockAchiev.length > 0) {
                     hasMockAchiev.forEach((mock, i) => {
-                        let xVal = (i+1)*100/achievsList.length;
-                        mock.style.left = `${xVal+Math.random(-5,5)}%`;
+                        let xVal = (i + 1) * 100 / achievsList.length;
+                        mock.style.left = `${xVal + Math.random(-5, 5)}%`;
                     });
                 }
             });
         }
+
+        const border = document.querySelector('.border-bottom-el-container-inner');
+        // pin section and animate timeline years
+        gsap.to(timelineContainer, {
+            x: -(timelineContainer.offsetWidth - window.innerWidth / 2),
+            ease: "none",
+            scrollTrigger: {
+                trigger: timelineSection,
+                pin: true,
+                scrub: 1,
+                // snap: 1 / update(years.length - 1),
+                start: 'top top',
+                end: () => "+=150%",
+                onEnter: () => {
+                    border.classList.add('hide-down');
+                },
+                onLeave: () => {
+                    border.classList.remove('hide-down');
+                },
+                onEnterBack: () => {
+                    border.classList.add('hide-down');
+                },
+                onLeaveBack: () => {
+                    border.classList.remove('hide-down');
+                }
+            }
+        });
     }
 
     // Copy link share
