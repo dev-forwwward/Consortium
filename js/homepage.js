@@ -269,7 +269,7 @@ export function homepage() {
             typingTl = gsap.timeline()
                 .to(proxy, {
                     chars: 0,
-                    duration: Math.max(currentWord.length * 0.03, 0.08),
+                    duration: Math.max(currentWord.length * 0.03, 0.05),
                     ease: 'none',
                     onUpdate: () => {
                         taglineText.textContent = currentWord.slice(0, Math.round(proxy.chars));
@@ -277,7 +277,7 @@ export function homepage() {
                 })
                 .to(proxy, {
                     chars: word.length,
-                    duration: Math.max(word.length * 0.03, 0.08),
+                    duration: Math.max(word.length * 0.03, 0.05),
                     ease: 'none',
                     onUpdate: () => {
                         taglineText.textContent = word.slice(0, Math.round(proxy.chars));
