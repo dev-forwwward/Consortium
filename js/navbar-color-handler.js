@@ -140,16 +140,9 @@ export function navbarColorHandler() {
         ScrollTrigger.create({
             trigger: footer,
             start: `clamp(top ${window.innerHeight - border.offsetHeight})`,
-            end: `clamp(bottom ${window.innerHeight - border.offsetHeight})`,
-            markers: true,
-            toggleActions: 'play complete none reverse',
+            // end: `clamp(bottom ${window.innerHeight - border.offsetHeight})`,
+            // toggleActions: 'play complete none reverse',
             onEnter: () => {
-                border.classList.add('hide-down');
-            },
-            onLeave: () => {
-                border.classList.remove('hide-down');
-            },
-            onEnterBack: () => {
                 border.classList.add('hide-down');
             },
             onLeaveBack: () => {
