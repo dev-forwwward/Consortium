@@ -7,4 +7,22 @@ export function works() {
         });
     }
 
+
+    // Building Location Numbering in Works
+    const locationItems = document.querySelectorAll('.location-list-item');
+    if(locationItems.length > 0) {
+        locationItems.forEach((item, i) => {
+            const locationNumber = item.querySelector('.location-number');
+            if (locationNumber) {
+                if(i<10) {
+                    locationNumber.textContent = `00${i + 1}`;
+                }else if(i>99) {
+                    locationNumber.textContent = `${i + 1}`;
+                } else {
+                    locationNumber.textContent = `0${i + 1}`;
+                }
+            }
+        });
+    }
+
 }
