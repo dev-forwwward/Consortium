@@ -63,8 +63,8 @@ export function navbarColorHandler() {
             lightSections.forEach((section) => {
                 ScrollTrigger.create({
                     trigger: section,
-                    start: `top ${window.innerHeight - border.offsetHeight}`,
-                    end: `bottom ${window.innerHeight - border.offsetHeight}`,
+                    start: `clamp(top ${window.innerHeight - border.offsetHeight})`,
+                    end: `clamp(bottom ${window.innerHeight - border.offsetHeight})`,
                     // markers: true,
                     onEnter: () => {
                         border.classList.add('text-color-primary');
@@ -86,8 +86,8 @@ export function navbarColorHandler() {
             darkSections.forEach((section) => {
                 ScrollTrigger.create({
                     trigger: section,
-                    start: `top ${window.innerHeight - border.offsetHeight}`,
-                    end: `bottom ${window.innerHeight - border.offsetHeight}`,
+                    start: `clamp(top ${window.innerHeight - border.offsetHeight})`,
+                    end: `clamp(bottom ${window.innerHeight - border.offsetHeight})`,
                     // markers: true,
                     onEnter: () => {
                         border.classList.add('text-color-seconday');
@@ -115,8 +115,8 @@ export function navbarColorHandler() {
         hideWrapper.forEach((wrapper) => {
             ScrollTrigger.create({
                 trigger: wrapper,
-                start: `top ${window.innerHeight - border.offsetHeight}`,
-                end: `bottom ${window.innerHeight - border.offsetHeight}`,
+                start: `clamp(top ${window.innerHeight - border.offsetHeight})`,
+                end: `clamp(bottom ${window.innerHeight - border.offsetHeight})`,
                 onEnter: () => {
                     border.classList.add('hide-down');
                 },
@@ -133,21 +133,29 @@ export function navbarColorHandler() {
         });
 
         const footer = document.querySelector('.footer');
-        if(!footer) {
+        if (!footer) {
             return
         }
-        gsap.to('.border-bottom-el-container-inner', {
-            y: '4rem',
-            opacity: 0,
-            duration: .15,
-            ease: 'none',
-            scrollTrigger: {
-                trigger: footer,
-                start: `top ${window.innerHeight - border.offsetHeight}`,
-                end: 'bottom top',
-                toggleActions: 'play complete none reverse '
+
+        ScrollTrigger.create({
+            trigger: footer,
+            start: `clamp(top ${window.innerHeight - border.offsetHeight})`,
+            end: `clamp(bottom ${window.innerHeight - border.offsetHeight})`,
+            markers: true,
+            toggleActions: 'play complete none reverse',
+            onEnter: () => {
+                border.classList.add('hide-down');
+            },
+            onLeave: () => {
+                border.classList.remove('hide-down');
+            },
+            onEnterBack: () => {
+                border.classList.add('hide-down');
+            },
+            onLeaveBack: () => {
+                border.classList.remove('hide-down');
             }
-        })
+        });
 
     } // if border
 }
