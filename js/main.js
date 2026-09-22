@@ -62,6 +62,25 @@ export function mainInit() {
         });
     }
 
+    // Timeline in About
+    const timelineSection = document.querySelector('.timeline-section');
+    if (timelineSection) {
+        const years = timelineSection.querySelectorAll('.timeline-year-item');
+        if (years.length > 0) {
+            years.forEach(year => {
+                const achievsList = year.querySelectorAll('.achevements-list-item');
+                const hasMockAchiev = year.querySelectorAll('[is-mock-achiev="1"]');
+
+                if (hasMockAchiev.length > 0) {
+                    hasMockAchiev.forEach((mock, i) => {
+                        let xVal = (i+1)*100/achievsList.length;
+                        mock.style.left = `${xVal+Math.random(-5,5)}%`;
+                    });
+                }
+            });
+        }
+    }
+
     // Copy link share
     const copyShare = document.querySelectorAll(".copy-to-clipboard");
     copyShare?.forEach(shareBtn => {
