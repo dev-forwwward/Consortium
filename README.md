@@ -79,6 +79,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - List-Grid View Toggle
 - clear previously active btn
 - reset any open grid accordion items
+- Timeline in About
 - Copy link share
 
 ### [`js/menu.js`](js/menu.js) — `navBarMenu()`
@@ -146,7 +147,7 @@ _No inline section comments found — see source for details._
 
 ### [`js/works.js`](js/works.js) — `works()`
 
-_No inline section comments found — see source for details._
+- Building Location Numbering in Works
 
 ## Stylesheets
 
