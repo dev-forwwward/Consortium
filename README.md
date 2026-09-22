@@ -80,7 +80,8 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - clear previously active btn
 - reset any open grid accordion items
 - Timeline in About
-- Copy link share
+- set random left position for mock achievements in timeline
+- pin section and animate timeline years
 
 ### [`js/menu.js`](js/menu.js) — `navBarMenu()`
 
@@ -99,6 +100,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 - markers: true,
 - Visibility Handler
+- toggleActions: 'play complete none reverse',
 
 ### [`js/next-page.js`](js/next-page.js) — `nextPage()`
 
