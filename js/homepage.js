@@ -249,9 +249,9 @@ export function homepage() {
     const taglineText = document.querySelector('.tagline-written-text');
     const taglineWords = [
         'The way is to',
-        'then we must',
-        'which means we',
-        'until we become',
+        'Always aiming to',
+        'As we carry the responsibility to',
+        'Our goal is to',
     ];
 
     if (rotatorSection && circle) {
