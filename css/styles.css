@@ -240,6 +240,7 @@
 *   SERVICES
 */
 .scroll-in-table-section.ready .grid_item:hover {
+
     .work-title,
     .work-grid-title-abs,
     .work-grid-img-abs {
@@ -255,6 +256,7 @@
 }
 
 .work-swiper {
+
     /* dim every card while any one of them is hovered. matching on the wrapper
        rather than between cards, since each .work-preview-container is the only
        child of its own .swiper-slide and so never a sibling of another card */
@@ -340,6 +342,40 @@
 
 .process-tag.is-active .process-tag_icon .icon-v {
     opacity: 0;
+}
+
+/*
+*   ABOUT
+*/
+.about-team-list-wrapper .grid_item {
+    .grid_item_bottom_content {
+        pointer-events: none;
+    }
+
+    .grid_item_bottom_content>* {
+        transform: translateY(2rem);
+        transition: all 0.3s ease;
+    }
+
+    .about_team_pfp_container img {
+        transition: transform 0.4s ease;
+    }
+
+}
+
+.about-team-list-wrapper .grid_item:hover {
+    .grid_item_bottom_content {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .grid_item_bottom_content>* {
+        transform: translateY(0rem);
+    }
+
+    .about_team_pfp_container img {
+        transform: scale(1.05);
+    }
 }
 
 /* TIMELINE */
