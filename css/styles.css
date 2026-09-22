@@ -342,6 +342,54 @@
     opacity: 0;
 }
 
+/* TIMELINE */
+[is-mock-achiev="1"] {
+    position: absolute;
+    z-index: 0;
+
+    > div {
+        max-width: 10.5rem;
+        white-space: wrap;
+    }
+
+    img {
+        opacity: 0.55;
+        max-width: 8.75rem;
+        filter: grayscale(100%);
+    }
+}
+
+/* 2nd, 4th… among matching elements only */
+:nth-child(even of [is-mock-achiev="1"]) {
+    top: 0;
+}
+
+/* 1st, 3rd, 5th… among matching elements only */
+:nth-child(odd of [is-mock-achiev="1"]) {
+    bottom: 3.5rem;
+}
+
+.timeline-year-item:nth-child(even) {
+    .timeline-marker {
+        height: 100%;
+    }
+
+    .achevements-list-item:nth-child(1),
+    .achevements-list-item:nth-child(3) {
+        align-self: start;
+    }
+
+    :nth-child(even of [is-mock-achiev="1"]) {
+        top: 2rem;
+    }
+
+    :nth-child(odd of [is-mock-achiev="1"]) {
+        bottom: 6rem;
+    }
+}
+
+
+
 
 /*
 *   JOURNAL
