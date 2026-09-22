@@ -422,6 +422,14 @@
     }
 }
 
+/*
+*   WORKS
+*/
+.location-list-item:hover {
+    .location-number {
+        color: var(--_primitives---colors--orange);
+    }
+}
 
 
 /*
