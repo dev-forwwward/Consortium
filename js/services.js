@@ -112,43 +112,57 @@ export function services() {
     const scrollinSection = document.querySelector('.scroll-in-table-section');
 
     if (scrollinSection) {
-        const headings = scrollinSection.querySelectorAll('.grid-row-content h3');
 
-        if (headings.length > 0) {
-            const splitHeadings = Array.from(headings).map((heading) =>
-                new SplitText(heading, { type: 'lines, words', linesClass: 'line', wordsClass: 'word' })
-            );
+        if (window.innerWidth > 991) {
+            const headings = scrollinSection.querySelectorAll('.grid-row-content h3');
 
-            const words = splitHeadings.flatMap((split) => split.words);
-            const lines = splitHeadings.flatMap((split) => split.lines);
-            // gsap.set(lines, { overflow: 'hidden' });
+            if (headings.length > 0) {
+                const splitHeadings = Array.from(headings).map((heading) =>
+                    new SplitText(heading, { type: 'lines, words', linesClass: 'line', wordsClass: 'word' })
+                );
 
-            gsap.timeline({
-                scrollTrigger: {
-                    trigger: scrollinSection,
-                    start: 'top top',
-                    end: '+=250%',
-                    scrub: true,
-                    pin: true,
-                    pinSpacing: true,
-                },
-            }).fromTo(words, {
-                x: '100vw',
-            }, {
-                x: '0',
-                stagger: 0.2,
-                ease: 'power1.inOut',
-                duration: 1,
-                onComplete: () => {
-                    scrollinSection.classList.add('ready');
-                },
-                onReverseComplete: () => {
-                    scrollinSection.classList.remove('ready');
-                }
-            })
-                .to({}, {
-                    duration: .5
+                const words = splitHeadings.flatMap((split) => split.words);
+                const lines = splitHeadings.flatMap((split) => split.lines);
+                // gsap.set(lines, { overflow: 'hidden' });
+
+                gsap.timeline({
+                    scrollTrigger: {
+                        trigger: scrollinSection,
+                        start: 'top top',
+                        end: '+=250%',
+                        scrub: true,
+                        pin: true,
+                        pinSpacing: true,
+                    },
+                }).fromTo(words, {
+                    x: '100vw',
+                }, {
+                    x: '0',
+                    stagger: 0.2,
+                    ease: 'power1.inOut',
+                    duration: 1,
+                    onComplete: () => {
+                        scrollinSection.classList.add('ready');
+                    },
+                    onReverseComplete: () => {
+                        scrollinSection.classList.remove('ready');
+                    }
+                })
+                    .to({}, {
+                        duration: .5
+                    });
+            }
+        } else {
+            // mobile
+            const gridItems = scrollinSection.querySelectorAll('.grid_item');
+            gridItems.forEach((item) => {
+                item.addEventListener('click', () => {
+                    if (scrollinSection.querySelector('.active')) {
+                        scrollinSection.querySelector('.active').classList.remove('active');
+                    }
+                    item.classList.toggle('active');
                 });
+            });
         }
     }
 
