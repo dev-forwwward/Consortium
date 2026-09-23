@@ -462,7 +462,7 @@
 *   WORKS
 */
 .location-list-item:hover {
-    .location-number {
+    .location-number-container {
         color: var(--_primitives---colors--orange);
     }
 }
