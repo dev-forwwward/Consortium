@@ -135,11 +135,11 @@ _No inline section comments found — see source for details._
 - structure, then just shown/hidden via the .is-active class after that.
 - Accordion behaviour: collapse any other open tag first.
 - SCROLL-IN TABLE SECTION
+- mobile
 - CURVED PARTNER-LOGO CAROUSEL
 - its bottom-left end, with straight off-canvas tails extended past both
 - ends, so a plain forward 0 -> 1 traversal is enough: 0 sits off-canvas
 - top-right, 1 sits off-canvas bottom-left, and autoRotate's tangent
-- the path flips autoRotate 180 degrees, which is why an earlier out-of-
 
 ### [`js/swiper.js`](js/swiper.js) — `swiperInit()`
 
