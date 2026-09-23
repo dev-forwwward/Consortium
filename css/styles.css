@@ -239,7 +239,8 @@
 /*
 *   SERVICES
 */
-.scroll-in-table-section.ready .grid_item:hover {
+.scroll-in-table-section.ready .grid_item:hover,
+.scroll-in-table-section .grid_item.active {
 
     .work-title,
     .work-grid-title-abs,
