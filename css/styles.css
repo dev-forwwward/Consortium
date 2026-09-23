@@ -410,8 +410,7 @@
         height: 100%;
     }
 
-    .achevements-list-item:nth-child(1),
-    .achevements-list-item:nth-child(3) {
+    .achevements-list-item:nth-child(1) {
         align-self: start;
     }
 
