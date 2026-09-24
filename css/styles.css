@@ -38,6 +38,13 @@
 *   HOMEPAGE
 */
 /* 3d Map Interface */
+#mapSection {
+    opacity: 0;
+}
+#mapSection.show {
+    opacity: 1;
+}
+
 .map-button-toggles {
     opacity: 0;
     pointer-events: none;

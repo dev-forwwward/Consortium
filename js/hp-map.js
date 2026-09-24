@@ -656,6 +656,18 @@ export function homepageMap() {
         onEnterBack: pinHandler,
     });
 
+    ScrollTrigger.create({
+        trigger: '.hpmapsection-reveal',
+        start: 'top top',
+        // markers: true,
+        onEnter: () => {
+            mapSection.classList.add('show');
+        },
+        onLeaveBack: () => {
+            mapSection.classList.remove('show');
+        }
+    });
+
     function pinHandler() {
 
         if (!permanentlyUnpinned) {
