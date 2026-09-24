@@ -469,6 +469,19 @@
         display: flex;
         pointer-events: all;
     }
+
+    .journal-row-link {
+        pointer-events: none;
+    }
+}
+
+.accordion-process.journal-accordion:hover .accordion__item-process.journal-accordion:not(.accordion__item-process.journal-accordion:hover) {
+    color: var(--_primitives---colors--neutral-light) !important;
+
+    .tag.orange.tagline_s_custom {
+        color: var(--_primitives---colors--neutral-light);
+        background-color: var(--_primitives---colors--beige);
+    }
 }
 
 /*
