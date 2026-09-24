@@ -122,7 +122,7 @@ export function mainInit() {
 
     // Copy link share
     const copyShare = document.querySelectorAll(".copy-to-clipboard");
-    copyShare?.forEach(shareBtn => {
+    copyShare.forEach(shareBtn => {
         shareBtn.addEventListener("click", function (e) {
             e.preventDefault();
             let tooltip = shareBtn.querySelector(".tooltip");
@@ -132,6 +132,34 @@ export function mainInit() {
             }, 1500);
             navigator.clipboard.writeText(location.href);
         });
+    });
+
+    // SOCIALS - Share Article to social media
+    const shareContainers = document.querySelectorAll(".share-article");
+    shareContainers.forEach(container => {
+        // linkedin
+        const linkedinBtn = container.querySelector('.socials-link.linkedin');
+        if (linkedinBtn) {
+            linkedinBtn.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(location.href)}`;
+            linkedinBtn.target = '_blank';
+            linkedinBtn.rel = 'noopener';
+        }
+
+        // X
+        const xBtn = container.querySelector('.socials-link.x');
+        if(xBtn) {
+            xBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(document.title)}&url=${encodeURIComponent(location.href)}`;
+            xBtn.target = '_blank';
+            xBtn.rel = 'noopener';
+        }
+
+        // facebook
+        const facebookBtn = container.querySelector('.socials-link.facebook');
+        if(facebookBtn) {
+            facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(location.href)}`;
+            facebookBtn.target = '_blank';
+            facebookBtn.rel = 'noopener';
+        }
     });
 
     console.log("Loading mainInit()");
