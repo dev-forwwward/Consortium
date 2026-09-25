@@ -369,43 +369,78 @@ export function homepageMap() {
     }
     buildBuildings();
 
+    // ---- named camera views ----
+    // angles in degrees. theta: horizontal orbit around the target. phi: tilt measured down
+    // from straight overhead (0 = top-down, 90 = ground level). radius: distance from the
+    // target (also sizes the ortho frustum). fov: perspective only. Add ?cam-debug to the
+    // page URL for a live panel that outputs entries ready to paste here; link a button to
+    // a view with the attribute data-camera-view="<name>"
+    const DEG = Math.PI / 180;
+    const CAMERA_VIEWS = {
+        default: { radius: 26, theta: 57.6, phi: 72, target: [0, 0.3, 0], fov: 42, ortho: false },
+        zoomIn: { radius: 5, theta: 91.4, phi: 0.1, target: [0, 0, 0], fov: 50, ortho: false },
+        topView: { radius: 28.7, theta: 92.05, phi: 6.3, target: [0, 7.3, 0], fov: 45.5, ortho: false },
+        isometric: { radius: 26, theta: 45, phi: 54.74, target: [-0.65, 2.2, -2.25], fov: 42, ortho: true },
+        perspective: { radius: 24.6, theta: 66.3, phi: 68.9, target: [-1.35, 1.8, -1.65], fov: 50, ortho: true },
+    };
+
     // ---- camera rig: orbit (drag), pan (space+drag or middle-drag), zoom (wheel) ----
-    let radius = 26, theta = Math.PI * 0.32, phi = Math.PI * 0.4;
-    let target = new THREE.Vector3(0, 0.3, 0);
+    let radius, theta, phi, fov;
+    let target = new THREE.Vector3();
     let dragging = false, mode = null, lastX = 0, lastY = 0, spaceDown = false;
     let interactionEnabled = false;
 
-    // ---- named view presets: default (perspective) + isometric (orthographic) ----
-    const DEFAULT_RADIUS = radius, DEFAULT_THETA = theta, DEFAULT_PHI = phi;
-    const DEFAULT_TARGET = target.clone();
-    const ISO_THETA = Math.PI / 4, ISO_PHI = Math.acos(1 / Math.sqrt(3));
+    function setFov(value) {
+        fov = value;
+        perspCamera.fov = value;
+        perspCamera.updateProjectionMatrix();
+    }
+    function setProjection(ortho) {
+        isOrtho = ortho;
+        activeCamera = ortho ? orthoCamera : perspCamera;
+    }
+    function wrapAngle(a) { // -> -PI..PI
+        return ((a + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
+    }
 
-    const camState = { radius, theta, phi, tx: target.x, ty: target.y, tz: target.z };
+    const initialView = CAMERA_VIEWS.default;
+    radius = initialView.radius; theta = initialView.theta * DEG; phi = initialView.phi * DEG;
+    target.set(...initialView.target);
+    setFov(initialView.fov);
+    setProjection(initialView.ortho);
+
+    const camState = { radius, theta, phi, tx: target.x, ty: target.y, tz: target.z, fov };
+    let camTween = null;
     function syncCamState() {
         radius = camState.radius; theta = camState.theta; phi = camState.phi;
         target.set(camState.tx, camState.ty, camState.tz);
+        setFov(camState.fov);
         updateCamera();
     }
 
-    window.setDefaultView = () => {
-        isOrtho = false;
-        activeCamera = perspCamera;
-        gsap.to(camState, {
-            radius: DEFAULT_RADIUS, theta: DEFAULT_THETA, phi: DEFAULT_PHI,
-            tx: DEFAULT_TARGET.x, ty: DEFAULT_TARGET.y, tz: DEFAULT_TARGET.z,
-            duration: 0.9, ease: 'power2.inOut', onUpdate: syncCamState
+    window.goToCameraView = (name, duration = 0.9) => {
+        const view = CAMERA_VIEWS[name];
+        if (!view) { console.warn(`hp-map: unknown camera view "${name}"`); return; }
+        setProjection(view.ortho);
+        // tween from where the camera actually is now (it may have been orbited/zoomed since),
+        // taking the shortest way round horizontally
+        const endTheta = view.theta * DEG;
+        Object.assign(camState, {
+            radius, theta: endTheta + wrapAngle(theta - endTheta), phi,
+            tx: target.x, ty: target.y, tz: target.z, fov
+        });
+        if (camTween) camTween.kill();
+        camTween = gsap.to(camState, {
+            radius: view.radius, theta: endTheta, phi: view.phi * DEG,
+            tx: view.target[0], ty: view.target[1], tz: view.target[2], fov: view.fov,
+            duration, ease: 'power2.inOut', onUpdate: syncCamState
         });
     };
 
-    window.setIsometricView = () => {
-        isOrtho = true;
-        activeCamera = orthoCamera;
-        gsap.to(camState, {
-            radius: DEFAULT_RADIUS, theta: ISO_THETA, phi: ISO_PHI,
-            tx: DEFAULT_TARGET.x, ty: DEFAULT_TARGET.y, tz: DEFAULT_TARGET.z,
-            duration: 0.9, ease: 'power2.inOut', onUpdate: syncCamState
-        });
-    };
+    // window.setDefaultView = () => window.goToCameraView('default');
+    // window.setIsometricView = () => window.goToCameraView('isometric');
+
+    window.goToCameraView('topView');
 
     window.setMapInteraction = enabled => {
         interactionEnabled = enabled;
@@ -524,6 +559,150 @@ export function homepageMap() {
         updateCamera();
     });
 
+    // ---- camera debug panel (dev only: add ?cam-debug to the page URL) ----
+    // live controls for every camera value, plus a CAMERA_VIEWS entry ready to paste
+    let cameraPanel = null;
+    if (new URLSearchParams(window.location.search).has('cam-debug')) {
+        cameraPanel = createCameraPanel();
+    }
+
+    function createCameraPanel() {
+        const fields = [
+            { key: 'radius', label: 'Distance', min: 5, max: 55, step: 0.1, get: () => radius, set: v => { radius = v; } },
+            { key: 'theta', label: 'Orbit θ°', min: -180, max: 180, step: 0.1, get: () => wrapAngle(theta) / DEG, set: v => { theta = v * DEG; } },
+            { key: 'phi', label: 'Tilt φ°', min: 0.1, max: 89.9, step: 0.1, get: () => phi / DEG, set: v => { phi = v * DEG; } },
+            { key: 'tx', label: 'Target X', min: -25, max: 25, step: 0.05, get: () => target.x, set: v => { target.x = v; } },
+            { key: 'ty', label: 'Target Y', min: -5, max: 10, step: 0.05, get: () => target.y, set: v => { target.y = v; } },
+            { key: 'tz', label: 'Target Z', min: -15, max: 15, step: 0.05, get: () => target.z, set: v => { target.z = v; } },
+            { key: 'fov', label: 'FOV°', min: 10, max: 90, step: 0.5, get: () => fov, set: v => setFov(v) },
+        ];
+
+        const style = document.createElement('style');
+        style.textContent = `
+            .cam-panel { position: fixed; top: 1rem; right: 1rem; z-index: 99999; width: 21rem; max-height: calc(100vh - 2rem); overflow-y: auto;
+                padding: 0.75rem; border-radius: 0.5rem; background: rgba(23, 21, 18, 0.92); color: #f3f1ec;
+                font: 0.75rem/1.4 ui-monospace, "JetBrains Mono", monospace; }
+            .cam-panel * { box-sizing: border-box; font: inherit; }
+            .cam-panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-weight: 700; }
+            .cam-panel.is-collapsed .cam-panel-body { display: none; }
+            .cam-panel-row { display: grid; grid-template-columns: 4.5rem 1fr 4rem; gap: 0.5rem; align-items: center; margin-bottom: 0.375rem; }
+            .cam-panel-row input[type="range"] { width: 100%; accent-color: #ff6e3e; }
+            .cam-panel input[type="number"], .cam-panel input[type="text"], .cam-panel select { width: 100%; padding: 0.125rem 0.25rem;
+                border: 0.0625rem solid #504f4e; border-radius: 0.25rem; background: #2b2b2b; color: #f3f1ec; }
+            .cam-panel button { padding: 0.25rem 0.5rem; border: 0; border-radius: 0.25rem; background: #ff6e3e; color: #171512; cursor: pointer; }
+            .cam-panel-sep { margin: 0.625rem 0; border-top: 0.0625rem solid #504f4e; }
+            .cam-panel label.cam-panel-check { display: flex; gap: 0.375rem; align-items: center; margin-bottom: 0.375rem; }
+            .cam-panel pre { margin: 0.375rem 0; padding: 0.5rem; border-radius: 0.25rem; background: #2b2b2b; white-space: pre-wrap; word-break: break-all; user-select: all; }
+        `;
+        document.head.appendChild(style);
+
+        const panel = document.createElement('div');
+        panel.className = 'cam-panel';
+        panel.setAttribute('data-lenis-prevent', '');
+        panel.innerHTML = `
+            <div class="cam-panel-head"><span>Camera</span><button type="button" data-cam="collapse">–</button></div>
+            <div class="cam-panel-body">
+                ${fields.map(f => `
+                    <div class="cam-panel-row">
+                        <span>${f.label}</span>
+                        <input type="range" data-field="${f.key}" min="${f.min}" max="${f.max}" step="${f.step}">
+                        <input type="number" data-field="${f.key}" step="${f.step}">
+                    </div>`).join('')}
+                <div class="cam-panel-row">
+                    <span>Projection</span>
+                    <select data-cam="projection"><option value="persp">Perspective</option><option value="ortho">Orthographic</option></select>
+                    <span></span>
+                </div>
+                <label class="cam-panel-check"><input type="checkbox" data-cam="mouse"> Mouse orbit / pan / zoom on canvas</label>
+                <div class="cam-panel-sep"></div>
+                <div class="cam-panel-row">
+                    <span>Go to</span>
+                    <select data-cam="preset">${Object.keys(CAMERA_VIEWS).map(k => `<option>${k}</option>`).join('')}</select>
+                    <button type="button" data-cam="go">Go</button>
+                </div>
+                <div class="cam-panel-sep"></div>
+                <div class="cam-panel-row">
+                    <span>View name</span>
+                    <input type="text" data-cam="name" value="myView">
+                    <button type="button" data-cam="copy">Copy</button>
+                </div>
+                <pre data-cam="output"></pre>
+            </div>
+        `;
+        document.body.appendChild(panel);
+
+        // keep typing in the panel from triggering the map's space-to-pan / scroll-lock key handlers
+        panel.addEventListener('keydown', e => e.stopPropagation());
+
+        const $ = sel => panel.querySelector(sel);
+        const projectionSelect = $('[data-cam="projection"]');
+        const mouseCheck = $('[data-cam="mouse"]');
+        const nameInput = $('[data-cam="name"]');
+        const output = $('[data-cam="output"]');
+        const copyBtn = $('[data-cam="copy"]');
+
+        fields.forEach(f => {
+            panel.querySelectorAll(`[data-field="${f.key}"]`).forEach(input => {
+                input.addEventListener('input', () => {
+                    const v = parseFloat(input.value);
+                    if (Number.isNaN(v)) return;
+                    if (camTween) camTween.kill(); // manual edits win over a running preset tween
+                    f.set(v);
+                    updateCamera();
+                    refresh();
+                });
+            });
+        });
+        projectionSelect.addEventListener('change', () => {
+            setProjection(projectionSelect.value === 'ortho');
+            refresh();
+        });
+        mouseCheck.addEventListener('change', () => window.setMapInteraction(mouseCheck.checked));
+        $('[data-cam="go"]').addEventListener('click', () => window.goToCameraView($('[data-cam="preset"]').value));
+        $('[data-cam="collapse"]').addEventListener('click', e => {
+            panel.classList.toggle('is-collapsed');
+            e.currentTarget.textContent = panel.classList.contains('is-collapsed') ? '+' : '–';
+        });
+        nameInput.addEventListener('input', () => refresh());
+
+        const round = (v, d = 2) => +v.toFixed(d);
+        function viewEntry() {
+            const name = nameInput.value.trim() || 'myView';
+            const key = /^[A-Za-z_$][\w$]*$/.test(name) ? name : JSON.stringify(name);
+            return `${key}: { radius: ${round(radius)}, theta: ${round(wrapAngle(theta) / DEG)}, phi: ${round(phi / DEG)}, ` +
+                `target: [${round(target.x)}, ${round(target.y)}, ${round(target.z)}], fov: ${round(fov, 1)}, ortho: ${isOrtho} },`;
+        }
+
+        copyBtn.addEventListener('click', () => {
+            const text = viewEntry();
+            const done = () => { copyBtn.textContent = 'Copied'; setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1200); };
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(done, () => console.log(text));
+            } else {
+                console.log(text);
+            }
+        });
+
+        let lastOutput = '';
+        function refresh() {
+            fields.forEach(f => {
+                const v = f.get();
+                panel.querySelectorAll(`[data-field="${f.key}"]`).forEach(input => {
+                    if (input !== document.activeElement) input.value = round(v, 2);
+                });
+            });
+            projectionSelect.value = isOrtho ? 'ortho' : 'persp';
+            mouseCheck.checked = interactionEnabled;
+
+            const name = nameInput.value.trim() || 'myView';
+            const text = `// CAMERA_VIEWS entry (js/hp-map.js)\n${viewEntry()}\n\n// Webflow button custom attribute\ndata-camera-view = ${name}`;
+            if (text !== lastOutput) { output.textContent = text; lastOutput = text; }
+        }
+        refresh();
+
+        return { refresh };
+    }
+
     // ---- render loop ----
     function animate() {
         requestAnimationFrame(animate);
@@ -550,6 +729,7 @@ export function homepageMap() {
         });
 
         updateCamera();
+        if (cameraPanel) cameraPanel.refresh(); // mirrors mouse orbit/pan/zoom and preset tweens into the panel
         renderer.render(scene, activeCamera);
     }
     animate();
@@ -731,14 +911,22 @@ export function homepageMap() {
         typeViewBtn(btn);
     }
 
-    document.getElementById('viewTop').addEventListener('click', () => {
-        activateViewBtn(document.getElementById('viewTop'));
-        window.setDefaultView();
-    });
+    // document.getElementById('viewTop').addEventListener('click', () => {
+    //     activateViewBtn(document.getElementById('viewTop'));
+    //     window.setDefaultView();
+    // });
 
-    document.getElementById('viewIso').addEventListener('click', () => {
-        activateViewBtn(document.getElementById('viewIso'));
-        window.setIsometricView();
+    // document.getElementById('viewIso').addEventListener('click', () => {
+    //     activateViewBtn(document.getElementById('viewIso'));
+    //     window.setIsometricView();
+    // });
+
+    // any element with data-camera-view="<name>" animates the camera to that CAMERA_VIEWS entry
+    document.querySelectorAll('[data-camera-view]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.classList.contains('view-btn')) activateViewBtn(btn);
+            window.goToCameraView(btn.dataset.cameraView);
+        });
     });
 
 }
