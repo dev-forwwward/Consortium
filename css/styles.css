@@ -545,6 +545,23 @@ input[type="checkbox"]:checked::before {
     }
 }
 
+@media screen and (max-width: 676px) {
+    .grid-view .accordion__item-process.journal-accordion {
+        width: 100%;
+    }
+
+    .accordion-project-row {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: .5rem;
+
+        .portfolio20_item-date {
+            flex: 1;
+        }
+    }
+}
+
 .accordion-process.journal-accordion:hover .accordion__item-process.journal-accordion:not(.accordion__item-process.journal-accordion:hover) {
     color: var(--_primitives---colors--neutral-light) !important;
 
