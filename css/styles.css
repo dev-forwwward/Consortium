@@ -27,6 +27,13 @@
     }
 }
 
+.menu-link.w--current::before {
+    content: '[';
+}
+
+.menu-link.w--current::after {
+    content: ']';
+}
 /*
 *   BORDER ELEMENTS (bottom)
 */
