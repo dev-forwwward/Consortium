@@ -114,7 +114,7 @@ export function services() {
     if (scrollinSection) {
 
         if (window.innerWidth > 991) {
-            const headings = scrollinSection.querySelectorAll('.grid-row-content h3');
+            const headings = scrollinSection.querySelectorAll('.grid-row-content .work-title');
 
             if (headings.length > 0) {
                 const splitHeadings = Array.from(headings).map((heading) =>
