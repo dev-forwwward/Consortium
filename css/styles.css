@@ -21,7 +21,8 @@
 /*
 *   BUTTONS
 */
-.button.is-icon:hover {
+.button.is-icon:hover,
+.form-submit-btn-container:hover {
     .button-icon-container-inner {
         right: -0.875rem;
     }
