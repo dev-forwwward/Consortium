@@ -180,25 +180,23 @@ export function services() {
     if (!brandCarouselSection) { return }
 
     // CURVED PARTNER-LOGO CAROUSEL
-    gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
+    gsap.registerPlugin(MotionPathPlugin);
 
     const carouselItems = gsap.utils.toArray('.brand-carousel-item', brandCarouselSection);
     if (carouselItems.length === 0) { return }
 
-    const itemStagger = 0.13;
-    const itemDuration = 1.5;
+    let itemStagger = .135;
+    let itemDuration = 1.5;
 
-    // The path itself (#carousel-path) is authored from its top-right end to
-    // its bottom-left end, with straight off-canvas tails extended past both
-    // ends, so a plain forward 0 -> 1 traversal is enough: 0 sits off-canvas
-    // top-right, 1 sits off-canvas bottom-left, and autoRotate's tangent
-    // lines up with the actual direction of travel (a reversed traversal of
-    // the path flips autoRotate 180 degrees, which is why an earlier out-of-
-    // range 1.2 -> -0.3 attempt rendered every card upside down).
+    if(window.innerWidth < 991) {
+        document.querySelector('.brand-carousel-item').offsetWidth * 0.25 / 100;
+    }
 
-    // Position every item at its path entrance point up front, so items
-    // whose turn hasn't come up yet sit correctly queued on the path
-    // instead of at their raw CSS (top:0/left:0) default.
+    // #carousel-path has off-canvas tails at both ends: progress 1 is the
+    // top-right entrance, 0 the bottom-left exit, so items travel 1 -> 0.
+
+    // Park every item at the path entrance so queued items don't sit at
+    // their raw CSS (top:0/left:0) position.
     const queueItemsAtPathEntrance = () => {
         gsap.set(carouselItems, {
             motionPath: {
@@ -223,24 +221,16 @@ export function services() {
             pinSpacing: true,
             anticipatePin: 1,
             scrub: true,
-            // The path SVG is full-bleed (100vw, height from its viewBox
-            // ratio), and MotionPathPlugin bakes the path into each item's
-            // coordinate space when the tween is built. Without these two the
-            // baked positions stay locked to the width the page loaded at and
-            // the items drift off the curve on resize: invalidateOnRefresh
-            // re-measures the path for the timeline, and the queued placement
-            // needs re-applying too since it lives outside the timeline.
+            // The full-bleed path is baked in at build time, so re-measure on
+            // resize (and re-queue, since that lives outside the timeline).
             invalidateOnRefresh: true,
             onRefresh: queueItemsAtPathEntrance,
             // markers: true,
         }
     });
 
-    // Every item travels the same full path (queued in off-canvas top-right,
-    // exiting off-canvas bottom-left); staggering each item's start time on
-    // the timeline is what makes them read as a queue. A short stagger
-    // relative to the duration keeps several items visible along the path
-    // at once instead of spread too far apart.
+    // Each item runs the full path; a short stagger relative to the
+    // duration keeps several items visible at once, reading as a queue.
     carouselItems.forEach((item, i) => {
         carouselTimeline.to(item, {
             motionPath: {
