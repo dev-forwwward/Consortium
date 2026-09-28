@@ -28,14 +28,6 @@
     }
 }
 
-.menu-link.w--current::before {
-    content: '[';
-}
-
-.menu-link.w--current::after {
-    content: ']';
-}
-
 /*
 *   FORM - Checkboxes
 */
