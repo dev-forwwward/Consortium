@@ -140,13 +140,14 @@ export function navbarColorHandler() {
         ScrollTrigger.create({
             trigger: footer,
             start: `clamp(top ${window.innerHeight - border.offsetHeight})`,
+            end: '+=500%',
             // end: `clamp(bottom ${window.innerHeight - border.offsetHeight})`,
             // toggleActions: 'play complete none reverse',
             onEnter: () => {
-                border.classList.add('hide-down');
+                border.classList.add('hide-down-footer');
             },
             onLeaveBack: () => {
-                border.classList.remove('hide-down');
+                border.classList.remove('hide-down-footer');
             }
         });
 
