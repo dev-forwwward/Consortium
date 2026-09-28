@@ -1,5 +1,7 @@
 export function homepageMap() {
 
+    const bottomBorder = document.querySelector('.border-bottom-el-container-inner');
+
     // MAP RENDER
     const canvas = document.querySelector('.scene');
     const tooltip = document.getElementById('tooltip');
@@ -772,11 +774,7 @@ export function homepageMap() {
         mapSection.classList.add('active');
 
         // hide bottom border element
-        gsap.to('.border-bottom-el-container-inner', {
-            y: '4rem',
-            opacity: 0,
-            duration: .2
-        });
+        bottomBorder.classList.add('hide-down');
 
         // hide navbar
         gsap.to(navWrapper, {
@@ -800,11 +798,7 @@ export function homepageMap() {
         mapToggleBtnWrapper.classList.remove('locked');
 
         // reveal back bottom border element
-        gsap.to('.border-bottom-el-container-inner', {
-            y: '0rem',
-            opacity: 1,
-            duration: .2
-        });
+        bottomBorder.classList.remove('hide-down');
 
         // reveal back navbar
         gsap.to(navWrapper, {
@@ -817,7 +811,6 @@ export function homepageMap() {
     }
 
     const mapSectionTrigger = document.querySelector('.map-section-trigger');
-    const border = document.querySelector('.border-bottom-el-container-inner');
 
     const mapTrigger = ScrollTrigger.create({
         // trigger: mapSection,
@@ -856,11 +849,7 @@ export function homepageMap() {
             mapSection.classList.remove('active');
             openBtn.classList.add('show');
 
-            gsap.to('.border-bottom-el-container-inner', {
-                y: '0rem',
-                opacity: 1,
-                duration: .2
-            });
+            bottomBorder.classList.remove('hide-down');
         }
     }
 
@@ -873,16 +862,12 @@ export function homepageMap() {
     openBtn.addEventListener('click', () => {
         permanentlyUnpinned = false;
 
-        lenis.scrollTo('#canvas-wrap');
+        lenis.scrollTo('#canvas-wrap', { immediate: true });
         // gsap.to(window, { duration: .5, scrollTo: "#canvas-wrap" });
         mapSection.classList.add('active');
         openBtn.classList.remove('show');
 
-        gsap.to('.border-bottom-el-container-inner', {
-            y: '-4rem',
-            opacity: 0,
-            duration: .2
-        });
+        bottomBorder.classList.add('hide-down');
     });
 
     const viewBtns = document.querySelectorAll('.view-btn');
