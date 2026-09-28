@@ -85,6 +85,11 @@ input[type="checkbox"]:checked::before {
     transform: translateY(4rem);
 }
 
+.border-bottom-el-container-inner.hide-down-footer {
+    transform: translateY(4rem) !important;
+}
+
+
 /*
 *   HOMEPAGE
 */
