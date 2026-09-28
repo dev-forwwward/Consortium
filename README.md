@@ -137,9 +137,9 @@ _No inline section comments found — see source for details._
 - SCROLL-IN TABLE SECTION
 - mobile
 - CURVED PARTNER-LOGO CAROUSEL
-- its bottom-left end, with straight off-canvas tails extended past both
-- ends, so a plain forward 0 -> 1 traversal is enough: 0 sits off-canvas
-- top-right, 1 sits off-canvas bottom-left, and autoRotate's tangent
+- #carousel-path has off-canvas tails at both ends: progress 1 is the
+- top-right entrance, 0 the bottom-left exit, so items travel 1 -> 0.
+- Park every item at the path entrance so queued items don't sit at
 
 ### [`js/swiper.js`](js/swiper.js) — `swiperInit()`
 
