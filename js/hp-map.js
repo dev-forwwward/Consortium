@@ -746,6 +746,7 @@ export function homepageMap() {
     const navWrapper = document.querySelector('.navbar-wrapper');
     let permanentlyUnpinned = false;
     let locked = false;
+    let mapActive = false;
 
     const BLOCKED_KEYS = new Set([
         'ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '
@@ -759,14 +760,25 @@ export function homepageMap() {
         e.preventDefault();
     }
 
+    const scrollToTarget = document.querySelector('#canvas-wrap');
+
     function lockScroll() {
         if (locked) return;
-        // gsap.to(window, { duration: .5, scrollTo: "#canvas-wrap" });
-        lenis.scrollTo('#canvas-wrap');
 
         locked = true;
+        mapActive = true;
         permanentlyUnpinned = true;
-        lenis.stop();
+
+        // gsap.to(window, { duration: .5, scrollTo: "#canvas-wrap" });
+        // stop lenis only once the scroll lands: stopping it right away cancels the scrollTo animation
+        if (Math.abs(scrollToTarget.getBoundingClientRect().top) < 1) {
+            lenis.stop();
+        } else {
+            lenis.scrollTo(scrollToTarget, {
+                lock: true,
+                onComplete: () => { if (locked) lenis.stop(); }
+            });
+        }
         window.addEventListener('wheel', preventScrollEvent, { passive: false });
         window.addEventListener('touchmove', preventScrollEvent, { passive: false });
         window.addEventListener('keydown', preventScrollKey);
@@ -791,6 +803,7 @@ export function homepageMap() {
 
     function unlockScroll() {
         locked = false;
+        mapActive = false;
         lenis.start();
         window.removeEventListener('wheel', preventScrollEvent);
         window.removeEventListener('touchmove', preventScrollEvent);
@@ -826,9 +839,13 @@ export function homepageMap() {
         onEnter: () => {
             pinHandler();
             mapToggleBtnWrapper.classList.add('show');
+            console.log("SHOWING BUTTONS");
         },
         onLeaveBack: () => {
-            mapToggleBtnWrapper.classList.remove('show');
+            if (!mapActive) {
+                mapToggleBtnWrapper.classList.remove('show');
+                console.log("***HIDING BUTTONS");
+            }
         },
         onEnterBack: pinHandler,
     });
@@ -846,6 +863,7 @@ export function homepageMap() {
     });
 
     function pinHandler() {
+        if (locked) return;
 
         if (!permanentlyUnpinned) {
             lockScroll();
@@ -861,19 +879,12 @@ export function homepageMap() {
 
     closeBtn.addEventListener('click', () => {
         unlockScroll();
-        mapSection.classList.remove('active');
         openBtn.classList.add('show');
     });
 
     openBtn.addEventListener('click', () => {
-        permanentlyUnpinned = false;
-
-        lenis.scrollTo('#canvas-wrap', { immediate: true });
-        // gsap.to(window, { duration: .5, scrollTo: "#canvas-wrap" });
-        mapSection.classList.add('active');
         openBtn.classList.remove('show');
-
-        bottomBorder.classList.add('hide-down');
+        lockScroll();
     });
 
     const viewBtns = document.querySelectorAll('.view-btn');
@@ -903,16 +914,6 @@ export function homepageMap() {
         btn.classList.add('active');
         typeViewBtn(btn);
     }
-
-    // document.getElementById('viewTop').addEventListener('click', () => {
-    //     activateViewBtn(document.getElementById('viewTop'));
-    //     window.setDefaultView();
-    // });
-
-    // document.getElementById('viewIso').addEventListener('click', () => {
-    //     activateViewBtn(document.getElementById('viewIso'));
-    //     window.setIsometricView();
-    // });
 
     // any element with data-camera-view="<name>" animates the camera to that CAMERA_VIEWS entry
     document.querySelectorAll('[data-camera-view]').forEach(btn => {
