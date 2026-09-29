@@ -137,6 +137,10 @@ input[type="checkbox"]:checked::before {
     pointer-events: none;
 }
 
+.view-btn.active {
+    border-color: var(--_primitives---colors--neutral-darkest);
+}
+
 .hpmapsection.active {
     box-shadow: inset 0px 0px 4px 4px rgba(0, 0, 0, 0.5);
     -webkit-box-shadow: inset 0px 0px 4px 4px rgba(0, 0, 0, 0.5);
