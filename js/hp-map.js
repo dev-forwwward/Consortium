@@ -887,13 +887,15 @@ export function homepageMap() {
     function typeViewBtn(btn) {
         clearInterval(btn._typeInterval);
         const text = btn.dataset.label;
-        let i = 0;
-        btn.textContent = '';
-        btn._typeInterval = setInterval(() => {
-            i++;
-            btn.textContent = text.slice(0, i);
-            if (i >= text.length) clearInterval(btn._typeInterval);
-        }, 35);
+        if (text) {
+            let i = 0;
+            btn.textContent = '[]';
+            btn._typeInterval = setInterval(() => {
+                i++;
+                btn.textContent = '[' + text.slice(0, i) + ']';
+                if (i >= text.length) clearInterval(btn._typeInterval);
+            }, 35);
+        }
     }
 
     function activateViewBtn(btn) {
