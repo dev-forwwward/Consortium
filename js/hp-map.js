@@ -741,6 +741,8 @@ export function homepageMap() {
 
     // gsap.registerPlugin(ScrollToPlugin);
 
+    const mapSectionBorder = document.querySelector('.hpmapsection-border');
+
     const navWrapper = document.querySelector('.navbar-wrapper');
     let permanentlyUnpinned = false;
     let locked = false;
@@ -772,6 +774,7 @@ export function homepageMap() {
 
         mapToggleBtnWrapper.classList.add('locked');
         mapSection.classList.add('active');
+        mapSectionBorder.classList.add('show')
 
         // hide bottom border element
         bottomBorder.classList.add('hide-down');
@@ -795,6 +798,7 @@ export function homepageMap() {
         window.setMapInteraction(false);
 
         mapSection.classList.remove('active');
+        mapSectionBorder.classList.remove('show');
         mapToggleBtnWrapper.classList.remove('locked');
 
         // reveal back bottom border element
@@ -848,6 +852,8 @@ export function homepageMap() {
         } else {
             mapSection.classList.remove('active');
             openBtn.classList.add('show');
+            mapSectionBorder.classList.remove('show');
+
 
             bottomBorder.classList.remove('hide-down');
         }

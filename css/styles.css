@@ -98,7 +98,8 @@ input[type="checkbox"]:checked::before {
     opacity: 0;
 }
 
-#mapSection.show {
+#mapSection.show,
+.hpmapsection-border.show {
     opacity: 1;
 }
 
