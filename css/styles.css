@@ -528,8 +528,19 @@ input[type="checkbox"]:checked::before {
     max-width: 26.75rem;
 } */
 
+.grid-img {
+    transition: all .5s ease;
+    transition-delay: .25s;
+    max-width: 26.75rem;
+    width: 100%;
+}
+
+.divider-vertical-squares.right {
+    display: none;
+}
+
 .grid-view {
-    .journal-row-container {
+    /* .journal-row-container {
         pointer-events: none;
     }
 
@@ -549,6 +560,56 @@ input[type="checkbox"]:checked::before {
     .journal-row-link {
         pointer-events: none;
     }
+    
+    .grid-img {
+        display: flex !important;
+        opacity: 1 !important;
+    }*/
+
+    .accordion__item-process.journal-accordion {
+        width: 33.33%;
+    }
+
+    .portfolio20_item-link-inner.journal_item-link-inner {
+        display: flex;
+        flex-flow: column;
+        align-items: flex-start;
+        padding: .5rem;
+    }
+
+    .grid-view-hide {
+        display: none;
+    }
+
+    .grid-name,
+    .grid-tag,
+    .grid-img {
+        display: flex !important;
+        opacity: 1 !important;
+    }
+
+    .grid-top-row {
+        display: flex;
+        flex-flow: row-reverse;
+        width: 100%;
+        align-items: center;
+        padding: 0;
+        gap: .5rem;
+    }
+
+    .grid-date {
+        flex: 1;
+        text-align: right;
+    }
+
+    .portfolio20_image-wrapper {
+        display: none !important;
+    }
+
+    .divider-vertical-squares {
+        display: flex;
+    }
+
 }
 
 @media screen and (max-width: 676px) {
