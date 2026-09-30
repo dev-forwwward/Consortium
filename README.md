@@ -94,7 +94,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - Remove display none
 - MENU - ACCORDION
 - Initialize
-- Run scroll logic on load in case page is opened mid-scroll
+- ACTIVE STATES
 
 ### [`js/navbar-color-handler.js`](js/navbar-color-handler.js) — `navbarColorHandler()`
 
