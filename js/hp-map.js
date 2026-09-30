@@ -371,6 +371,83 @@ export function homepageMap() {
     }
     buildBuildings();
 
+    // ---- logo: extruded and laid flat on the map ----
+    // path data copied from the logo SVG (viewBox 0 0 450 434) — no HTML embed needed
+    const LOGO_VIEWBOX = { w: 450, h: 434 };
+    const LOGO_PATHS = [
+        'M110.742 0H339.258V75.9368H110.742V0Z',
+        'M450 97.0304V336.97H374.062V97.0304H450Z',
+        'M75.9375 97.0304L75.9375 336.97H0L8.81527e-06 97.0304H75.9375Z',
+        'M110.742 358.063H339.258V434H110.742V358.063Z'
+    ];
+    const LOGO_COLOR = controls.structColor; // same orange as the buildings — swap for any hex, e.g. '#2b2b2b'
+    // usX/usY: map coords (a little west + south of Kansas, ~map center). size: world units across
+    // (the whole map is TARGET_WORLD_W wide). depth: extrusion thickness. float: clearance above the
+    // highest tile under the logo. Tweak live with ?cam-debug, then paste its LOGO output here
+    const LOGO = { usX: 44.5, usY: 26, size: 2.6, depth: 0.12, float: 0.1 };
+    let logoGroup = null;
+
+    function svgPathToShape(d) {
+        // absolute M/L/H/V/Z only — enough for the logo's straight-edged paths
+        const shape = new THREE.Shape();
+        const tokens = d.match(/[MLHVZ]|-?[\d.]+(?:e-?\d+)?/gi) || [];
+        let cmd = null, x = 0, y = 0, started = false;
+        for (let i = 0; i < tokens.length;) {
+            if (/[MLHVZ]/i.test(tokens[i])) cmd = tokens[i++].toUpperCase();
+            if (cmd === 'Z') { shape.closePath(); cmd = null; continue; }
+            const n = () => parseFloat(tokens[i++]);
+            if (cmd === 'M' || cmd === 'L') { x = n(); y = n(); }
+            else if (cmd === 'H') x = n();
+            else if (cmd === 'V') y = n();
+            else { i++; continue; }
+            if (!started || cmd === 'M') { shape.moveTo(x, y); started = true; } else shape.lineTo(x, y);
+        }
+        return shape;
+    }
+
+    function buildLogo() {
+        if (logoGroup) { // rebuild (debug panel edits): drop the old mesh first
+            scene.remove(logoGroup);
+            logoGroup.children.forEach(m => { m.geometry.dispose(); m.material.dispose(); });
+        }
+        const { w: vbW, h: vbH } = LOGO_VIEWBOX;
+        const shapes = LOGO_PATHS.map(svgPathToShape);
+        const geo = new THREE.ExtrudeGeometry(shapes, { depth: LOGO.depth * vbW / LOGO.size, bevelEnabled: false });
+        // center on the viewBox, scale to world size, then lay flat: SVG y (down) -> world z (south),
+        // extrusion -> downward, so shift up by the depth to sit on its base
+        geo.translate(-vbW / 2, -vbH / 2, 0);
+        geo.scale(LOGO.size / vbW, LOGO.size / vbW, LOGO.size / vbW);
+        geo.rotateX(Math.PI / 2);
+        geo.translate(0, LOGO.depth, 0);
+
+        const mat = new THREE.MeshStandardMaterial({ color: LOGO_COLOR, roughness: 0.5, metalness: 0.08 });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+
+        logoGroup = new THREE.Group();
+        logoGroup.add(mesh);
+        const { x, z } = usToWorld(LOGO.usX, LOGO.usY);
+        logoGroup.position.set(x, 0, z);
+        scene.add(logoGroup);
+        updateLogoHeight();
+    }
+
+    function updateLogoHeight() {
+        if (!logoGroup) return;
+        // rest on the highest terrain point under the logo's footprint so no tile pokes through
+        const halfUs = (LOGO.size / 2) * (US_W / WORLD_W);
+        let maxY = 0;
+        for (let i = -1; i <= 1; i++) {
+            for (let j = -1; j <= 1; j++) {
+                maxY = Math.max(maxY, terrainHeightAt(LOGO.usX + i * halfUs, LOGO.usY + j * halfUs));
+            }
+        }
+        logoGroup.position.y = maxY + LOGO.float;
+    }
+
+    buildLogo();
+
     // ---- named camera views ----
     // angles in degrees. theta: horizontal orbit around the target. phi: tilt measured down
     // from straight overhead (0 = top-down, 90 = ground level). radius: distance from the
@@ -381,6 +458,7 @@ export function homepageMap() {
     const CAMERA_VIEWS = {
         default: { radius: 26, theta: 57.6, phi: 72, target: [0, 0.3, 0], fov: 42, ortho: false },
         zoomIn: { radius: 5, theta: 91.4, phi: 0.1, target: [0, 0, 0], fov: 50, ortho: false },
+        introZoom: { radius: 5, theta: 92.05, phi: 6.3, target: [0, 7.3, 0], fov: 45.5, ortho: false },
         topView: { radius: 28.7, theta: 92.05, phi: 6.3, target: [0, 7.3, 0], fov: 45.5, ortho: false },
         isometric: { radius: 26, theta: 45, phi: 54.74, target: [-0.65, 2.2, -2.25], fov: 42, ortho: true },
         perspective: { radius: 24.6, theta: 66.3, phi: 68.9, target: [-1.35, 1.8, -1.65], fov: 50, ortho: true },
@@ -442,7 +520,25 @@ export function homepageMap() {
     // window.setDefaultView = () => window.goToCameraView('default');
     // window.setIsometricView = () => window.goToCameraView('isometric');
 
-    window.goToCameraView('topView');
+    // ---- scroll-driven intro: blends introZoom -> topView by scroll progress (0..1) ----
+    const introFrom = CAMERA_VIEWS.introZoom, introTo = CAMERA_VIEWS.topView;
+    const introEase = gsap.parseEase('power2.inOut');
+    function setIntroProgress(p) {
+        const e = introEase(p);
+        const mix = (a, b) => a + (b - a) * e;
+        setProjection(introTo.ortho);
+        Object.assign(camState, {
+            radius: mix(introFrom.radius, introTo.radius),
+            theta: mix(introFrom.theta, introTo.theta) * DEG,
+            phi: mix(introFrom.phi, introTo.phi) * DEG,
+            tx: mix(introFrom.target[0], introTo.target[0]),
+            ty: mix(introFrom.target[1], introTo.target[1]),
+            tz: mix(introFrom.target[2], introTo.target[2]),
+            fov: mix(introFrom.fov, introTo.fov)
+        });
+        syncCamState();
+    }
+    setIntroProgress(0);
 
     window.setMapInteraction = enabled => {
         interactionEnabled = enabled;
@@ -578,6 +674,14 @@ export function homepageMap() {
             { key: 'tz', label: 'Target Z', min: -15, max: 15, step: 0.05, get: () => target.z, set: v => { target.z = v; } },
             { key: 'fov', label: 'FOV°', min: 10, max: 90, step: 0.5, get: () => fov, set: v => setFov(v) },
         ];
+        // logo fields edit LOGO directly and rebuild the mesh
+        const logoFields = [
+            { key: 'usX', label: 'Map X', min: 0, max: US_W, step: 0.1 },
+            { key: 'usY', label: 'Map Y', min: 0, max: US_H, step: 0.1 },
+            { key: 'size', label: 'Size', min: 0.2, max: 10, step: 0.05 },
+            { key: 'depth', label: 'Depth', min: 0.01, max: 1, step: 0.01 },
+            { key: 'float', label: 'Float', min: 0, max: 2, step: 0.01 },
+        ];
 
         const style = document.createElement('style');
         style.textContent = `
@@ -629,6 +733,15 @@ export function homepageMap() {
                     <button type="button" data-cam="copy">Copy</button>
                 </div>
                 <pre data-cam="output"></pre>
+                <div class="cam-panel-sep"></div>
+                <div class="cam-panel-head"><span>Logo</span><button type="button" data-cam="logo-copy">Copy</button></div>
+                ${logoFields.map(f => `
+                    <div class="cam-panel-row">
+                        <span>${f.label}</span>
+                        <input type="range" data-logo-field="${f.key}" min="${f.min}" max="${f.max}" step="${f.step}">
+                        <input type="number" data-logo-field="${f.key}" step="${f.step}">
+                    </div>`).join('')}
+                <pre data-cam="logo-output"></pre>
             </div>
         `;
         document.body.appendChild(panel);
@@ -667,6 +780,31 @@ export function homepageMap() {
         });
         nameInput.addEventListener('input', () => refresh());
 
+        const logoOutput = $('[data-cam="logo-output"]');
+        const logoCopyBtn = $('[data-cam="logo-copy"]');
+        logoFields.forEach(f => {
+            panel.querySelectorAll(`[data-logo-field="${f.key}"]`).forEach(input => {
+                input.addEventListener('input', () => {
+                    const v = parseFloat(input.value);
+                    if (Number.isNaN(v)) return;
+                    LOGO[f.key] = v;
+                    buildLogo();
+                    refreshLogo();
+                });
+            });
+        });
+        function logoEntry() {
+            return `const LOGO = { ${logoFields.map(f => `${f.key}: ${round(LOGO[f.key])}`).join(', ')} };`;
+        }
+        function refreshLogo() {
+            logoFields.forEach(f => {
+                panel.querySelectorAll(`[data-logo-field="${f.key}"]`).forEach(input => {
+                    if (input !== document.activeElement) input.value = round(LOGO[f.key]);
+                });
+            });
+            logoOutput.textContent = `// replace the LOGO line (js/hp-map.js)\n${logoEntry()}`;
+        }
+
         const round = (v, d = 2) => +v.toFixed(d);
         function viewEntry() {
             const name = nameInput.value.trim() || 'myView';
@@ -675,15 +813,16 @@ export function homepageMap() {
                 `target: [${round(target.x)}, ${round(target.y)}, ${round(target.z)}], fov: ${round(fov, 1)}, ortho: ${isOrtho} },`;
         }
 
-        copyBtn.addEventListener('click', () => {
-            const text = viewEntry();
-            const done = () => { copyBtn.textContent = 'Copied'; setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1200); };
+        function copyText(btn, text) {
+            const done = () => { btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = 'Copy'; }, 1200); };
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(text).then(done, () => console.log(text));
             } else {
                 console.log(text);
             }
-        });
+        }
+        copyBtn.addEventListener('click', () => copyText(copyBtn, viewEntry()));
+        logoCopyBtn.addEventListener('click', () => copyText(logoCopyBtn, logoEntry()));
 
         let lastOutput = '';
         function refresh() {
@@ -701,6 +840,7 @@ export function homepageMap() {
             if (text !== lastOutput) { output.textContent = text; lastOutput = text; }
         }
         refresh();
+        refreshLogo();
 
         return { refresh };
     }
@@ -729,6 +869,7 @@ export function homepageMap() {
             g.rotation.y = controls.tileAngle * Math.PI / 180;
             g.position.y = terrainHeightAt(g.userData.usX, g.userData.usY);
         });
+        updateLogoHeight(); // follows the elevation-intensity control like the buildings do
 
         updateCamera();
         if (cameraPanel) cameraPanel.refresh(); // mirrors mouse orbit/pan/zoom and preset tweens into the panel
@@ -776,7 +917,9 @@ export function homepageMap() {
         } else {
             lenis.scrollTo(scrollToTarget, {
                 lock: true,
-                onComplete: () => { if (locked) lenis.stop(); }
+                onComplete: () => { 
+                    if (locked) lenis.stop();
+                }
             });
         }
         window.addEventListener('wheel', preventScrollEvent, { passive: false });
@@ -786,7 +929,7 @@ export function homepageMap() {
 
         mapToggleBtnWrapper.classList.add('locked');
         mapSection.classList.add('active');
-        mapSectionBorder.classList.add('show')
+        mapSectionBorder.classList.add('show');
 
         // hide bottom border element
         bottomBorder.classList.add('hide-down');
@@ -839,12 +982,10 @@ export function homepageMap() {
         onEnter: () => {
             pinHandler();
             mapToggleBtnWrapper.classList.add('show');
-            console.log("SHOWING BUTTONS");
         },
         onLeaveBack: () => {
             if (!mapActive) {
                 mapToggleBtnWrapper.classList.remove('show');
-                console.log("***HIDING BUTTONS");
             }
         },
         onEnterBack: pinHandler,
@@ -859,6 +1000,20 @@ export function homepageMap() {
         },
         onLeaveBack: () => {
             mapSection.classList.remove('show');
+        }
+    });
+
+    // camera zooms out from introZoom to topView between the fade-in and the scroll lock,
+    // so it lands exactly on topView as the map locks; after the first lock the user owns the camera
+    const introTrigger = ScrollTrigger.create({
+        trigger: '.hpmapsection-reveal',
+        start: 'top top',
+        endTrigger: mapSectionTrigger,
+        end: 'top top',
+        // markers: true,
+        onUpdate: self => {
+            // if (permanentlyUnpinned) { setIntroProgress(1); introTrigger.kill(); return; }
+            setIntroProgress(self.progress);
         }
     });
 
