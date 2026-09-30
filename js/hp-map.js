@@ -384,7 +384,7 @@ export function homepageMap() {
     // usX/usY: map coords (a little west + south of Kansas, ~map center). size: world units across
     // (the whole map is TARGET_WORLD_W wide). depth: extrusion thickness. float: clearance above the
     // highest tile under the logo. Tweak live with ?cam-debug, then paste its LOGO output here
-    const LOGO = { usX: 44.5, usY: 26, size: 2.6, depth: 0.12, float: 0.1 };
+    const LOGO = { usX: 50, usY: 24.6, size: 0.85, depth: 0.36, float: 0 };
     let logoGroup = null;
 
     function svgPathToShape(d) {
