@@ -226,6 +226,36 @@ export function navBarMenu() {
 
 
 
+    // ---------------------------------------
+    // ACTIVE STATES
+    // non-current .menu-link texts collapse to their first letter and type back out on hover;
+    // menu.css wraps them all in []
+    document.querySelectorAll('.desktop-menu-list .menu-link:not(.w--current)').forEach(link => {
+        // dropdown toggles wrap their text in .item_nav_text; plain links hold it directly
+        const target = link.querySelector('.item_nav_text') || link;
+        const text = target.textContent.trim();
+        if (!text) return;
+        if (!link.hasAttribute('aria-label')) link.setAttribute('aria-label', text);
+        target.textContent = text.charAt(0);
+
+        // types forwards or backwards from whatever is showing, so a quick hover-out picks up mid-word
+        function typeTo(length) {
+            clearInterval(link._typeInterval);
+            let i = target.textContent.length;
+            const step = length > i ? 1 : -1;
+            link._typeInterval = setInterval(() => {
+                if (i === length) return clearInterval(link._typeInterval);
+                i += step;
+                target.textContent = text.slice(0, i);
+            }, 35);
+        }
+
+        link.addEventListener('mouseenter', () => typeTo(text.length));
+        link.addEventListener('mouseleave', () => typeTo(1));
+    });
+
+
+
 
 
     /* Menu HIDE/REVEAL w/ Scroll */

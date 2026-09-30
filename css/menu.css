@@ -200,3 +200,8 @@
         color: #ffffff;
     }
 } */
+
+/* Desktop menu links: [S] / [SERVICES] */
+.desktop-menu-list .menu-link { text-transform: uppercase; }
+.desktop-menu-list .menu-link::before { content: '['; }
+.desktop-menu-list .menu-link::after { content: ']'; }
