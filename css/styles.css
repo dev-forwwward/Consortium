@@ -98,6 +98,10 @@ input[type="checkbox"]:checked::before {
     opacity: 0;
 }
 
+.hpmapsection-border {
+    transition-delay: .1s;
+}
+
 #mapSection.show,
 .hpmapsection-border.show {
     opacity: 1;
