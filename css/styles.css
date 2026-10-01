@@ -89,6 +89,14 @@ input[type="checkbox"]:checked::before {
     transform: translateY(4rem) !important;
 }
 
+.border-bottom-el-container-inner.text-color-primary {
+    color: var(--_primitives---colors--neutral-darkest);
+}
+
+.border-bottom-el-container-inner.text-color-seconday {
+    color: var(--_primitives---colors--beige);
+}
+
 
 /*
 *   HOMEPAGE
