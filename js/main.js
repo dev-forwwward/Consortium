@@ -194,6 +194,63 @@ export function mainInit() {
 
     });
 
+    // TAB COUNTER - progress bar that auto-advances through the closest .tab-counter-content triggers
+    const tabCounters = document.querySelectorAll('.tab-counter');
+    tabCounters?.forEach(counter => {
+        // .tab-counter-content is usually a sibling branch (not an ancestor), so walk up
+        // the tree until an ancestor contains one - closest() alone only matches ancestors
+        let scope = counter.parentElement;
+        while (scope && !scope.querySelector('.tab-counter-content')) {
+            scope = scope.parentElement;
+        }
+        const content = scope?.querySelector('.tab-counter-content');
+        const triggers = content?.querySelectorAll('.tab-counter-content-trigger');
+        if (!triggers || triggers.length === 0) return;
+
+        const duration = 8;
+        let index = 0;
+        let interval = null;
+        let tween = null;
+        let stopped = false;
+
+        if (content && triggers.length > 0 && window.innerWidth > 768) {
+
+            // a real user click on any tab stops the autoplay for good
+            // (simulated .click() calls are untrusted, so they don't trigger this)
+            triggers.forEach(trigger => {
+                trigger.addEventListener('click', (e) => {
+                    if (!e.isTrusted || stopped) return;
+                    stopped = true;
+                    clearInterval(interval);
+                    tween?.kill();
+                    gsap.set(counter, { width: '0%' });
+                });
+            });
+
+            const next = () => {
+                const trigger = triggers[index];
+                // don't click an already-open tab, or it would toggle closed
+                if (trigger.getAttribute('aria-expanded') !== 'true') {
+                    trigger.click();
+                }
+                index = (index + 1) % triggers.length;
+
+                tween = gsap.fromTo(counter, { width: '0%' }, {
+                    width: '100%',
+                    duration: duration,
+                    ease: "none"
+                });
+            };
+
+            // wait for later modules (e.g. process()) to init their click listeners and initial state
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                if (stopped) return;
+                next();
+                interval = setInterval(next, duration * 1000);
+            }));
+        }
+    });
+
     console.log("Loading mainInit()");
 
 }
