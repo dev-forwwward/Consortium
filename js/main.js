@@ -115,7 +115,7 @@ export function mainInit() {
                 ease: "none",
                 duration: 1
             })
-            .to({},{
+            .to({}, {
                 duration: .5
             });
     }
@@ -147,7 +147,7 @@ export function mainInit() {
 
         // X
         const xBtn = container.querySelector('.socials-link.x');
-        if(xBtn) {
+        if (xBtn) {
             xBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(document.title)}&url=${encodeURIComponent(location.href)}`;
             xBtn.target = '_blank';
             xBtn.rel = 'noopener';
@@ -155,11 +155,43 @@ export function mainInit() {
 
         // facebook
         const facebookBtn = container.querySelector('.socials-link.facebook');
-        if(facebookBtn) {
+        if (facebookBtn) {
             facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(location.href)}`;
             facebookBtn.target = '_blank';
             facebookBtn.rel = 'noopener';
         }
+    });
+
+    // MOUSE FOLLOWER
+    const mouseFollowerContainer = document.querySelectorAll('.mouse-follower-container');
+    mouseFollowerContainer?.forEach(container => {
+        const cursor = container.querySelector('.mouse-follower');
+        const cards = container.querySelectorAll('.mouse-follower-card');
+        if (cursor && cards.length > 0) {
+            window.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // cursor.style.transform = `translate(${x}px, ${y}px)`;
+                gsap.to(cursor, {
+                    x: x,
+                    y: y,
+                    duration: 0.5,
+                    ease: "power2.out"
+                });
+            });
+
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    cursor.classList.add('active');
+                });
+                card.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('active');
+                });
+            });
+        }
+
     });
 
     console.log("Loading mainInit()");

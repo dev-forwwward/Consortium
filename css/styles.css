@@ -97,6 +97,13 @@ input[type="checkbox"]:checked::before {
     color: var(--_primitives---colors--beige);
 }
 
+/*
+*   CURSOR
+*/
+.mouse-follower.active {
+    opacity: 1;
+}
+
 
 /*
 *   HOMEPAGE
