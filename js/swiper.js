@@ -16,13 +16,13 @@ export function swiperInit() {
 
             const swiperEl = new Swiper(swiper, {
                 slidesPerView: 1.25,
-                spaceBetween: 16,
+                spaceBetween: 0,
                 direction: 'horizontal',
                 loop: false,
                 autoWidth: true,
                 speed: 1000,
 
-                freeMode: true,
+                freeMode: false,
                 freeModeMomentum: false,
                 allowTouchMove: true,
                 breakpoints: {
@@ -32,7 +32,7 @@ export function swiperInit() {
                     },
                     // for screens 768px wide and up
                     768: {
-                        slidesPerView: 3.25,
+                        slidesPerView: 3,
                     },
                 },
                 pagination: {
