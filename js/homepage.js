@@ -178,66 +178,106 @@ export function homepage() {
     // Text Scroller Timeline
     const scrollerContainer = document.querySelector('.hp_text_scroller_trigger');
     const textScrollerContainer = document.querySelector('.text-scroller-container');
-    const scrollerMainText = document.querySelector('.text-scroller-container-main-text');
+    const scrollerSecondaryText = document.querySelector('.text-scroller-container-secondary-text');
 
-    if (scrollerContainer) {
-        let containerWidth = document.querySelector('.container-large').offsetWidth;
-        let scrollerWidth = document.querySelector('.scroller-main-text.top').offsetWidth + document.querySelector('.scroller-main-text.bottom').offsetWidth + document.querySelector('.text-scroller-container-secondary-text').offsetWidth;
+    if (scrollerContainer && textScrollerContainer) {
 
-        const textScrollerTimeline = gsap.timeline({
-            scrollTrigger: {
-                trigger: scrollerContainer,
-                start: 'clamp(top top)',
-                end: 'clamp(bottom top-=200px)',
-                scrub: true,
-                // markers: true,
-            },
-            duration: 1,
-        })
-            .from(textScrollerContainer, {
-                fontSize: "3rem",
-                paddingTop: '2rem',
-                paddingBottom: '4rem',
-                duration: 1,
+        let textScrollerGrowTl;
+
+        if (window.innerWidth > 767) {
+            textScrollerGrowTl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: scrollerContainer,
+                    start: 'clamp(top top)',
+                    end: 'clamp(bottom top-=200px)',
+                    scrub: true,
+                    // markers: true,
+                },
             })
-            .to('.scroller-main-text', {
-                height: 'auto',
-                duration: 1,
-            }, "<");
-        // .to('.text-scroller-container-outer', {
-        //     paddingBottom: '12.5rem'
-        // }, "<");
+                .fromTo(textScrollerContainer, {
+                    fontSize: '3rem',
+                    paddingTop: '2rem',
+                    paddingBottom: '4rem',
+                }, {
+                    // Explicit rem end values (match .text-scroller-container in Webflow) so GSAP
+                    // never falls back to the computed px value at the end of the tween
+                    fontSize: '7.25rem',
+                    paddingTop: '12rem',
+                    paddingBottom: '0rem',
+                })
+                .to('.scroller-main-text', {
+                    height: '140px',
+                }, '<');
+        } else {
+            textScrollerGrowTl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: scrollerContainer,
+                    start: 'clamp(top top)',
+                    end: 'clamp(bottom 95%)',
+                    scrub: true,
+                    // markers: true,
+                },
+            })
+                .fromTo(textScrollerContainer, {
+                    fontSize: '3rem',
+                    paddingTop: '2rem',
+                    paddingBottom: '4rem',
+                }, {
+                    // Explicit rem end values (match .text-scroller-container in Webflow) so GSAP
+                    // never falls back to the computed px value at the end of the tween
+                    fontSize: '7.25rem',
+                    paddingTop: '12rem',
+                    paddingBottom: '0rem',
+                })
+                .to('.scroller-main-text', {
+                    height: 'auto',
+                }, '<');
+        }
 
-        gsap.to(textScrollerContainer, {
+
+        // Distance the text travels so its right edge lands on the container's right edge.
+        // Measured in the end state (full font size, single line) regardless of where the
+        // page is scrolled when ScrollTrigger refreshes, then the previous state is restored.
+        const getScrollDistance = () => {
+            const growProgress = textScrollerGrowTl.progress();
+            const hadNoWrap = textScrollerContainer.classList.contains('flex-no-wrap');
+
+            textScrollerGrowTl.progress(1);
+            textScrollerContainer.classList.add('flex-no-wrap');
+
+            const distance = textScrollerContainer.scrollWidth - textScrollerContainer.clientWidth + 24;
+
+            textScrollerContainer.classList.toggle('flex-no-wrap', hadNoWrap);
+            textScrollerGrowTl.progress(growProgress);
+
+            return -distance;
+        };
+
+        gsap.timeline({
             scrollTrigger: {
                 trigger: '.hp_text_scroller_trigger-2',
-                start: 'top 25%',
-                end: 'bottom 60%',
+                start: 'top 80%',
+                end: ()=> {
+                    if (window.innerWidth > 767) {
+                        return 'bottom 60%';
+                    } else {
+                        return 'bottom 80%';
+                    }
+                },
                 scrub: true,
                 // markers: true,
-                onEnter: () => {
-                    textScrollerContainer.classList.add('flex-no-wrap');
-                    gsap.set('.text-scroller-container-secondary-text', {
-                        opacity: 1,
-                    });
-                },
-                onLeaveBack: () => {
-                    textScrollerContainer.classList.remove('flex-no-wrap');
-                    gsap.set('.text-scroller-container-secondary-text', {
-                        opacity: 0,
-                    });
-                }
+                onEnter: () => textScrollerContainer.classList.add('flex-no-wrap'),
+                onLeaveBack: () => textScrollerContainer.classList.remove('flex-no-wrap'),
             },
-            x: () => {
-
-                let returnValue = -(scrollerWidth * .9725 - containerWidth);
-
-                console.log('containerWidth: ', containerWidth);
-                console.log('scrollerWidth: ', scrollerWidth);
-                console.log('returnValue: ', returnValue);
-                return returnValue
-            }
         })
+            .to(textScrollerContainer, {
+                x: getScrollDistance,
+                ease: 'none',
+            }, 0)
+            .to(scrollerSecondaryText, {
+                opacity: 1,
+                duration: 0.1,
+            }, 0);
     }
 
 
