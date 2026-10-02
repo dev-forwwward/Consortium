@@ -204,8 +204,8 @@ export function services() {
                 align: '#carousel-path',
                 alignOrigin: [0.5, 0.5],
                 autoRotate: true,
-                start: 1,
-                end: 1,
+                start: 0,
+                end: 0,
             },
         });
     };
@@ -238,8 +238,8 @@ export function services() {
                 align: '#carousel-path',
                 alignOrigin: [0.5, 0.5],
                 autoRotate: true,
-                start: 1,
-                end: 0,
+                start: 0,
+                end: 1,
             },
             duration: itemDuration,
             ease: 'none',
