@@ -61,6 +61,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 - MAP RENDER
 - MAP INTERFACE CONST
+- MAP ABOUT MENU VISIBILITY HANDLER
 - actual Census/Natural Earth coastline+border data via us-atlas, normalized
 - replaces a plain sine/cosine combo, which has an obvious repeating
 - period — this has none, at any zoom or density level
@@ -68,7 +69,6 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - dot footprint size now driven by real elevation — mountains read as
 - larger/denser tiles, plains as smaller/sparser ones — with a little
 - independent fine-grain noise so it's not perfectly flat within a region
-- ---- real elevation data, sampled from an actual grayscale relief map ----
 
 ### [`js/main.js`](js/main.js) — `mainInit()`
 
