@@ -16,6 +16,31 @@ export function homepageMap() {
         return
     }
 
+    // MAP ABOUT MENU VISIBILITY HANDLER
+    const aboutBtn = document.querySelector('.view-about-btn');
+    const aboutMenuContainer = document.querySelector('.hp-map-about-container');
+    if (aboutBtn) {
+        let text;
+
+        aboutBtn.addEventListener('click', () => {
+            if (aboutMenuContainer.classList.contains('active')) {
+                text = aboutBtn.dataset.closed;
+            } else {
+                text = aboutBtn.dataset.open;
+            }
+
+            let i = 0;
+            aboutBtn.textContent = '[]';
+            aboutBtn._typeInterval = setInterval(() => {
+                i++;
+                aboutBtn.textContent = text.slice(0, i);
+                if (i >= text.length) clearInterval(aboutBtn._typeInterval);
+            }, 75);
+
+            aboutMenuContainer.classList.toggle('active');
+        });
+    }
+
 
     const BG = 0xf3f1ec;
     const scene = new THREE.Scene();
