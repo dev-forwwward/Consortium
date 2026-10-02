@@ -456,7 +456,7 @@ export function homepageMap() {
     // a view with the attribute data-camera-view="<name>"
     const DEG = Math.PI / 180;
     const CAMERA_VIEWS = {
-        default: { radius: 26, theta: 57.6, phi: 72, target: [0, 0.3, 0], fov: 42, ortho: false },
+        default: { radius: 35.9, theta: 92.05, phi: 0.1, target: [-0.75, 8.55, -0.85], fov: 45, ortho: false },
         zoomIn: { radius: 5, theta: 91.4, phi: 0.1, target: [0, 0, 0], fov: 50, ortho: false },
         introZoom: { radius: 5, theta: 92.05, phi: 6.3, target: [0, 7.3, 0], fov: 45.5, ortho: false },
         topView: { radius: 28.7, theta: 92.05, phi: 6.3, target: [0, 7.3, 0], fov: 45.5, ortho: false },
@@ -491,6 +491,7 @@ export function homepageMap() {
 
     const camState = { radius, theta, phi, tx: target.x, ty: target.y, tz: target.z, fov };
     let camTween = null;
+    let zoomTween = null; // zoom-button tween, see zoomBy()
     function syncCamState() {
         radius = camState.radius; theta = camState.theta; phi = camState.phi;
         target.set(camState.tx, camState.ty, camState.tz);
@@ -510,6 +511,7 @@ export function homepageMap() {
             tx: target.x, ty: target.y, tz: target.z, fov
         });
         if (camTween) camTween.kill();
+        if (zoomTween) zoomTween.kill();
         camTween = gsap.to(camState, {
             radius: view.radius, theta: endTheta, phi: view.phi * DEG,
             tx: view.target[0], ty: view.target[1], tz: view.target[2], fov: view.fov,
@@ -635,12 +637,49 @@ export function homepageMap() {
         }
     });
     canvas.addEventListener('contextmenu', e => e.preventDefault());
+    const MIN_RADIUS = 5, MAX_RADIUS = 55;
+    const clampRadius = r => Math.min(MAX_RADIUS, Math.max(MIN_RADIUS, r));
+
     canvas.addEventListener('wheel', e => {
         if (!interactionEnabled) return;
-        radius = Math.min(55, Math.max(5, radius + e.deltaY * 0.015));
+        if (zoomTween) zoomTween.kill();
+        radius = clampRadius(radius + e.deltaY * 0.015);
         updateCamera();
         e.preventDefault();
     }, { passive: false });
+
+    // ---- zoom buttons: each click steps the distance by ZOOM_STEP, so repeated clicks compound ----
+    const ZOOM_STEP = 0.5; // zoom-in multiplies the distance by this, zoom-out divides by it
+    const zoomState = { radius };
+    let zoomTargetRadius = radius;
+
+    function zoomBy(factor) {
+        // keep stepping from where the previous click was heading, so rapid clicks add up
+        const from = zoomTween && zoomTween.isActive() ? zoomTargetRadius : radius;
+        zoomTargetRadius = clampRadius(from * factor);
+
+        // a zoom click takes over from a running view transition
+        if (camTween) camTween.kill();
+        if (zoomTween) zoomTween.kill();
+        zoomState.radius = radius;
+        zoomTween = gsap.to(zoomState, {
+            radius: zoomTargetRadius,
+            duration: 0.5,
+            ease: 'power2.out',
+            onUpdate: () => {
+                radius = zoomState.radius;
+                updateCamera();
+            }
+        });
+    }
+
+    document.querySelectorAll('.view-btn.zoom-in, .view-btn.zoom-out').forEach(btn => {
+        const factor = btn.classList.contains('zoom-in') ? ZOOM_STEP : 1 / ZOOM_STEP;
+        btn.addEventListener('click', e => {
+            e.preventDefault();
+            zoomBy(factor);
+        });
+    });
 
     canvas.addEventListener('click', e => {
         if (!interactionEnabled) return;
@@ -917,7 +956,7 @@ export function homepageMap() {
         } else {
             lenis.scrollTo(scrollToTarget, {
                 lock: true,
-                onComplete: () => { 
+                onComplete: () => {
                     if (locked) lenis.stop();
                 }
             });
@@ -1042,7 +1081,8 @@ export function homepageMap() {
         lockScroll();
     });
 
-    const viewBtns = document.querySelectorAll('.view-btn');
+    // zoom buttons share the .view-btn look but aren't views: they never take the active state
+    const viewBtns = document.querySelectorAll('.view-btn:not(.zoom-in):not(.zoom-out)');
 
     function collapseViewBtn(btn) {
         clearInterval(btn._typeInterval);

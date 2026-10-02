@@ -132,6 +132,11 @@ input[type="checkbox"]:checked::before {
     pointer-events: all;
 }
 
+.hp-map-about-container.active .hp-map-about-content {
+    opacity: 1;
+    pointer-events: all;
+}
+
 .map-button-toggles.locked {
     .close-map-btn {
         opacity: 1;
