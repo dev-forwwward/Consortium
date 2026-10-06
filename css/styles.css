@@ -161,6 +161,10 @@ input[type="checkbox"]:checked::before {
     pointer-events: none;
 }
 
+.map-hint.active {
+    opacity: .5;
+}
+
 .view-btn.active {
     border-color: var(--_primitives---colors--neutral-darkest);
 }
@@ -176,10 +180,6 @@ input[type="checkbox"]:checked::before {
 
     .view-toggles {
         opacity: 1;
-    }
-
-    .map-hint {
-        opacity: .5;
     }
 
     .scene {

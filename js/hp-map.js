@@ -2,6 +2,40 @@ export function homepageMap() {
 
     const bottomBorder = document.querySelector('.border-bottom-el-container-inner');
 
+    // MAP HINT
+    const mapHintTrigger = document.querySelector('.map-hint-trigger');
+    const mapHint = document.querySelector('.map-hint');
+    const mapToggleBtnWrapper = document.querySelector('.map-button-toggles');
+
+    // the toggle buttons and the hint must never be visible together:
+    // activating the hint always hides the toggles, and showing the toggles always deactivates the hint
+    function setMapHintActive(isActive) {
+        if (isActive && mapToggleBtnWrapper) {
+            mapToggleBtnWrapper.classList.remove('show');
+        }
+        if (mapHint) {
+            mapHint.classList.toggle('active', isActive);
+        }
+    }
+
+    function showMapToggles() {
+        setMapHintActive(false);
+        mapToggleBtnWrapper.classList.add('show');
+    }
+
+    if (window.innerWidth > 767 && mapHintTrigger && mapHint) {
+        ScrollTrigger.create({
+            trigger: mapHintTrigger,
+            start: 'top 35%',
+            onEnter: () => {
+                setMapHintActive(true);
+            },
+            onLeaveBack: () => {
+                setMapHintActive(false);
+            }
+        });
+    }
+
     // MAP RENDER
     const canvas = document.querySelector('.scene');
     const tooltip = document.getElementById('tooltip');
@@ -10,7 +44,6 @@ export function homepageMap() {
     const mapSection = document.getElementById('mapSection');
     const closeBtn = document.getElementById('closeMap');
     const openBtn = document.getElementById('openMap');
-    const mapToggleBtnWrapper = document.querySelector('.map-button-toggles');
 
     if (!canvas && !mapSection) {
         return
@@ -995,6 +1028,8 @@ export function homepageMap() {
         mapSection.classList.add('active');
         mapSectionBorder.classList.add('show');
 
+        setMapHintActive(false);
+
         // hide bottom border element
         bottomBorder.classList.add('hide-down');
 
@@ -1042,14 +1077,14 @@ export function homepageMap() {
         start: 'top top',
         end: '+=100px',
         pinSpacing: true,
-        // markers: true,
         onEnter: () => {
             pinHandler();
-            mapToggleBtnWrapper.classList.add('show');
+            showMapToggles();
         },
         onLeaveBack: () => {
+            // while the map is active the toggles must stay visible, so the hint can't come back
             if (!mapActive) {
-                mapToggleBtnWrapper.classList.remove('show');
+                setMapHintActive(true);
             }
         },
         onEnterBack: pinHandler,
@@ -1058,7 +1093,6 @@ export function homepageMap() {
     ScrollTrigger.create({
         trigger: '.hpmapsection-reveal',
         start: 'top top',
-        // markers: true,
         onEnter: () => {
             mapSection.classList.add('show');
         },
@@ -1074,7 +1108,6 @@ export function homepageMap() {
         start: 'top top',
         endTrigger: mapSectionTrigger,
         end: 'top top',
-        // markers: true,
         onUpdate: self => {
             // if (permanentlyUnpinned) { setIntroProgress(1); introTrigger.kill(); return; }
             setIntroProgress(self.progress);
@@ -1084,13 +1117,14 @@ export function homepageMap() {
     function pinHandler() {
         if (locked) return;
 
+        setMapHintActive(false);
+
         if (!permanentlyUnpinned) {
             lockScroll();
         } else {
             mapSection.classList.remove('active');
             openBtn.classList.add('show');
             mapSectionBorder.classList.remove('show');
-
 
             bottomBorder.classList.remove('hide-down');
         }
