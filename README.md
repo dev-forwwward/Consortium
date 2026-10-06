@@ -62,13 +62,13 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - MAP HINT
 - the toggle buttons and the hint must never be visible together:
 - activating the hint always hides the toggles, and showing the toggles always deactivates the hint
-- MAP RENDER
-- MAP INTERFACE CONST
-- MAP ABOUT MENU VISIBILITY HANDLER
-- actual Census/Natural Earth coastline+border data via us-atlas, normalized
-- replaces a plain sine/cosine combo, which has an obvious repeating
-- period — this has none, at any zoom or density level
-- fractal Brownian motion: several octaves layered for organic, non-repeating relief
+- MAP PINNING
+- trigger: mapSectionTrigger,
+- start: 'top top',
+- pinSpacing: true,
+- // while the map is active the toggles must stay visible, so the hint can't come back
+- onEnterBack: pinHandler,
+- map reveal
 
 ### [`js/main.js`](js/main.js) — `mainInit()`
 
