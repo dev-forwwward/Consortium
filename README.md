@@ -59,6 +59,9 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 ### [`js/hp-map.js`](js/hp-map.js) — `homepageMap()`
 
+- MAP HINT
+- the toggle buttons and the hint must never be visible together:
+- activating the hint always hides the toggles, and showing the toggles always deactivates the hint
 - MAP RENDER
 - MAP INTERFACE CONST
 - MAP ABOUT MENU VISIBILITY HANDLER
@@ -66,9 +69,6 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - replaces a plain sine/cosine combo, which has an obvious repeating
 - period — this has none, at any zoom or density level
 - fractal Brownian motion: several octaves layered for organic, non-repeating relief
-- dot footprint size now driven by real elevation — mountains read as
-- larger/denser tiles, plains as smaller/sparser ones — with a little
-- independent fine-grain noise so it's not perfectly flat within a region
 
 ### [`js/main.js`](js/main.js) — `mainInit()`
 
