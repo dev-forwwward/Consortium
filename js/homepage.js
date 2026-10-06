@@ -354,7 +354,7 @@ export function homepage() {
     const stickyGridSection = document.querySelector('.hp_grid_sticky');
     const stickyGridItems = document.querySelectorAll('.hp_grid_sticky .grid_slide_down');
 
-    if (stickyGridSection && stickyGridItems.length > 0) {
+    if (stickyGridSection && stickyGridItems.length > 0 && window.innerWidth > 767) {
         gsap.to(stickyGridItems, {
             scrollTrigger: {
                 trigger: stickyGridSection,
