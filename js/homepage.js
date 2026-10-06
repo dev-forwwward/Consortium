@@ -325,6 +325,7 @@ export function homepage() {
                 });
         };
 
+        const border = document.querySelector('.border-bottom-el-container-inner');
         ScrollTrigger.create({
             trigger: rotatorSection,
             start: 'clamp(top top)',
@@ -346,6 +347,26 @@ export function homepage() {
                     typeTagline(taglineWords[activeIndex]);
                 }
             },
+            onEnter: ()=> {
+                if(window.innerWidth <= 767) {
+                    border.classList.add('hide-down');
+                }
+            },
+            onEnterBack: ()=> {
+                if(window.innerWidth <= 767) {
+                    border.classList.add('hide-down');
+                }
+            },
+            onLeave: ()=> {
+                if(window.innerWidth <= 767) {
+                    border.classList.remove('hide-down');
+                }
+            },
+            onLeaveBack: ()=> {
+                if(window.innerWidth <= 767) {
+                    border.classList.remove('hide-down');
+                }
+            }
         });
     }
 
