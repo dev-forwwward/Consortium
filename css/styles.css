@@ -226,6 +226,23 @@ input[type="checkbox"]:checked::before {
     height: auto;
 }
 
+@media screen and (max-width: 767px) {
+    .mwg_effect014 img.format1 {
+        width: 62vw;
+        height: auto;
+    }
+
+    .mwg_effect014 img.format2 {
+        width: 55vw;
+        height: auto;
+    }
+
+    .mwg_effect014 img.format3 {
+        width: 45vw;
+        height: auto;
+    }
+}
+
 /* .mwg_effect014 img.format4 {
     width: 30vw;
     height: auto;

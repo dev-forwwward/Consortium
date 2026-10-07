@@ -41,7 +41,8 @@ export function homepage() {
         classes = ['format1', 'format2', 'format3']
 
     if (root) {
-        document.addEventListener('wheel', () => {
+        // 'scroll' (not 'wheel') so touch devices also hide the hint
+        window.addEventListener('scroll', () => {
             gsap.to('.scroll', {
                 autoAlpha: 0,
                 duration: 0.15,
@@ -55,7 +56,8 @@ export function homepage() {
         const imagesLength = images.length
 
         let incr = 0,
-            currentIndex = 0
+            currentIndex = 0,
+            lastScroll = 0
 
         // Pin the section for a scroll distance proportional to the image count, so the
         // shuffling effect has room to play out in place before the page continues
@@ -69,28 +71,34 @@ export function homepage() {
             // markers: true,
             pinSpacing: true,
             anticipatePin: 1,
+            onEnter: (self) => {
+                lastScroll = self.scroll()
+            },
             onLeaveBack: () => {
                 // Scrolled back above the section: reset so the effect replays on re-entry
                 currentIndex = 0
                 incr = 0
             },
-            onEnterBack: () => {
+            onEnterBack: (self) => {
                 // Scrolled back above the section: reset so the effect replays on re-entry
                 currentIndex = 0
                 incr = 0
+                lastScroll = self.scroll()
+            },
+            onUpdate: (self) => {
+                // Distance scrolled since the last update — works for wheel, touch, keyboard, scrollbar
+                const scroll = self.scroll()
+                incr += Math.abs(scroll - lastScroll) // Math.abs() to ignore the scroll direction
+                lastScroll = scroll
+
+                if (currentIndex >= imagesLength) return
+
+                if (incr > 500) {
+                    newImage()
+                    incr = 0 // Reset incr value
+                }
             },
         })
-
-        document.addEventListener('wheel', (e) => {
-            if (!trigger.isActive || currentIndex >= imagesLength) return
-
-            incr += Math.abs(e.deltaY); // Math.abs() to ignore the scroll direction
-
-            if (incr > 500) {
-                newImage()
-                incr = 0; // Reset incr value
-            }
-        }, { passive: true })
 
         function newImage() {
             // We pick a random value from the list of predefined classes
@@ -138,6 +146,13 @@ export function homepage() {
             currentIndex++
         }
 
+        let finalImgX = '30vw';
+        let finalImgY = 50;
+        if(window.innerWidth <= 767) {
+            finalImgX = '10vw';
+            finalImgY = 125;
+        }
+
         // Transition last portfolio image reveal into fixed spot
         gsap.timeline({
             scrollTrigger: {
@@ -167,8 +182,8 @@ export function homepage() {
         })
             .from('.hp_portfolio-media-end', {
                 delay: .25,
-                x: '30vw',
-                yPercent: -50,
+                x: finalImgX,
+                yPercent: -finalImgY,
                 rotation: () => (Math.random() - 0.5) * 20,
             });
 
@@ -226,8 +241,8 @@ export function homepage() {
                     // Explicit rem end values (match .text-scroller-container in Webflow) so GSAP
                     // never falls back to the computed px value at the end of the tween
                     fontSize: '7.25rem',
-                    paddingTop: '12rem',
-                    paddingBottom: '0rem',
+                    paddingTop: '0rem',
+                    paddingBottom: '12rem',
                 })
                 .to('.scroller-main-text', {
                     height: 'auto',
