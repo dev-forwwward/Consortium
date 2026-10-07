@@ -56,6 +56,18 @@ export function homepageMap() {
             }
         });
 
+        // start the overflowing mobile map horizontally centered
+        const sceneMobileContainer = document.querySelector('.scene-mobile-container');
+        const sceneMobile = document.querySelector('.scene-mobile');
+        if (sceneMobileContainer && sceneMobile) {
+            const centerScene = () => {
+                sceneMobileContainer.scrollLeft =
+                    (sceneMobileContainer.scrollWidth - sceneMobileContainer.clientWidth) / 2;
+            };
+            if (sceneMobile.complete) centerScene();
+            else sceneMobile.addEventListener('load', centerScene, { once: true });
+        }
+
         // map zoom-out
         const introTrigger = gsap.timeline({
             scrollTrigger: {
@@ -64,10 +76,30 @@ export function homepageMap() {
                 end: '+=1400px',
                 scrub: true,
             }
-        }).fromTo('.scene-mobile', {
-            scale: 6.5
+        })
+            .fromTo('.scene-mobile', {
+                scale: 6.5
+            }, {
+                scale: 1,
+            });
+
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: '.scene-mobile-container',
+                start: 'bottom center',
+                scrub: false,
+                toggleActions: 'play none none none',
+            }
+        }).fromTo('.canvas-wrap .tag', {
+            opacity: 0,
         }, {
-            scale: 2
+            delay: .2,
+            opacity: .5,
+            duration: 0.5,
+        }).to('.canvas-wrap .tag', {
+            delay: 2,
+            opacity: 0,
+            duration: .5,
         });
 
     } else {
@@ -111,17 +143,17 @@ export function homepageMap() {
 
         // HINT TEXT (not in use)
         if (mapHintTrigger && mapHint) {
-        ScrollTrigger.create({
-            trigger: mapHintTrigger,
-            start: 'top 35%',
-            onEnter: () => {
-                setMapHintActive(true);
-            },
-            onLeaveBack: () => {
-                setMapHintActive(false);
-            }
-        });
-    }
+            ScrollTrigger.create({
+                trigger: mapHintTrigger,
+                start: 'top 35%',
+                onEnter: () => {
+                    setMapHintActive(true);
+                },
+                onLeaveBack: () => {
+                    setMapHintActive(false);
+                }
+            });
+        }
 
 
         const BG = 0xf3f1ec;

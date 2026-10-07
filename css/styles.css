@@ -191,6 +191,18 @@ input[type="checkbox"]:checked::before {
     opacity: .7;
 }
 
+.scene-mobile-container {
+    scrollbar-width: none;
+    /* Firefox, Chrome 121+ */
+    -ms-overflow-style: none;
+    /* old Edge */
+}
+
+.scene-mobile-container::-webkit-scrollbar {
+    display: none;
+    /* Safari, older Chrome */
+}
+
 /* Work Selection */
 .mwg_effect014 {
     position: relative;
@@ -339,7 +351,8 @@ input[type="checkbox"]:checked::before {
 }
 
 @media screen and (max-width: 479px) {
-    .scroller-main-text, 
+
+    .scroller-main-text,
     .text-scroller-container-secondary-text {
         font-size: 2.25rem;
     }
