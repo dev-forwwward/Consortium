@@ -54,8 +54,8 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - end: 'bottom bottom',
 - markers: true,
 - Scrolled back above the section: reset so the effect replays on re-entry
+- Distance scrolled since the last update — works for wheel, touch, keyboard, scrollbar
 - We pick a random value from the list of predefined classes
-- We create an image
 
 ### [`js/hp-map.js`](js/hp-map.js) — `homepageMap()`
 
