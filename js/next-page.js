@@ -34,8 +34,10 @@ export function nextPage() {
         const useViewTransition = 'onpagereveal' in window;
 
         // Park the shared hero in the viewport rather than the footer: on the
-        // transition path it is what gets captured
-        if (scrollTo) { lenis.scrollTo(useViewTransition ? nextPageContainer : footer) }
+        // transition path it is what gets captured. The scroll must settle well
+        // inside the exit timeline (~.9s) — Lenis' default (~1.2s) could still be
+        // moving when navigation commits and the old snapshot is taken
+        if (scrollTo) { lenis.scrollTo(useViewTransition ? nextPageContainer : footer, { duration: .25 }) }
 
         // kill scrollTrigger load animation to avoid animation conflicts on page exit (one animation has scrub, other is auto)
         loadBarScrollAnimation.kill();

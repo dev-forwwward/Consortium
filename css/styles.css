@@ -285,7 +285,7 @@ input[type="checkbox"]:checked::before {
 
 /*
 *   CROSS-DOCUMENT VIEW TRANSITION (a page's next-up block -> the destination
-*   page's header145 hero)
+*   page's hero)
 *
 *   Lives in the site's head custom code as a render-blocking inline <style>
 *   plus a blocking inline <script>, not here. Two reasons it cannot move:
@@ -297,11 +297,21 @@ input[type="checkbox"]:checked::before {
 *      parsing, before its first render. js/script-loader.js only runs its
 *      inits after DOMContentLoaded + document.fonts.ready, far too late.
 *
+*   Morph pairs are marked in the Designer with data attributes, since the
+*   heroes don't share a structure:
+*     data-vt-out="bg"  on the next-up preview (image, embed, or the block)
+*     data-vt-in="bg"   on the hero background, or the hero box if it has none
+*     data-vt-out/in="title"  only where both headings carry the same text
+*   A new page in the next-up chain needs both attributes to morph.
+*
 *   The head script toggles .vt-hero-out (leaving) / .vt-hero-in (arriving) on
 *   <html>, and the head CSS hangs view-transition-name off those. Do NOT go
-*   back to naming by plain class selectors: /about owns BOTH a .section_next-up
-*   block and a .header145_image-wrapper hero, so a shared rule put hero-bg on
-*   two elements there and Chrome discarded the whole transition.
+*   back to unscoped selectors: /about owns BOTH a next-up block and a hero, so
+*   a shared rule put hero-bg on two elements there and Chrome discarded the
+*   whole transition.
+*
+*   window.vtFinished (set by the head script) resolves when the arrival
+*   transition ends, for hero reveals that should wait for the morph.
 *
 *   js/next-page.js reads the same capability ('onpagereveal' in window) to
 *   decide whether its exit animation may wipe .next-up-container away.
