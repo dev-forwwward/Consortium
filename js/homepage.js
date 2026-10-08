@@ -3,19 +3,22 @@ export function homepage() {
     // HERO REVEAL
     const hpHero = document.querySelector('.section_hero_hp');
     if (hpHero) {
+        // The logo and both text blocks start at opacity 0 from the head custom
+        // code (html.w-mod-js ...), so they are already hidden on first paint —
+        // hiding them from here would let them flash first (see reveals.js)
         gsap.set('.hp_hero_main_text_content-top', {
             yPercent: 100
         });
 
         gsap.timeline()
-            .from('.hp_hero_logo_container', {
+            .to('.hp_hero_logo_container', {
                 delay: .5,
-                opacity: 0,
+                opacity: 1,
                 duration: 1
             })
-            .from('.hp_hero_main_text_content-top', {
+            .to('.hp_hero_main_text_content-top', {
                 delay: .1,
-                opacity: 0,
+                opacity: 1,
                 duration: .5
             }, "<")
             .to('.hp_hero_main_text_content-top', {
@@ -27,9 +30,11 @@ export function homepage() {
                 opacity: 1,
                 duration: .8
             }, "<")
-            .from('.hp_hero_main_text_content-bottom', {
+            .fromTo('.hp_hero_main_text_content-bottom', {
                 yPercent: 100,
-                opacity: 0,
+            }, {
+                yPercent: 0,
+                opacity: 1,
                 duration: .8
             }, "<");
     }

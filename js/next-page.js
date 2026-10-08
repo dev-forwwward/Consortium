@@ -33,6 +33,11 @@ export function nextPage() {
         // code; see the CROSS-DOCUMENT VIEW TRANSITION note in css/styles.css
         const useViewTransition = 'onpagereveal' in window;
 
+        // Read the mask as it is on screen before anything below is killed:
+        // killing the triggers resets the reveal to its closed CSS state, and the
+        // exit would then visibly replay the whole opening from scratch
+        const revealClip = nextPageRevealContainer && getComputedStyle(nextPageRevealContainer).clipPath;
+
         // Park the shared hero in the viewport rather than the footer: on the
         // transition path it is what gets captured. The scroll must settle well
         // inside the exit timeline (~.9s) — Lenis' default (~1.2s) could still be
@@ -67,8 +72,13 @@ export function nextPage() {
         if (useViewTransition) {
             // A direct click can land while the reveal scrub is only part-way
             // open. Kill the scrub and finish the reveal on the timeline so the
-            // transition is handed a fully open block instead of a clipped one
-            revealScrollAnimation?.scrollTrigger?.kill();
+            // transition is handed a fully open block instead of a clipped one.
+            // kill(false, true) drops the trigger but keeps (and doesn't revert)
+            // the timeline; pausing it stops the scrub from writing over the
+            // exit, and the set puts back whatever the visitor was looking at
+            revealScrollAnimation?.scrollTrigger?.kill(false, true);
+            revealScrollAnimation?.pause();
+            gsap.set(nextPageRevealContainer, { clipPath: revealClip });
             exitTimeline.to(nextPageRevealContainer, {
                 clipPath: 'inset(0%)',
                 duration: .25,

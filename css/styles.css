@@ -290,9 +290,11 @@ input[type="checkbox"]:checked::before {
 *   Lives in the site's head custom code as a render-blocking inline <style>
 *   plus a blocking inline <script>, not here. Two reasons it cannot move:
 *
-*   1. This stylesheet is script-injected and cache-busted per load, so every
-*      navigation refetches it. It still blocks first paint, but the extra
-*      round trip widens the window the transition has to hold the new page.
+*   1. This stylesheet is cache-busted per load, so every navigation refetches
+*      it, and the extra round trip widens the window the transition has to
+*      hold the new page. It is written into the head with document.write so
+*      it blocks first paint — appended with createElement it did not, and
+*      pages arriving with the preloader skipped painted unstyled for a frame.
 *   2. The incoming page has to be marked as the hero target during head
 *      parsing, before its first render. js/script-loader.js only runs its
 *      inits after DOMContentLoaded + document.fonts.ready, far too late.
@@ -300,9 +302,15 @@ input[type="checkbox"]:checked::before {
 *   Morph pairs are marked in the Designer with data attributes, since the
 *   heroes don't share a structure:
 *     data-vt-out="bg"  on the next-up preview (image, embed, or the block)
-*     data-vt-in="bg"   on the hero background, or the hero box if it has none
+*     data-vt-in="bg"   on the hero background, or the whole hero box when
+*                       anything is drawn over the image (text, Services' circle)
+*     data-vt-out="content"  on the preview's text when only its image is named
 *     data-vt-out/in="title"  only where both headings carry the same text
-*   A new page in the next-up chain needs both attributes to morph.
+*   A new page in the next-up chain needs both bg attributes to morph.
+*   Named elements paint above the rest of the page while the transition runs:
+*   anything left outside them is hidden underneath and pops in at the end.
+*   The fixed chrome (navbar, bottom border elements, BG lines) is named in the
+*   head CSS for that reason.
 *
 *   The head script toggles .vt-hero-out (leaving) / .vt-hero-in (arriving) on
 *   <html>, and the head CSS hangs view-transition-name off those. Do NOT go
