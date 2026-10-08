@@ -47,6 +47,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 ### [`js/homepage.js`](js/homepage.js) — `homepage()`
 
 - HERO REVEAL
+- The logo and both text blocks start at opacity 0 from the head custom
 - WORKS
 - Pin the section for a scroll distance proportional to the image count, so the
 - shuffling effect has room to play out in place before the page continues
@@ -55,7 +56,6 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - markers: true,
 - Scrolled back above the section: reset so the effect replays on re-entry
 - Distance scrolled since the last update — works for wheel, touch, keyboard, scrollbar
-- We pick a random value from the list of predefined classes
 
 ### [`js/hp-map.js`](js/hp-map.js) — `homepageMap()`
 
@@ -122,7 +122,9 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 ### [`js/reveals.js`](js/reveals.js) — `reveals()`
 
-_No inline section comments found — see source for details._
+- The hidden start state comes from the head custom code
+- place on first paint. Setting it from here instead would run after
+- fonts load, once the page has been painted, and the content would
 
 ### [`js/scroll-video-v1.js`](js/scroll-video-v1.js) — `scrollVideo()`
 
