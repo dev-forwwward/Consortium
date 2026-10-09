@@ -136,12 +136,12 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - empty .process-tag_details placeholder already sitting in the Webflow
 - structure, then just shown/hidden via the .is-active class after that.
 - Accordion behaviour: collapse any other open tag first.
+- The circle doesn't necessarily resize when crossing 767px, so re-lay out
+- on the breakpoint change too.
 - SCROLL-IN TABLE SECTION
 - mobile
 - CURVED PARTNER-LOGO CAROUSEL
 - #carousel-path has off-canvas tails at both ends: progress 1 is the
-- top-right entrance, 0 the bottom-left exit, so items travel 1 -> 0.
-- Park every item at the path entrance so queued items don't sit at
 
 ### [`js/swiper.js`](js/swiper.js) — `swiperInit()`
 
