@@ -101,11 +101,59 @@ function initProcessTags(scope) {
     });
 }
 
+// "OUR PROCESS" CIRCLE LABELS (PLANNING / DESIGNING)
+function initProcessCircleLabels(scope) {
+    const svgs = scope.querySelectorAll('.our-process_embed svg[data-arc-center]');
+    if (svgs.length === 0) { return }
+
+    const ARC_HALF_SPAN = 89; // degrees either side of the centre angle
+    const mobileQuery = window.matchMedia('(max-width: 767px)');
+
+    const pointAt = (cx, cy, r, deg) => {
+        const rad = (deg * Math.PI) / 180;
+        return `${(cx + r * Math.cos(rad)).toFixed(2)},${(cy + r * Math.sin(rad)).toFixed(2)}`;
+    };
+
+    const layout = (svg) => {
+        const path = svg.querySelector('path');
+        const size = svg.getBoundingClientRect().width;
+        if (!path || size === 0) { return }
+
+        const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+        const isMobile = mobileQuery.matches;
+        const inset = parseFloat(
+            (isMobile && svg.dataset.arcInsetMobile) || svg.dataset.arcInset || '0.75'
+        ) * rootFontSize;
+        const center = parseFloat(
+            (isMobile && svg.dataset.arcCenterMobile) || svg.dataset.arcCenter
+        );
+        const c = size / 2;
+        const r = Math.max(c - inset, 0);
+
+        const start = pointAt(c, c, r, center + ARC_HALF_SPAN);
+        const end = pointAt(c, c, r, center - ARC_HALF_SPAN);
+        path.setAttribute('d', `M ${start} A ${r},${r} 0 0,0 ${end}`);
+        svg.style.visibility = 'visible';
+    };
+
+    const observer = new ResizeObserver((entries) => {
+        entries.forEach((entry) => layout(entry.target));
+    });
+    svgs.forEach((svg) => {
+        layout(svg);
+        observer.observe(svg);
+    });
+    // The circle doesn't necessarily resize when crossing 767px, so re-lay out
+    // on the breakpoint change too.
+    mobileQuery.addEventListener('change', () => svgs.forEach(layout));
+}
+
 export function services() {
     const servicesHeroSection = document.querySelector('.section-services-hero');
     if (!servicesHeroSection) { return }
 
     initProcessTags(document);
+    initProcessCircleLabels(document);
 
 
     // SCROLL-IN TABLE SECTION
