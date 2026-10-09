@@ -579,6 +579,12 @@ input[type="checkbox"]:checked::before {
     }
 }
 
+@media screen and (max-width: 991px) {
+    [is-mock-achiev="1"] {
+        display: none;
+    }
+}
+
 /* 2nd, 4th… among matching elements only */
 :nth-child(even of [is-mock-achiev="1"]) {
     top: 0;
