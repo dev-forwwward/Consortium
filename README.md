@@ -59,6 +59,8 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 ### [`js/hp-map.js`](js/hp-map.js) — `homepageMap()`
 
+- MAP RENDER
+- MAP INTERFACE CONST
 - MAP HINT
 - the toggle buttons and the hint must never be visible together:
 - activating the hint always hides the toggles, and showing the toggles always deactivates the hint
@@ -67,8 +69,6 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - start: 'top top',
 - pinSpacing: true,
 - // while the map is active the toggles must stay visible, so the hint can't come back
-- onEnterBack: pinHandler,
-- map reveal
 
 ### [`js/main.js`](js/main.js) — `mainInit()`
 
@@ -141,7 +141,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - SCROLL-IN TABLE SECTION
 - mobile
 - CURVED PARTNER-LOGO CAROUSEL
-- #carousel-path has off-canvas tails at both ends: progress 1 is the
+- otherwise join the path queue and double the pinned scroll length.
 
 ### [`js/swiper.js`](js/swiper.js) — `swiperInit()`
 
