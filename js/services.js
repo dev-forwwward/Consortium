@@ -225,72 +225,94 @@ export function services() {
 
 
     const brandCarouselSection = document.querySelector('.brand-carousel-section');
-    if (!brandCarouselSection) { return }
+    if (brandCarouselSection && window.innerWidth > 767) {
 
-    // CURVED PARTNER-LOGO CAROUSEL
-    gsap.registerPlugin(MotionPathPlugin);
+        // CURVED PARTNER-LOGO CAROUSEL
+        gsap.registerPlugin(MotionPathPlugin);
 
-    const carouselItems = gsap.utils.toArray('.brand-carousel-item', brandCarouselSection);
-    if (carouselItems.length === 0) { return }
+        // Skip the mobile-only second track (.hide-desktop): its items would
+        // otherwise join the path queue and double the pinned scroll length.
+        const carouselItems = gsap.utils.toArray(
+            '.brand-carousel-track:not(.hide-desktop) .brand-carousel-item',
+            brandCarouselSection
+        );
+        if (carouselItems.length === 0) { return }
 
-    let itemStagger = .135;
-    let itemDuration = 1.5;
+        let itemStagger = .135;
+        let itemDuration = 1.5;
 
-    if(window.innerWidth < 991) {
-        document.querySelector('.brand-carousel-item').offsetWidth * 0.25 / 100;
-    }
-
-    // #carousel-path has off-canvas tails at both ends: progress 1 is the
-    // top-right entrance, 0 the bottom-left exit, so items travel 1 -> 0.
-
-    // Park every item at the path entrance so queued items don't sit at
-    // their raw CSS (top:0/left:0) position.
-    const queueItemsAtPathEntrance = () => {
-        gsap.set(carouselItems, {
-            motionPath: {
-                path: '#carousel-path',
-                align: '#carousel-path',
-                alignOrigin: [0.5, 0.5],
-                autoRotate: true,
-                start: 0,
-                end: 0,
-            },
-        });
-    };
-
-    queueItemsAtPathEntrance();
-
-    const carouselTimeline = gsap.timeline({
-        scrollTrigger: {
-            trigger: brandCarouselSection,
-            start: 'top top',
-            end: `+=${carouselItems.length * 400}`,
-            pin: true,
-            pinSpacing: true,
-            anticipatePin: 1,
-            scrub: true,
-            // The full-bleed path is baked in at build time, so re-measure on
-            // resize (and re-queue, since that lives outside the timeline).
-            invalidateOnRefresh: true,
-            onRefresh: queueItemsAtPathEntrance,
-            // markers: true,
+        if (window.innerWidth < 991) {
+            document.querySelector('.brand-carousel-item').offsetWidth * 0.25 / 100;
         }
-    });
 
-    // Each item runs the full path; a short stagger relative to the
-    // duration keeps several items visible at once, reading as a queue.
-    carouselItems.forEach((item, i) => {
-        carouselTimeline.to(item, {
-            motionPath: {
-                path: '#carousel-path',
-                align: '#carousel-path',
-                alignOrigin: [0.5, 0.5],
-                autoRotate: true,
-                start: 0,
-                end: 1,
-            },
-            duration: itemDuration,
-            ease: 'none',
-        }, i * itemStagger);
-    });
+        // #carousel-path has off-canvas tails at both ends: progress 1 is the
+        // top-right entrance, 0 the bottom-left exit, so items travel 1 -> 0.
+
+        // Park every item at the path entrance so queued items don't sit at
+        // their raw CSS (top:0/left:0) position.
+        const queueItemsAtPathEntrance = () => {
+            gsap.set(carouselItems, {
+                motionPath: {
+                    path: '#carousel-path',
+                    align: '#carousel-path',
+                    alignOrigin: [0.5, 0.5],
+                    autoRotate: true,
+                    start: 0,
+                    end: 0,
+                },
+            });
+        };
+
+        queueItemsAtPathEntrance();
+
+        const carouselTimeline = gsap.timeline({
+            scrollTrigger: {
+                trigger: brandCarouselSection,
+                start: 'top top',
+                end: `+=${carouselItems.length * 400}`,
+                pin: true,
+                pinSpacing: true,
+                anticipatePin: 1,
+                scrub: true,
+                // The full-bleed path is baked in at build time, so re-measure on
+                // resize (and re-queue, since that lives outside the timeline).
+                invalidateOnRefresh: true,
+                onRefresh: queueItemsAtPathEntrance,
+                // markers: true,
+            }
+        });
+
+        // Each item runs the full path; a short stagger relative to the
+        // duration keeps several items visible at once, reading as a queue.
+        carouselItems.forEach((item, i) => {
+            carouselTimeline.to(item, {
+                motionPath: {
+                    path: '#carousel-path',
+                    align: '#carousel-path',
+                    alignOrigin: [0.5, 0.5],
+                    autoRotate: true,
+                    start: 0,
+                    end: 1,
+                },
+                duration: itemDuration,
+                ease: 'none',
+            }, i * itemStagger);
+        });
+    } else if (brandCarouselSection) {
+
+        // MOBILE MARQUEE
+        // The scroll itself is the Webflow interaction "Brand Carousel Marquee
+        // (mobile)": the first track runs xPercent 0 -> -50, the second
+        // (.hide-desktop) -50 -> 0, both repeating. Doubling each track's items
+        // makes +/-50% land exactly on the copy of item 1, so the loop is
+        // seamless; the track's mobile padding-right (= its gap) keeps the
+        // halves equal.
+        brandCarouselSection.querySelectorAll('.brand-carousel-track').forEach((track) => {
+            track.querySelectorAll('.brand-carousel-item').forEach((item) => {
+                const clone = item.cloneNode(true);
+                clone.setAttribute('aria-hidden', 'true');
+                track.appendChild(clone);
+            });
+        });
+    }
 }
