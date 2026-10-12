@@ -27,14 +27,19 @@ export function homepage() {
                 duration: .8
             })
             .from('.hp_hero_main_text_content-top .heading-style-h3_custom', {
-                opacity: 1,
+                opacity: 0,
                 duration: .8
             }, "<")
             .fromTo('.hp_hero_main_text_content-bottom', {
                 yPercent: 100,
+                opacity: 0,
             }, {
                 yPercent: 0,
                 opacity: 1,
+                duration: .8
+            }, "<")
+            .from('.hp-icon-embed-custom', {
+                opacity: 0,
                 duration: .8
             }, "<");
     }
