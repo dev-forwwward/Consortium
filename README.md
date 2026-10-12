@@ -79,9 +79,9 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - List-Grid View Toggle
 - clear previously active btn
 - reset any open grid accordion items
+- Text pin in About - text shrinks/tracks in from Body-L while its container widens
 - Timeline in About
 - set random left position for mock achievements in timeline
-- pin section and animate timeline years
 
 ### [`js/menu.js`](js/menu.js) — `navBarMenu()`
 
