@@ -3,3 +3,9 @@ reports/
 video/
 Works.xlsx
 Journals.xlsx
+
+# Video source masters (too large for jsDelivr/GitHub; only the -scrub/-poster derivatives are served)
+media/c-desktop-vid.mp4
+media/c-mobile-vid.mp4
+media/Consortium-video-30fps-desktop.mp4
+media/Consortium-video-30fps-mobile.mp4
