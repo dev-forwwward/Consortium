@@ -94,18 +94,18 @@ export function homepageMap() {
 
             gsap.timeline({
                 scrollTrigger: {
-                    trigger: '.scene-mobile-container',
-                    start: 'bottom center',
+                    trigger: mapHintTrigger,
+                    start: 'top 15%',
                     scrub: false,
                     toggleActions: 'play none none none',
                 }
-            }).fromTo('.canvas-wrap .tag', {
+            }).fromTo('.canvas-wrap .mobile-tag', {
                 opacity: 0,
             }, {
                 delay: .2,
                 opacity: .5,
                 duration: 0.5,
-            }).to('.canvas-wrap .tag', {
+            }).to('.canvas-wrap .mobile-tag', {
                 delay: 2,
                 opacity: 0,
                 duration: .5,
@@ -142,7 +142,7 @@ export function homepageMap() {
                 });
             }
 
-            // HINT TEXT (not in use)
+            // HINT TEXT (OLD - not in use)
             if (mapHintTrigger && mapHint) {
                 ScrollTrigger.create({
                     trigger: mapHintTrigger,
