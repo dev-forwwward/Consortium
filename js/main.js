@@ -62,6 +62,42 @@ export function mainInit() {
         });
     }
 
+    // Text pin in About - text shrinks/tracks in from Body-L while its container widens
+    // (created before the timeline pin below so pin spacing is calculated in page order)
+    const aboutPinSection = document.querySelector('.about-text-pin-section');
+    const aboutPinContainer = aboutPinSection?.querySelector('.about-text-pin-container');
+    const aboutPinText = aboutPinContainer?.querySelectorAll('p');
+
+    if (aboutPinSection && aboutPinContainer && aboutPinText.length > 0 && window.innerWidth >= 768) {
+        const bodyLSize = getComputedStyle(document.documentElement).getPropertyValue('--_typography---font-styles--body-l-size').trim() || '1.125rem';
+
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: aboutPinSection,
+                scrub: 1,
+                start: 'top center',
+                end: 'bottom bottom'
+            }
+        })
+            .from(aboutPinText, {
+                fontSize: bodyLSize,
+                letterSpacing: '-.01em',
+            }, 0)
+            .from(aboutPinContainer, {
+                width: '33.33%',
+            }, 0)
+            .from('.about-text-pin-section .text-fade-in', {
+                opacity: 0,
+                duration: 1,
+            }, .2)
+            .from('.about-text-pin-section .inline-image', {
+                opacity: 0,
+                stagger: 0,
+                width: "0%",
+                duration: 1,
+            }, "<");
+    }
+
     // Timeline in About
     const timelineSection = document.querySelector('.timeline-section');
     const timelineContainer = document.querySelector('.timeline-container');
