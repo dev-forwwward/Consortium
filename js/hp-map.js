@@ -524,8 +524,17 @@ export function homepageMap() {
             // usX/usY: map coords (a little west + south of Kansas, ~map center). size: world units across
             // (the whole map is TARGET_WORLD_W wide). depth: extrusion thickness. float: clearance above the
             // highest tile under the logo. Tweak live with ?cam-debug, then paste its LOGO output here
-            const LOGO = { usX: 50, usY: 24.6, size: 0.85, depth: 0.36, float: 0 };
+            const LOGO = { usX: 50.1, usY: 24.85, size: 0.9, depth: 0.9, float: 0 };
             let logoGroup = null;
+            // faded by the .map-hint-trigger ScrollTrigger (see MAP DOM INTERFACE); kept here so debug rebuilds keep the current fade
+            const logoFade = { opacity: 1 };
+
+            function applyLogoOpacity() {
+                if (!logoGroup) return;
+                logoGroup.children.forEach(m => { m.material.opacity = logoFade.opacity; });
+                // hide once fully faded so it stops casting its (non-fading) shadow
+                logoGroup.visible = logoFade.opacity > 0;
+            }
 
             function svgPathToShape(d) {
                 // absolute M/L/H/V/Z only — enough for the logo's straight-edged paths
@@ -560,7 +569,7 @@ export function homepageMap() {
                 geo.rotateX(Math.PI / 2);
                 geo.translate(0, LOGO.depth, 0);
 
-                const mat = new THREE.MeshStandardMaterial({ color: LOGO_COLOR, roughness: 0.5, metalness: 0.08 });
+                const mat = new THREE.MeshStandardMaterial({ color: LOGO_COLOR, roughness: 0.5, metalness: 0.08, transparent: true });
                 const mesh = new THREE.Mesh(geo, mat);
                 mesh.castShadow = true;
                 mesh.receiveShadow = true;
@@ -571,6 +580,7 @@ export function homepageMap() {
                 logoGroup.position.set(x, 0, z);
                 scene.add(logoGroup);
                 updateLogoHeight();
+                applyLogoOpacity();
             }
 
             function updateLogoHeight() {
@@ -598,7 +608,8 @@ export function homepageMap() {
             const CAMERA_VIEWS = {
                 default: { radius: 35.9, theta: 92.05, phi: 0.1, target: [-0.75, 8.55, -0.85], fov: 45, ortho: false },
                 zoomIn: { radius: 5, theta: 91.4, phi: 0.1, target: [0, 0, 0], fov: 50, ortho: false },
-                introZoom: { radius: 5, theta: 92.05, phi: 6.3, target: [0, 7.3, 0], fov: 45.5, ortho: false },
+                // introZoom: { radius: 5, theta: 92.05, phi: 6.3, target: [0, 7.3, 0], fov: 45.5, ortho: false },
+                introZoom: { radius: 5, theta: 88.4, phi: 6.3, target: [0.08, 7.3, 0], fov: 27.5, ortho: false },
                 topView: { radius: 28.7, theta: 92.05, phi: 6.3, target: [0, 7.3, 0], fov: 45.5, ortho: false },
                 isometric: { radius: 26, theta: 45, phi: 54.74, target: [-0.65, 2.2, -2.25], fov: 42, ortho: true },
                 perspective: { radius: 24.6, theta: 66.3, phi: 68.9, target: [-1.35, 1.8, -1.65], fov: 50, ortho: true },
@@ -728,6 +739,8 @@ export function homepageMap() {
             window.addEventListener('pointerup', () => { dragging = false; mode = null; canvas.classList.remove('panning'); });
 
             // ---- hover to inspect, click to open ----
+            // disabled for now: no tooltip, pointer cursor or link on the map shapes. Flip to true to restore
+            const BUILDING_LINKS_ENABLED = false;
             const raycaster = new THREE.Raycaster();
             const mouse = new THREE.Vector2();
             function pickBuilding(e) {
@@ -762,6 +775,7 @@ export function homepageMap() {
                     return;
                 }
 
+                if (!BUILDING_LINKS_ENABLED) return;
                 const group = pickBuilding(e);
                 if (group) {
                     const { name, description } = group.userData;
@@ -822,7 +836,7 @@ export function homepageMap() {
             });
 
             canvas.addEventListener('click', e => {
-                if (!interactionEnabled) return;
+                if (!interactionEnabled || !BUILDING_LINKS_ENABLED) return;
                 const group = pickBuilding(e);
                 if (group && group.userData.url) {
                     window.location.href = group.userData.url;
@@ -1062,6 +1076,27 @@ export function homepageMap() {
             // gsap.registerPlugin(ScrollToPlugin);
 
             const mapSectionBorder = document.querySelector('.hpmapsection-border');
+
+            // logo fades out once the hint trigger's top reaches the viewport center (and back in when
+            // scrolling back above it). Desktop only: this whole branch already runs at widths > 767
+            function fadeLogo(visible) {
+                gsap.to(logoFade, {
+                    opacity: visible ? 1 : 0,
+                    duration: .45,
+                    ease: 'power1.inOut',
+                    overwrite: true,
+                    onUpdate: applyLogoOpacity
+                });
+            }
+
+            if (mapHintTrigger) {
+                ScrollTrigger.create({
+                    trigger: mapHintTrigger,
+                    start: 'top center',
+                    onEnter: () => fadeLogo(false),
+                    onLeaveBack: () => fadeLogo(true)
+                });
+            }
 
             const navWrapper = document.querySelector('.navbar-wrapper');
             let permanentlyUnpinned = false;
