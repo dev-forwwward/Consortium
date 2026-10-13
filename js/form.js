@@ -23,12 +23,19 @@ export function form() {
                         required: true,
                         email: true,
                         customEmail: true, // Add the customEmail validation
+                    },
+                    yourmessage: {
+                        required: true
+                    },
+                    checkbox: {
+                        required: true
                     }
                 },
                 messages: {
-                    youremail:
-                        "Invalid email",
-                    yourname: "Invalid name"
+                    youremail: "Please enter a valid email address.",
+                    yourname: "Please enter your full name.",
+                    yourmessage: "Please enter a message.",
+                    checkbox: "You must accept the terms to continue."
                 },
                 errorPlacement: function (error, element) {
                     // Find the field wrapper using jQuery
