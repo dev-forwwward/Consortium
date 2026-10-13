@@ -65,7 +65,7 @@ export function scrollVideo() {
                     });
 
                     video.setAttribute("src", blobURL);
-                    video.currentTime = t + 0.01;
+                    video.currentTime = t + 0.0175;
                 });
         }
     }, 1000);
