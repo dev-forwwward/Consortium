@@ -524,7 +524,7 @@ export function homepageMap() {
             // usX/usY: map coords (a little west + south of Kansas, ~map center). size: world units across
             // (the whole map is TARGET_WORLD_W wide). depth: extrusion thickness. float: clearance above the
             // highest tile under the logo. Tweak live with ?cam-debug, then paste its LOGO output here
-            const LOGO = { usX: 50.1, usY: 24.85, size: 0.9, depth: 0.9, float: 0 };
+            const LOGO = { usX: 50.1, usY: 24.85, size: 1, depth: 0.58, float: 0 };
             let logoGroup = null;
             // faded by the .map-hint-trigger ScrollTrigger (see MAP DOM INTERFACE); kept here so debug rebuilds keep the current fade
             const logoFade = { opacity: 1 };
@@ -609,7 +609,7 @@ export function homepageMap() {
                 default: { radius: 35.9, theta: 92.05, phi: 0.1, target: [-0.75, 8.55, -0.85], fov: 45, ortho: false },
                 zoomIn: { radius: 5, theta: 91.4, phi: 0.1, target: [0, 0, 0], fov: 50, ortho: false },
                 // introZoom: { radius: 5, theta: 92.05, phi: 6.3, target: [0, 7.3, 0], fov: 45.5, ortho: false },
-                introZoom: { radius: 5, theta: 88.4, phi: 6.3, target: [0.08, 7.3, 0], fov: 27.5, ortho: false },
+                introZoom: { radius: 5, theta: 90.9, phi: 9, target: [0, 6.85, 0.2], fov: 32, ortho: false },
                 topView: { radius: 28.7, theta: 92.05, phi: 6.3, target: [0, 7.3, 0], fov: 45.5, ortho: false },
                 isometric: { radius: 26, theta: 45, phi: 54.74, target: [-0.65, 2.2, -2.25], fov: 42, ortho: true },
                 perspective: { radius: 24.6, theta: 66.3, phi: 68.9, target: [-1.35, 1.8, -1.65], fov: 50, ortho: true },
