@@ -68,7 +68,7 @@ export function scrollVideo() {
                     if (window.innerWidth > 768) {
                         video.currentTime = t + 0.0175;
                     } else {
-                        video.currentTime = t + 0.035;
+                        video.currentTime = t + 0.0095;
                     }
                 });
         }
