@@ -6,8 +6,6 @@ export function scrollVideo() {
         return
     }
 
-    let src = video.currentSrc || video.src;
-
     /* Make sure the video is 'activated' on iOS */
     function once(el, event, fn, opts) {
         var onceFn = function (e) {
@@ -18,9 +16,47 @@ export function scrollVideo() {
         return onceFn;
     }
 
-    once(document.documentElement, "touchstart", function (e) {
-        video.play();
-        video.pause();
+    function unlockOnTouch() {
+        once(document.documentElement, "touchstart", function () {
+            const playing = video.play();
+            if (playing) { playing.catch(() => { }) }
+            video.pause();
+        });
+    }
+
+    unlockOnTouch();
+
+    /* ---------------------------------- */
+    /* Seek queue
+       Only one seek is in flight at a time: scroll updates just move the target, and the next
+       seek is issued once the previous one lands ('seeked'). Setting currentTime on every tick
+       floods Firefox with seeks it processes one by one, so it lags further and further behind.
+       Every frame is a keyframe, so fastSeek (Firefox/Safari) lands on the exact frame and
+       skips the slower accurate-seek path. */
+    let targetTime = 0;
+    let requestedTime = -1;
+    let seeking = false;
+    let swapping = false;
+
+    function seekTo(time) {
+        requestedTime = time;
+        seeking = true;
+        if (typeof video.fastSeek === "function") {
+            video.fastSeek(time);
+        } else {
+            video.currentTime = time;
+        }
+    }
+
+    function flushSeek() {
+        if (seeking || swapping || video.readyState < 1) { return }
+        if (Math.abs(targetTime - requestedTime) < 0.001) { return }
+        seekTo(targetTime);
+    }
+
+    video.addEventListener("seeked", () => {
+        seeking = false;
+        flushSeek();
     });
 
     /* ---------------------------------- */
@@ -28,49 +64,87 @@ export function scrollVideo() {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    let tl = gsap.timeline({
-        defaults: { duration: 1 },
-        scrollTrigger: {
+    function initScrub() {
+        const duration = video.duration || 1;
+        // stop just short of the end: seeking to exactly `duration` can show a blank frame
+        const maxTime = Math.max(duration - 0.001, 0);
+
+        ScrollTrigger.create({
             trigger: '.hp_video_space_wrapper',
             start: 'top top',
             end: 'bottom top',
-            scrub: true
-        }
-    });
-
-    once(video, "loadedmetadata", () => {
-        tl.fromTo(
-            video,
-            {
-                currentTime: 0
-            },
-            {
-                currentTime: video.duration || 1
+            onUpdate: (self) => {
+                targetTime = self.progress * maxTime;
+                flushSeek();
             }
-        );
-    });
+        });
 
-    /* When first coded, the Blobbing was important to ensure the browser wasn't dropping previously played segments, but it doesn't seem to be a problem now. Possibly based on memory availability? */
-    setTimeout(function () {
-        if (window["fetch"]) {
-            fetch(src)
-                .then((response) => response.blob())
-                .then((response) => {
-                    var blobURL = URL.createObjectURL(response);
+        loadIntoMemory();
+    }
 
-                    var t = video.currentTime;
-                    once(document.documentElement, "touchstart", function (e) {
-                        video.play();
-                        video.pause();
-                    });
+    if (video.readyState >= 1) {
+        initScrub();
+    } else {
+        once(video, "loadedmetadata", initScrub);
+    }
 
-                    video.setAttribute("src", blobURL);
-                    if (window.innerWidth > 768) {
-                        video.currentTime = t + 0.0175;
-                    } else {
-                        video.currentTime = t + 0.0095;
-                    }
-                });
+    /* ---------------------------------- */
+    /* Keep the whole video in memory
+       Browsers can drop already-played ranges and re-request them over the network when
+       scrubbing back, which shows up as stalls on replay. Once the file is fully fetched it's
+       swapped in as a blob URL. currentSrc is only read after loadedmetadata (before that it
+       can still be empty, since the sources are <source> children and video.src is ''). */
+    function loadIntoMemory() {
+        const src = video.currentSrc;
+
+        if (!src || !window.fetch || src.startsWith("blob:")) {
+            return
         }
-    }, 1000);
+
+        fetch(src)
+            .then((response) => {
+                if (!response.ok) { throw new Error(`Video fetch failed: ${response.status}`) }
+                return response.blob();
+            })
+            .then((blob) => {
+                if (!blob.type.startsWith("video/") && blob.type !== "application/octet-stream") {
+                    throw new Error(`Unexpected video blob type: ${blob.type}`);
+                }
+
+                const blobURL = URL.createObjectURL(blob);
+
+                // pause the seek queue while the element reloads; the target keeps updating
+                swapping = true;
+
+                function onSwapped() {
+                    video.removeEventListener("error", onSwapFailed);
+                    swapping = false;
+                    seeking = false;
+                    requestedTime = -1;
+                    flushSeek();
+                }
+
+                // fall back to the <source> children so the scrub never stays frozen
+                function onSwapFailed() {
+                    video.removeEventListener("loadeddata", onSwapped);
+                    URL.revokeObjectURL(blobURL);
+                    video.removeAttribute("src");
+                    video.load();
+                    video.addEventListener("loadeddata", onSwapped, { once: true });
+                }
+
+                video.addEventListener("loadeddata", onSwapped, { once: true });
+                video.addEventListener("error", onSwapFailed, { once: true });
+
+                // the swap resets iOS's activation, so unlock again on the next touch
+                unlockOnTouch();
+
+                video.src = blobURL;
+            })
+            .catch((err) => {
+                // keep streaming from the original source
+                swapping = false;
+                console.warn(err);
+            });
+    }
 }
