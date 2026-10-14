@@ -129,6 +129,10 @@ _Entire file is commented out — not currently active or wired into `script-loa
 ### [`js/scroll-video-v1.js`](js/scroll-video-v1.js) — `scrollVideo()`
 
 - SCROLL-SCRUBBED VIDEO
+- stop just short of the end: seeking to exactly `duration` can show a blank frame
+- fall back to the <source> children so the scrub never stays frozen
+- the swap resets iOS's activation, so unlock again on the next touch
+- keep streaming from the original source
 
 ### [`js/services.js`](js/services.js) — `services()`
 
