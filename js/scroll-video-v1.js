@@ -65,7 +65,11 @@ export function scrollVideo() {
                     });
 
                     video.setAttribute("src", blobURL);
-                    video.currentTime = t + 0.0175;
+                    if (window.innerWidth > 768) {
+                        video.currentTime = t + 0.0175;
+                    } else {
+                        video.currentTime = t + 0.035;
+                    }
                 });
         }
     }, 1000);
