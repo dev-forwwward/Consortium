@@ -48,14 +48,14 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 - HERO REVEAL
 - The logo and both text blocks start at opacity 0 from the head custom
-- WORKS
-- Pin the section for a scroll distance proportional to the image count, so the
-- shuffling effect has room to play out in place before the page continues
-- scrolling into whatever section comes after it.
-- end: 'bottom bottom',
+- WORKS + TEXT SCROLLER
+- 2. hand-off: the pile slides out, the end photo and both lines travel into their in-flow
+- 3. release: the page scrolls on and the line slides left until "PILLARS" meets the right edge
+- Cards are built once and kept: they stay piled up instead of fading out, and the
+- scrubbed timeline shows/hides them, so scrolling back up replays the pile in reverse
+- Position of an element inside the stage, ignoring transforms
+- Scroll distances, in viewport heights
 - markers: true,
-- Scrolled back above the section: reset so the effect replays on re-entry
-- Distance scrolled since the last update — works for wheel, touch, keyboard, scrollbar
 
 ### [`js/hp-map.js`](js/hp-map.js) — `homepageMap()`
 
