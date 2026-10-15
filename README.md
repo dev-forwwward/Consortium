@@ -51,8 +51,8 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - WORKS + TEXT SCROLLER
 - 2. hand-off: the pile slides out, the end photo and both lines travel into their in-flow
 - 3. release: the page scrolls on and the line slides left until "PILLARS" meets the right edge
-- Cards are built once and kept: they stay piled up instead of fading out, and the
-- scrubbed timeline shows/hides them, so scrolling back up replays the pile in reverse
+- Cards are built once and kept: the scrubbed timeline fades them in and out, so
+- scrolling back up replays the sequence in reverse
 - Position of an element inside the stage, ignoring transforms
 - Scroll distances, in viewport heights
 - markers: true,
