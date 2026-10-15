@@ -203,6 +203,12 @@ input[type="checkbox"]:checked::before {
     /* Safari, older Chrome */
 }
 
+/* No x-scrolling while the mobile map is zooming (toggled in hp-map.js) */
+.scene-mobile-container.is-locked {
+    overflow-x: hidden;
+    touch-action: pan-y;
+}
+
 /* Work Selection */
 .mwg_effect014 {
     position: relative;

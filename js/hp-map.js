@@ -65,32 +65,74 @@ export function homepageMap() {
                 }
             });
 
-            // start the overflowing mobile map horizontally centered
-            const sceneMobileContainer = document.querySelector('.scene-mobile-container');
-            const sceneMobile = document.querySelector('.scene-mobile');
+            // MOBILE MAP ZOOM
+            // The overflowing map image zooms out from the viewport center; x-scrolling is locked
+            // (.is-locked) for the whole zoom and only released once it's fully zoomed out
+            const sceneMobileContainer = mapSection.querySelector('.scene-mobile-container');
+            const sceneMobile = mapSection.querySelector('.scene-mobile');
             if (sceneMobileContainer && sceneMobile) {
-                const centerScene = () => {
-                    sceneMobileContainer.scrollLeft =
-                        (sceneMobileContainer.scrollWidth - sceneMobileContainer.clientWidth) / 2;
+                // Measured from layout width: the scale transform inflates scrollWidth, which would skew the center
+                const centerLeft = () =>
+                    Math.max(0, (sceneMobile.offsetWidth - sceneMobileContainer.clientWidth) / 2);
+
+                // Anchor the scale on whatever image point currently sits under the viewport center
+                const anchorToViewport = () => {
+                    const x = sceneMobileContainer.scrollLeft + sceneMobileContainer.clientWidth / 2 - sceneMobile.offsetLeft;
+                    gsap.set(sceneMobile, { transformOrigin: `${x}px 50%` });
                 };
+
+                const centerScene = () => {
+                    sceneMobileContainer.scrollLeft = centerLeft();
+                    anchorToViewport();
+                };
+
+                const setLocked = (locked) => sceneMobileContainer.classList.toggle('is-locked', locked);
+
+                // Glide back to center; the anchor follows the viewport center the whole way,
+                // so a zoom-in that starts mid-glide still scales around the middle of the screen
+                let recenterTween;
+                const recenter = () => {
+                    recenterTween?.kill();
+                    recenterTween = gsap.to(sceneMobileContainer, {
+                        scrollLeft: centerLeft(),
+                        duration: 0.5,
+                        ease: 'power2.out',
+                        onUpdate: anchorToViewport,
+                        onComplete: anchorToViewport,
+                    });
+                };
+
+                setLocked(true);
                 if (sceneMobile.complete) centerScene();
                 else sceneMobile.addEventListener('load', centerScene, { once: true });
-            }
 
-            // map zoom-out
-            const introTrigger = gsap.timeline({
-                scrollTrigger: {
-                    trigger: '.hpmapsection-reveal',
-                    start: 'top top',
-                    end: '+=1400px',
-                    scrub: true,
-                }
-            })
-                .fromTo('.scene-mobile', {
-                    scale: 6.5
-                }, {
-                    scale: 1,
-                });
+                // map zoom-out
+                const zoomTrigger = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: '.hpmapsection-reveal',
+                        start: 'top top',
+                        end: '+=1400px',
+                        scrub: true,
+                        onLeave: () => setLocked(false),
+                        onEnterBack: () => {
+                            setLocked(true);
+                            recenter();
+                        },
+                        onRefresh: (self) => {
+                            // keep the zoom centered after resizes/orientation changes
+                            if (self.progress < 1) centerScene();
+                        },
+                    }
+                })
+                    .fromTo(sceneMobile, {
+                        scale: 6.5
+                    }, {
+                        scale: 1,
+                    });
+
+                // already past the zoom (e.g. after a refresh mid-page)
+                if (zoomTrigger.scrollTrigger.progress === 1) setLocked(false);
+            }
 
             gsap.timeline({
                 scrollTrigger: {
