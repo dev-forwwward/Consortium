@@ -128,7 +128,18 @@ export function homepageMap() {
                         scale: 6.5
                     }, {
                         scale: 1,
-                    });
+                    })
+                    .fromTo('.scene-mobile-overlay-logo', {
+                        scale: 1
+                    }, {
+                        scale: .055,
+                    }, "<")
+                    .fromTo('.scene-mobile-overlay-logo', {
+                        opacity: 1
+                    }, {
+                        delay: 0.2,
+                        opacity: 0,
+                    }, "<");
 
                 // already past the zoom (e.g. after a refresh mid-page)
                 if (zoomTrigger.scrollTrigger.progress === 1) setLocked(false);
