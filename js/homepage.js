@@ -65,8 +65,8 @@ export function homepage() {
         const photo = stage.querySelector('.hp_portfolio-media-end');
         const classes = ['format1', 'format2', 'format3'];
 
-        // Cards are built once and kept: they stay piled up instead of fading out, and the
-        // scrubbed timeline shows/hides them, so scrolling back up replays the pile in reverse
+        // Cards are built once and kept: the scrubbed timeline fades them in and out, so
+        // scrolling back up replays the sequence in reverse
         const cards = [...root.querySelectorAll('.medias img')].map(source => {
             const card = document.createElement('img');
             card.setAttribute('src', source.getAttribute('src'));
@@ -128,16 +128,26 @@ export function homepage() {
                 },
             });
 
-            // 1. Shuffle: one card per step, then the end photo unrotated in the middle of the stage
+            // 1. Shuffle: one card per step, each fading in and back out after two steps,
+            //    then the end photo unrotated in the middle of the stage
             cards.forEach((card, i) => {
-                master.fromTo(card, {
-                    autoAlpha: 0,
-                    scale: 1.02,
-                }, {
-                    autoAlpha: 1,
-                    scale: 1,
-                    duration: 0.05,
-                }, i * STEP + 0.25);
+                const fadeInAt = i * STEP + 0.5;
+
+                master
+                    .fromTo(card, {
+                        autoAlpha: 0,
+                        scale: 1.02,
+                    }, {
+                        autoAlpha: 1,
+                        scale: 1,
+                        duration: 0.25,
+                        ease: 'power1.out',
+                    }, fadeInAt)
+                    .to(card, {
+                        autoAlpha: 0,
+                        duration: 0.4,
+                        ease: 'power1.in',
+                    }, fadeInAt + STEP * 2);
             });
 
             master.fromTo(photo, {
@@ -210,7 +220,7 @@ export function homepage() {
                 x: 0,
             }, {
                 x: () => -Math.max(0, line.offsetWidth - outer.clientWidth),
-                ease: 'none',
+                ease: 'power1.inOut',
                 scrollTrigger: {
                     trigger: stage,
                     start: () => master.scrollTrigger.end,
