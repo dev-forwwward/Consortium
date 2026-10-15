@@ -45,264 +45,182 @@ export function homepage() {
     }
 
 
-    // WORKS
-    const root = document.querySelector('.mwg_effect014'),
-        images = [],
-        classes = ['format1', 'format2', 'format3']
+    // WORKS + TEXT SCROLLER
+    // One pinned stage (.hp_text_scroller_trigger) runs the whole sequence:
+    // 1. shuffle: portfolio cards pile up between "ONE TEAM." (top left) and "ONE METHOD." (bottom right)
+    // 2. hand-off: the pile slides out, the end photo and both lines travel into their in-flow
+    //    spots (photo above a single line at the bottom of the stage)
+    // 3. release: the page scrolls on and the line slides left until "PILLARS" meets the right edge
+    // The in-flow layout IS the final state; the shuffle state is a transform measured from it
+    // (FLIP), so the pin release never jumps and every value is re-measured on refresh.
+    const stage = document.querySelector('.hp_text_scroller_trigger');
+    const root = stage && stage.querySelector('.mwg_effect014');
 
-    if (root) {
-        // 'scroll' (not 'wheel') so touch devices also hide the hint
-        window.addEventListener('scroll', () => {
-            gsap.to('.scroll', {
-                autoAlpha: 0,
-                duration: 0.15,
-            })
-        }, { once: true })
+    if (stage && root) {
+        const outer = stage.querySelector('.text-scroller-container-outer');
+        const line = stage.querySelector('.text-scroller-container');
+        const wordTop = stage.querySelector('.scroller-main-text.top');
+        const wordBottom = stage.querySelector('.scroller-main-text.bottom');
+        const secondaryText = stage.querySelector('.text-scroller-container-secondary-text');
+        const photo = stage.querySelector('.hp_portfolio-media-end');
+        const classes = ['format1', 'format2', 'format3'];
 
-        root.querySelectorAll('.medias img').forEach(image => {
-            images.push(image.getAttribute('src'))
-        })
+        // Cards are built once and kept: they stay piled up instead of fading out, and the
+        // scrubbed timeline shows/hides them, so scrolling back up replays the pile in reverse
+        const cards = [...root.querySelectorAll('.medias img')].map(source => {
+            const card = document.createElement('img');
+            card.setAttribute('src', source.getAttribute('src'));
+            card.setAttribute('alt', '');
+            card.classList.add(classes[Math.floor(Math.random() * classes.length)]);
+            root.appendChild(card);
 
-        const imagesLength = images.length
-
-        let incr = 0,
-            currentIndex = 0,
-            lastScroll = 0
-
-        // Pin the section for a scroll distance proportional to the image count, so the
-        // shuffling effect has room to play out in place before the page continues
-        // scrolling into whatever section comes after it.
-        const trigger = ScrollTrigger.create({
-            trigger: root,
-            start: 'top top',
-            // end: 'bottom bottom',
-            end: `+=${imagesLength * 600}`,
-            pin: true,
-            // markers: true,
-            pinSpacing: true,
-            anticipatePin: 1,
-            onEnter: (self) => {
-                lastScroll = self.scroll()
-            },
-            onLeaveBack: () => {
-                // Scrolled back above the section: reset so the effect replays on re-entry
-                currentIndex = 0
-                incr = 0
-            },
-            onEnterBack: (self) => {
-                // Scrolled back above the section: reset so the effect replays on re-entry
-                currentIndex = 0
-                incr = 0
-                lastScroll = self.scroll()
-            },
-            onUpdate: (self) => {
-                // Distance scrolled since the last update — works for wheel, touch, keyboard, scrollbar
-                const scroll = self.scroll()
-                incr += Math.abs(scroll - lastScroll) // Math.abs() to ignore the scroll direction
-                lastScroll = scroll
-
-                if (currentIndex >= imagesLength) return
-
-                if (incr > 500) {
-                    newImage()
-                    incr = 0 // Reset incr value
-                }
-            },
-        })
-
-        function newImage() {
-            // We pick a random value from the list of predefined classes
-            const randomIndex = Math.floor(Math.random() * classes.length),
-                // We create an image
-                image = document.createElement("img")
-
-            // We assign it a URL and add a randomly chosen class
-            image.setAttribute('src', images[currentIndex])
-            image.classList.add(classes[randomIndex])
-
-            // We add this image to the DOM
-            root.appendChild(image);
-
-            gsap.fromTo(image, {
+            gsap.set(card, {
                 xPercent: -50 + (Math.random() - 0.5) * 100,
                 yPercent: -50 + (Math.random() - 0.5) * 20,
                 rotation: (Math.random() - 0.5) * 20,
-                // Different values for X and Y to create a slight squish effect on appearance
-                scaleX: 1.02,
-                scaleY: 1.02,
-                opacity: 0
-            }, {
-                scaleX: 1,
-                scaleY: 1,
-                opacity: 1,
-                ease: 'power4.out',
-                duration: 0.15
-            })
-
-            gsap.to(image, {
-                // // Slightly reduce the image size
-                // scaleX: 0.96,
-                // scaleY: 0.96,
-                // ease: 'power4.in',
-                duration: .5,
-                opacity: 0,
-                delay: 1.5, // Wait before hiding
-                onComplete: () => {
-                    // Remove the image from the DOM for better performance
-                    root.removeChild(image);
-                }
-            })
-
-            currentIndex++
-        }
-
-        let finalImgX = '30vw';
-        let finalImgY = 50;
-        if(window.innerWidth <= 767) {
-            finalImgX = '10vw';
-            finalImgY = 125;
-        }
-
-        // Transition last portfolio image reveal into fixed spot
-        gsap.timeline({
-            scrollTrigger: {
-                trigger: '.hp_portfolio-media-end-trigger',
-                start: 'top center',
-                end: '+=100%',
-                pin: '.hp_portfolio-media-end-wrapper',
-                scrub: true,
-                // markers: true,
-                onEnter: () => {
-                    gsap.fromTo('.hp_portfolio-media-end', {
-                        opacity: 0,
-                    }, {
-                        opacity: 1,
-                        duration: .8,
-                    })
-                },
-                onLeaveBack: () => {
-                    gsap.fromTo('.hp_portfolio-media-end', {
-                        opacity: 1,
-                    }, {
-                        opacity: 0,
-                        duration: 1,
-                    })
-                }
-            }
-        })
-            .from('.hp_portfolio-media-end', {
-                delay: .25,
-                x: finalImgX,
-                yPercent: -finalImgY,
-                rotation: () => (Math.random() - 0.5) * 20,
             });
+            return card;
+        });
 
-    }
-
-
-    // Text Scroller Timeline
-    const scrollerContainer = document.querySelector('.hp_text_scroller_trigger');
-    const textScrollerContainer = document.querySelector('.text-scroller-container');
-    const scrollerSecondaryText = document.querySelector('.text-scroller-container-secondary-text');
-
-    if (scrollerContainer && textScrollerContainer) {
-
-        let textScrollerGrowTl;
-
-        if (window.innerWidth > 767) {
-            textScrollerGrowTl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: scrollerContainer,
-                    start: 'clamp(top top)',
-                    end: 'clamp(bottom top-=200px)',
-                    scrub: true,
-                    // markers: true,
-                },
-            })
-                .fromTo(textScrollerContainer, {
-                    fontSize: '3rem',
-                    paddingTop: '2rem',
-                    paddingBottom: '4rem',
-                }, {
-                    // Explicit rem end values (match .text-scroller-container in Webflow) so GSAP
-                    // never falls back to the computed px value at the end of the tween
-                    fontSize: '7.25rem',
-                    paddingTop: '12rem',
-                    paddingBottom: '0rem',
-                })
-                .to('.scroller-main-text', {
-                    height: '140px',
-                }, '<');
-        } else {
-            textScrollerGrowTl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: scrollerContainer,
-                    start: 'clamp(top top)',
-                    end: 'clamp(bottom 95%)',
-                    scrub: true,
-                    // markers: true,
-                },
-            })
-                .fromTo(textScrollerContainer, {
-                    fontSize: '3rem',
-                    paddingTop: '2rem',
-                    paddingBottom: '4rem',
-                }, {
-                    // Explicit rem end values (match .text-scroller-container in Webflow) so GSAP
-                    // never falls back to the computed px value at the end of the tween
-                    fontSize: '7.25rem',
-                    paddingTop: '0rem',
-                    paddingBottom: '12rem',
-                })
-                .to('.scroller-main-text', {
-                    height: 'auto',
-                }, '<');
-        }
-
-
-        // Distance the text travels so its right edge lands on the container's right edge.
-        // Measured in the end state (full font size, single line) regardless of where the
-        // page is scrolled when ScrollTrigger refreshes, then the previous state is restored.
-        const getScrollDistance = () => {
-            const growProgress = textScrollerGrowTl.progress();
-            const hadNoWrap = textScrollerContainer.classList.contains('flex-no-wrap');
-
-            textScrollerGrowTl.progress(1);
-            textScrollerContainer.classList.add('flex-no-wrap');
-
-            const distance = textScrollerContainer.scrollWidth - textScrollerContainer.clientWidth + 24;
-
-            textScrollerContainer.classList.toggle('flex-no-wrap', hadNoWrap);
-            textScrollerGrowTl.progress(growProgress);
-
-            return -distance;
+        // Position of an element inside the stage, ignoring transforms
+        const offsetIn = (el) => {
+            let top = 0, left = 0;
+            while (el && el !== stage) {
+                top += el.offsetTop;
+                left += el.offsetLeft;
+                el = el.offsetParent;
+            }
+            return { top, left };
         };
 
-        gsap.timeline({
-            scrollTrigger: {
-                trigger: '.hp_text_scroller_trigger-2',
-                start: 'top 80%',
-                end: ()=> {
-                    if (window.innerWidth > 767) {
-                        return 'bottom 60%';
-                    } else {
-                        return 'bottom 80%';
-                    }
+        // Right edge of the text content (container minus its padding-global)
+        const contentRight = () =>
+            offsetIn(outer).left + outer.clientWidth - parseFloat(getComputedStyle(line).paddingRight);
+
+        // Scroll distances, in viewport heights
+        const STEP = 0.5; // between two cards
+        const HANDOFF = 1;
+        const handoffAt = (cards.length + 1) * STEP + 0.25;
+
+        const mm = gsap.matchMedia();
+
+        mm.add({
+            isDesktop: `(min-width: ${window.mobileBreakpoint + 1}px)`,
+            isMobile: `(max-width: ${window.mobileBreakpoint}px)`,
+        }, (context) => {
+            const { isDesktop } = context.conditions;
+
+            // Shuffle-time text size relative to the final line (3rem -> 7.25rem on desktop, no growth on mobile)
+            const startScale = isDesktop ? 3 / 7.25 : 1;
+
+            const master = gsap.timeline({
+                defaults: { ease: 'none' },
+                scrollTrigger: {
+                    trigger: stage,
+                    start: 'top top',
+                    end: () => `+=${window.innerHeight * (handoffAt + HANDOFF)}`,
+                    pin: true,
+                    pinSpacing: true,
+                    anticipatePin: 1,
+                    scrub: true,
+                    invalidateOnRefresh: true,
+                    // markers: true,
                 },
-                scrub: true,
-                // markers: true,
-                onEnter: () => textScrollerContainer.classList.add('flex-no-wrap'),
-                onLeaveBack: () => textScrollerContainer.classList.remove('flex-no-wrap'),
-            },
-        })
-            .to(textScrollerContainer, {
-                x: getScrollDistance,
+            });
+
+            // 1. Shuffle: one card per step, then the end photo unrotated in the middle of the stage
+            cards.forEach((card, i) => {
+                master.fromTo(card, {
+                    autoAlpha: 0,
+                    scale: 1.02,
+                }, {
+                    autoAlpha: 1,
+                    scale: 1,
+                    duration: 0.05,
+                }, i * STEP + 0.25);
+            });
+
+            master.fromTo(photo, {
+                autoAlpha: 0,
+                scale: 1.02,
+            }, {
+                autoAlpha: 1,
+                scale: 1,
+                duration: 0.05,
+            }, cards.length * STEP + 0.25);
+
+            // 2. Hand-off: pile leaves upwards, photo and words travel back to their in-flow spots
+            master
+                .to(root, {
+                    yPercent: -100,
+                    duration: HANDOFF * 0.8,
+                }, handoffAt)
+                .fromTo(photo, {
+                    x: () => (stage.offsetWidth - photo.offsetWidth) / 2 - offsetIn(photo).left,
+                    y: () => (stage.offsetHeight - photo.offsetHeight) / 2 - offsetIn(photo).top,
+                }, {
+                    x: 0,
+                    y: 0,
+                    duration: HANDOFF,
+                    ease: 'power1.inOut',
+                }, handoffAt)
+                // Lines first close the vertical gap...
+                .fromTo(wordTop, {
+                    y: () => stage.offsetHeight * 0.15 - offsetIn(wordTop).top,
+                }, {
+                    y: 0,
+                    duration: HANDOFF * 0.7,
+                    ease: 'power1.inOut',
+                }, handoffAt)
+                .fromTo(wordBottom, {
+                    y: () => stage.offsetHeight * 0.78 - offsetIn(wordBottom).top,
+                }, {
+                    y: 0,
+                    duration: HANDOFF * 0.7,
+                    ease: 'power1.inOut',
+                }, handoffAt)
+                // ...then join into one line
+                .fromTo(wordBottom, {
+                    x: () => contentRight() - wordBottom.offsetWidth * startScale - offsetIn(wordBottom).left,
+                }, {
+                    x: 0,
+                    duration: HANDOFF * 0.4,
+                    ease: 'power1.inOut',
+                }, handoffAt + HANDOFF * 0.6)
+                .fromTo(secondaryText, {
+                    opacity: 0,
+                }, {
+                    opacity: 1,
+                    duration: HANDOFF * 0.2,
+                }, handoffAt + HANDOFF * 0.8);
+
+            if (isDesktop) {
+                master.fromTo([wordTop, wordBottom], {
+                    scale: startScale,
+                    transformOrigin: '0 0',
+                }, {
+                    scale: 1,
+                    duration: HANDOFF,
+                    ease: 'power1.inOut',
+                }, handoffAt);
+            }
+
+            // 3. Release: slide the line left until its last word ends on the right content edge
+            gsap.fromTo(line, {
+                x: 0,
+            }, {
+                x: () => -Math.max(0, line.offsetWidth - outer.clientWidth),
                 ease: 'none',
-            }, 0)
-            .to(scrollerSecondaryText, {
-                opacity: 1,
-                duration: 0.1,
-            }, 0);
+                scrollTrigger: {
+                    trigger: stage,
+                    start: () => master.scrollTrigger.end,
+                    end: () => master.scrollTrigger.end + window.innerHeight * 0.6,
+                    scrub: true,
+                    invalidateOnRefresh: true,
+                    // markers: true,
+                },
+            });
+        });
     }
 
 

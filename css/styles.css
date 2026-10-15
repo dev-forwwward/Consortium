@@ -209,13 +209,6 @@ input[type="checkbox"]:checked::before {
     overflow: hidden;
 }
 
-.mwg_effect014 .scroll {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-35%, -35%);
-}
-
 .mwg_effect014 img {
     position: absolute;
     top: 50%;
@@ -239,18 +232,19 @@ input[type="checkbox"]:checked::before {
 }
 
 @media screen and (max-width: 767px) {
+    /* Large enough to bleed past the viewport edges behind the full-width end photo */
     .mwg_effect014 img.format1 {
-        width: 62vw;
+        width: 54vw;
         height: auto;
     }
 
     .mwg_effect014 img.format2 {
-        width: 55vw;
+        width: 56vw;
         height: auto;
     }
 
     .mwg_effect014 img.format3 {
-        width: 45vw;
+        width: 80vw;
         height: auto;
     }
 }
@@ -329,55 +323,43 @@ input[type="checkbox"]:checked::before {
 /*
 *   HP TEXT SCROLLER
 */
-.text-scroller-container-outer {
-    /* background-color: rgba(128, 128, 128, 0.786); */
-    height: 100svh;
-}
-
+/* Final (released) layout is a single line: ONE TEAM. ONE METHOD. BUILT AROUND 4 PILLARS.
+   The two-line shuffle layout is a transform applied from js/homepage.js */
 .text-scroller-container {
-    /* background-color: rgba(211, 211, 211, 0.662); */
-    width: auto;
-    flex-wrap: wrap;
-    height: 100%;
-    align-items: baseline;
+    position: relative;
+    z-index: 1;
+    width: max-content;
+    flex-wrap: nowrap;
+    gap: .25em;
 }
 
 .text-scroller-container-main-text {
-    /* flex-wrap: wrap; */
-    justify-content: space-between;
-    height: 100%;
-    width: calc(110% + 2rem);
-    gap: 0;
-    align-items: center;
+    width: auto;
+    height: auto;
+    gap: .25em;
 }
 
 .scroller-main-text {
-    height: 100%;
-    /* background-color: rgba(255, 0, 0, 0.316); */
     white-space: nowrap;
-}
-
-.scroller-main-text.bottom {
-    text-align: right;
-    align-content: flex-end;
 }
 
 .text-scroller-container-secondary-text {
     opacity: 0;
-    height: 100%;
-    padding-left: .5em;
+}
+
+@media screen and (max-width: 767px) {
+    .text-scroller-container {
+        font-size: 2.5rem;
+    }
 }
 
 @media screen and (max-width: 479px) {
 
+    .text-scroller-container,
     .scroller-main-text,
     .text-scroller-container-secondary-text {
         font-size: 2.25rem;
     }
-}
-
-.flex-no-wrap {
-    flex-wrap: nowrap;
 }
 
 /*
