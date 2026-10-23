@@ -238,6 +238,7 @@ input[type="checkbox"]:checked::before {
 }
 
 @media screen and (max-width: 767px) {
+
     /* Large enough to bleed past the viewport edges behind the full-width end photo */
     .mwg_effect014 img.format1 {
         width: 54vw;
@@ -669,8 +670,17 @@ input[type="checkbox"]:checked::before {
         opacity: 1 !important;
     }*/
 
+    .accordion__wrapper-process.journal-accordion {
+        display: block;
+        column-count: 3;
+        column-gap: 0;
+        margin-bottom: -1.5rem;
+    }
+
     .accordion__item-process.journal-accordion {
-        width: 33.33%;
+        display: block;
+        break-inside: avoid;
+        width: 100%;
     }
 
     .portfolio20_item-link-inner.journal_item-link-inner {
