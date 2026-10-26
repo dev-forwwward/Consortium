@@ -300,23 +300,23 @@ export function homepage() {
                     typeTagline(taglineWords[activeIndex]);
                 }
             },
-            onEnter: ()=> {
-                if(window.innerWidth <= 767) {
+            onEnter: () => {
+                if (window.innerWidth <= 767) {
                     border.classList.add('hide-down');
                 }
             },
-            onEnterBack: ()=> {
-                if(window.innerWidth <= 767) {
+            onEnterBack: () => {
+                if (window.innerWidth <= 767) {
                     border.classList.add('hide-down');
                 }
             },
-            onLeave: ()=> {
-                if(window.innerWidth <= 767) {
+            onLeave: () => {
+                if (window.innerWidth <= 767) {
                     border.classList.remove('hide-down');
                 }
             },
-            onLeaveBack: ()=> {
-                if(window.innerWidth <= 767) {
+            onLeaveBack: () => {
+                if (window.innerWidth <= 767) {
                     border.classList.remove('hide-down');
                 }
             }
@@ -325,23 +325,24 @@ export function homepage() {
 
 
     // Grid Items Slide Down
+    const gridBgImg = document.querySelector('.grid_bg_img');
     const stickyGridSection = document.querySelector('.hp_grid_sticky');
     const stickyGridItems = document.querySelectorAll('.hp_grid_sticky .grid_slide_down');
 
-    if (stickyGridSection && stickyGridItems.length > 0 && window.innerWidth > 767) {
-        gsap.to(stickyGridItems, {
+    if (gridBgImg && stickyGridItems.length > 0 && window.innerWidth > 767) {
+        gsap.timeline({
             scrollTrigger: {
-                trigger: stickyGridSection,
-                start: 'top center',
-                end: 'clamp(bottom top)',
+                trigger: gridBgImg,
+                start: 'clamp(top 80%)',
+                end: '+=80%',
                 scrub: true,
             },
-            yPercent: (i, target) => (i + 1) * 42,
-            // paddingTop: (i, target) => {
-            //     const elHeight = parseFloat(getComputedStyle(target).offsetHeight);
-            //     return (elHeight * 0.42);
-            // },
+        }).to(stickyGridItems, {
+            y: (i, target) => (i + 1) * 16 + 'svh',
             stagger: .025
-        });
+        })
+        .to(stickyGridSection, {
+            paddingTop: '2.5rem'
+        }, "<");
     }
 }
