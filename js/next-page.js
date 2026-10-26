@@ -141,10 +141,12 @@ export function nextPage() {
             delay: 2,
             duration: 2,
             width: "100%",
+            // ease: 'power2.inOut',
+            ease: 'none',
             scrollTrigger: {
                 trigger: footer,
                 start: 'bottom bottom',
-                end: '+=400%',
+                end: '+=200%',
                 scrub: true,
                 pin: nextPageContainer,
                 onEnter: () => {
