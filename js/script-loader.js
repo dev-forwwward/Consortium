@@ -22,15 +22,19 @@ const modules = [
     { path: 'reveals', exportName: 'reveals' },
 ];
 
-let inits = [];
-try {
-    const loaded = await Promise.all(
-        modules.map(({ path }) => import(`./${path}.js?v=${v}`))
-    );
-    inits = loaded.map((mod, i) => mod[modules[i].exportName]);
-} catch (err) {
-    console.error('Failed to load one or more scripts:', err);
-}
+// allSettled so one failed module doesn't block the others from initializing
+const results = await Promise.allSettled(
+    modules.map(({ path }) => import(`./${path}.js?v=${v}`))
+);
+const inits = [];
+results.forEach((result, i) => {
+    const { path, exportName } = modules[i];
+    if (result.status === 'fulfilled') {
+        inits.push(result.value[exportName]);
+    } else {
+        console.error(`Failed to load script "${path}":`, result.reason);
+    }
+});
 
 window.tabletBreakpoint = 991;
 window.mobileBreakpoint = 767;
