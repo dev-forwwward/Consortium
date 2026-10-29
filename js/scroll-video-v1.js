@@ -1,9 +1,40 @@
 export function scrollVideo() {
     // SCROLL-SCRUBBED VIDEO
-    const video = document.querySelector(".video_background");
+    const video = document.querySelector(".main-video_background");
+    const videoLoop = document.querySelector('.video-loop_embed video');
 
     if (!video) {
         return
+    }
+
+    /* Hide + rewind the loop video once the page is scrolled, show + play it at the top */
+    let loopHidden = false;
+
+    if (videoLoop) {
+        const loopWrapper = videoLoop.parentElement;
+
+        // rewind only once the fade-out finishes, so the jump to frame 0 isn't visible
+        loopWrapper.addEventListener('transitionend', (e) => {
+            if (e.target === loopWrapper && e.propertyName === 'opacity' && loopHidden) {
+                videoLoop.currentTime = 0;
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY > 1;
+
+            // Only act on state changes so play()/rewind don't fire on every scroll event
+            if (scrolled === loopHidden) return;
+            loopHidden = scrolled;
+
+            if (scrolled) {
+                loopWrapper.classList.add('hide');
+                videoLoop.pause();
+            } else {
+                loopWrapper.classList.remove('hide');
+                videoLoop.play().catch(() => { });
+            }
+        }, { passive: true });
     }
 
     /* Make sure the video is 'activated' on iOS */
@@ -19,6 +50,7 @@ export function scrollVideo() {
     function unlockOnTouch() {
         once(document.documentElement, "touchstart", function () {
             const playing = video.play();
+            if (videoLoop && !loopHidden) { videoLoop.play().catch(() => { }) }
             if (playing) { playing.catch(() => { }) }
             video.pause();
         });
