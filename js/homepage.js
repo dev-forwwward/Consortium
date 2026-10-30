@@ -104,16 +104,21 @@ export function homepage() {
         const photo = stage.querySelector('.hp_portfolio-media-end');
         const classes = ['format1', 'format2', 'format3'];
 
-        // Cards are built once and kept: the scrubbed timeline fades them in and out, so
-        // scrolling back up replays the sequence in reverse
-        const cards = [...root.querySelectorAll('.medias img')].map(source => {
+        // Cards are built once and kept: the scrubbed timeline fades them in, so
+        // scrolling back up replays the sequence in reverse.
+        // The first card is visible from the start, centred and unrotated
+        const cards = [...root.querySelectorAll('.medias img')].map((source, i) => {
             const card = document.createElement('img');
             card.setAttribute('src', source.getAttribute('src'));
             card.setAttribute('alt', '');
             card.classList.add(classes[Math.floor(Math.random() * classes.length)]);
             root.appendChild(card);
 
-            gsap.set(card, {
+            gsap.set(card, i === 0 ? {
+                xPercent: -50,
+                yPercent: -50,
+                rotation: 0,
+            } : {
                 xPercent: -50 + (Math.random() - 0.5) * 100,
                 yPercent: -50 + (Math.random() - 0.5) * 20,
                 rotation: (Math.random() - 0.5) * 20,
@@ -167,26 +172,20 @@ export function homepage() {
                 },
             });
 
-            // 1. Shuffle: one card per step, each fading in and back out after two steps,
-            //    then the end photo unrotated in the middle of the stage
+            // 1. Shuffle: one card per step, each fading in and staying, so they pile up
+            //    (the first is already there), then the end photo unrotated in the middle of the stage
             cards.forEach((card, i) => {
-                const fadeInAt = i * STEP + 0.5;
+                if (i === 0) return;
 
-                master
-                    .fromTo(card, {
-                        autoAlpha: 0,
-                        scale: 1.02,
-                    }, {
-                        autoAlpha: 1,
-                        scale: 1,
-                        duration: 0.25,
-                        ease: 'power1.out',
-                    }, fadeInAt)
-                    .to(card, {
-                        autoAlpha: 0,
-                        duration: 0.4,
-                        ease: 'power1.in',
-                    }, fadeInAt + STEP * 2);
+                master.fromTo(card, {
+                    autoAlpha: 0,
+                    scale: 1.02,
+                }, {
+                    autoAlpha: 1,
+                    scale: 1,
+                    duration: 0.25,
+                    ease: 'power1.out',
+                }, i * STEP + 0.5);
             });
 
             master.fromTo(photo, {

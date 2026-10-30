@@ -267,7 +267,10 @@ input[type="checkbox"]:checked::before {
 
     .mwg_effect014 img.format3 {
         width: 80vw;
-        height: auto;
+    }
+
+    .mwg_effect014 img {
+        max-height: 50svh;
     }
 }
 
