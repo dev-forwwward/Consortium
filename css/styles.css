@@ -118,6 +118,7 @@ input[type="checkbox"]:checked::before {
 }
 
 .video-loop_embed.hide {
+    display: block !important;
     opacity: 0;
     pointer-events: none;
 }
