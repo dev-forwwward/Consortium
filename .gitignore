@@ -5,8 +5,8 @@ Works.xlsx
 Journals.xlsx
 
 # Video source masters (too large for jsDelivr/GitHub; only the -scrub/-poster derivatives are served)
-media/c-desktop-vid.mp4
-media/c-mobile-vid.mp4
-media/Consortium-video-30fps-desktop.mp4
-media/Consortium-video-30fps-mobile.mp4
-media/Consortium-video-60fps-mobile.mp4
+media/archive/c-desktop-vid.mp4
+media/archive/c-mobile-vid.mp4
+media/originals/Consortium-video-30fps-desktop.mp4
+media/archive/Consortium-video-30fps-mobile.mp4
+media/archive/Consortium-video-60fps-mobile.mp4
