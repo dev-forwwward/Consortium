@@ -212,7 +212,8 @@ export function homepageMap() {
 
             const BG = 0xf3f1ec;
             const scene = new THREE.Scene();
-            scene.background = new THREE.Color(BG);
+            // no scene.background: the canvas is transparent so the page background shows through.
+            // fog still fades toward BG, so distant tiles take a slight BG tint on other backgrounds
             scene.fog = new THREE.FogExp2(BG, 0.017);
 
             // ---- cameras: perspective ("iso") + orthographic ----
@@ -222,7 +223,7 @@ export function homepageMap() {
             let isOrtho = false;
             let activeCamera = perspCamera;
 
-            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
