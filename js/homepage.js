@@ -235,7 +235,7 @@ export function homepage() {
                     x: 0,
                     duration: HANDOFF * 0.4,
                     ease: 'power1.inOut',
-                }, handoffAt + HANDOFF * 0.6)
+                }, handoffAt + HANDOFF * 0.25)
                 .fromTo(secondaryText, {
                     opacity: 0,
                 }, {
