@@ -109,7 +109,12 @@ input[type="checkbox"]:checked::before {
 *   HOMEPAGE
 */
 .video-loop_embed {
-    transition: opacity 0.4s ease;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.video-loop_embed > * {
+    width: 100vw;
 }
 
 .video-loop_embed.hide {
