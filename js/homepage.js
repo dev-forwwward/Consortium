@@ -44,6 +44,45 @@ export function homepage() {
             }, "<");
     }
 
+    // STICKY TEXT REVEAL
+    const pinnedTextSections = document.querySelectorAll('.hp-pin-text-section');
+    if (pinnedTextSections.length > 0) {
+        pinnedTextSections.forEach((section) => {
+            const text = section.querySelector('.hp-pinned-text');
+            const paragraphs = text.querySelectorAll('p');
+            const split = new SplitText(paragraphs, { type: 'lines, words', linesClass: 'line', wordsClass: 'word' });
+
+            // Timeline runs on a 0 -> 1 scale: words reveal over the first 75%,
+            // the whole text fades out over the last 5%
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: section,
+                    start: 'top 45%',
+                    end: 'bottom 85%',
+                    toggleActions: 'play resume reverse resume',
+                    scrub: true
+                }
+            })
+                .fromTo(split.words, {
+                    opacity: 0,
+                    yPercent: 10,
+                }, {
+                    opacity: 1,
+                    yPercent: 0,
+                    duration: .2,
+                    stagger: { amount: .25 }
+                }, 0)
+                .to({},{
+                    duration: 1
+                }, .25)
+                .to(text, {
+                    opacity: 0,
+                    duration: .1
+                }, .99);
+
+        });
+    }
+
 
     // WORKS + TEXT SCROLLER
     // One pinned stage (.hp_text_scroller_trigger) runs the whole sequence:
@@ -341,8 +380,8 @@ export function homepage() {
             y: (i, target) => (i + 1) * 16 + 'svh',
             stagger: .025
         })
-        .to(stickyGridSection, {
-            paddingTop: '2.5rem'
-        }, "<");
+            .to(stickyGridSection, {
+                paddingTop: '2.5rem'
+            }, "<");
     }
 }
