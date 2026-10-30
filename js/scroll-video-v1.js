@@ -96,6 +96,38 @@ export function scrollVideo() {
 
     gsap.registerPlugin(ScrollTrigger);
 
+    /* ---------------------------------- */
+    /* Bigger, eased-out wheel steps over the scrub
+       Each wheel tick travels further while the section is active, and every tick eases out
+       over a fixed duration instead of Lenis' lerp, so the page (and the video with it) keeps
+       gliding and slows down gradually after the wheel stops.
+       - Lenis copies wheelMultiplier into its VirtualScroll at init, so it has to be changed
+         there: lenis.options.wheelMultiplier isn't read again. Higher = further (1 is the default).
+       - duration + easing take priority over lerp in Lenis and are read on every wheel event.
+         Longer duration = longer ease-out. */
+    const SCRUB_WHEEL_MULTIPLIER = 1.2;
+    const SCRUB_DURATION = 2; // seconds
+    const SCRUB_EASING = (t) => 1 - Math.pow(1 - t, 4); // easeOutQuart
+
+    const wheelOptions = window.lenis?.virtualScroll?.options;
+
+    if (wheelOptions) {
+        const defaultWheelMultiplier = wheelOptions.wheelMultiplier;
+        const defaultDuration = lenis.options.duration;
+        const defaultEasing = lenis.options.easing;
+
+        ScrollTrigger.create({
+            trigger: '.hp_video_space_wrapper',
+            start: 'top top',
+            end: 'bottom top',
+            onToggle: (self) => {
+                wheelOptions.wheelMultiplier = self.isActive ? SCRUB_WHEEL_MULTIPLIER : defaultWheelMultiplier;
+                lenis.options.duration = self.isActive ? SCRUB_DURATION : defaultDuration;
+                lenis.options.easing = self.isActive ? SCRUB_EASING : defaultEasing;
+            }
+        });
+    }
+
     function initScrub() {
         const duration = video.duration || 1;
         // stop just short of the end: seeking to exactly `duration` can show a blank frame
