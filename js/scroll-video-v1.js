@@ -96,6 +96,17 @@ export function scrollVideo() {
 
     gsap.registerPlugin(ScrollTrigger);
 
+    /* Scrub range
+       Starts when the wrapper hits the top and ends shortly after the map reveal fires
+       (hp-map.js: '.hpmapsection-reveal' at 'top top'), so the video length no longer
+       depends on the wrapper's full height. Raise SCRUB_END_OFFSET to end later.
+       Falls back to the wrapper's bottom if the map section isn't on the page. */
+    const SCRUB_END_OFFSET = '15%'; // of the viewport height, past the map reveal
+    const mapReveal = document.querySelector('.hpmapsection-reveal');
+    const scrubRange = mapReveal
+        ? { start: 'top top', endTrigger: mapReveal, end: `top -${SCRUB_END_OFFSET}` }
+        : { start: 'top top', end: 'bottom top' };
+
     /* ---------------------------------- */
     /* Bigger, eased-out wheel steps over the scrub
        Each wheel tick travels further while the section is active, and every tick eases out
@@ -118,8 +129,7 @@ export function scrollVideo() {
 
         ScrollTrigger.create({
             trigger: '.hp_video_space_wrapper',
-            start: 'top top',
-            end: 'bottom top',
+            ...scrubRange,
             onToggle: (self) => {
                 wheelOptions.wheelMultiplier = self.isActive ? SCRUB_WHEEL_MULTIPLIER : defaultWheelMultiplier;
                 lenis.options.duration = self.isActive ? SCRUB_DURATION : defaultDuration;
@@ -135,8 +145,7 @@ export function scrollVideo() {
 
         ScrollTrigger.create({
             trigger: '.hp_video_space_wrapper',
-            start: 'top top',
-            end: 'bottom top',
+            ...scrubRange,
             onUpdate: (self) => {
                 targetTime = self.progress * maxTime;
                 flushSeek();
