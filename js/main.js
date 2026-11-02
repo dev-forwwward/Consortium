@@ -25,7 +25,7 @@ export function mainInit() {
             gsap.to('.preloader', {
                 opacity: 0,
                 delay: .1,
-                duration: .5,
+                duration: .25,
                 ease: "power2.out",
                 onComplete: () => {
                     preloader.remove();

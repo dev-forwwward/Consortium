@@ -11,24 +11,25 @@ export function homepage() {
         });
 
         gsap.timeline()
-            .to('.hp_hero_logo_container', {
-                delay: .5,
-                opacity: 1,
+            .from('.hp_hero_logo_container', {
+                delay: .4,
+                opacity: 0,
                 duration: 1
             })
-            .to('.hp_hero_main_text_content-top', {
-                delay: .1,
-                opacity: 1,
+            .from('.hp_hero_main_text_content-top', {
+                delay: .25,
+                opacity: 0,
                 duration: .5
             }, "<")
             .to('.hp_hero_main_text_content-top', {
-                delay: .4,
+                delay: .05,
                 yPercent: 0,
-                duration: .8
+                duration: .5,
+                ease: 'none'
             })
-            .from('.hp_hero_main_text_content-top .heading-style-h3_custom', {
+            .from('.hp_hero_main_text_content-bottom .heading-style-h3_custom', {
                 opacity: 0,
-                duration: .8
+                duration: .5
             }, "<")
             .fromTo('.hp_hero_main_text_content-bottom', {
                 yPercent: 100,
@@ -36,12 +37,23 @@ export function homepage() {
             }, {
                 yPercent: 0,
                 opacity: 1,
-                duration: .8
+                duration: .5,
+                ease: 'none'
             }, "<")
             .from('.hp-icon-embed-custom', {
                 opacity: 0,
-                duration: .8
-            }, "<");
+                duration: .5
+            }, "<")
+            .fromTo('.border-bottom-el-container-inner', {
+                opacity: 0,
+            }, {
+                opacity: 1,
+                duration: .5
+            }, "<")
+            .from('.menu-navbar', {
+                opacity: 0,
+                duration: .5,
+            }, "-=.15");
     }
 
     // STICKY TEXT REVEAL
