@@ -124,7 +124,8 @@ input[type="checkbox"]:checked::before {
 }
 
 /* 3d Map Interface */
-#mapSection {
+/* #mapSection */
+.canvas-wrap {
     opacity: 0;
 }
 

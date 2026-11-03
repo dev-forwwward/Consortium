@@ -54,15 +54,27 @@ export function homepageMap() {
             // });
 
             // map reveal
-            ScrollTrigger.create({
-                trigger: '.hpmapsection-reveal',
-                start: 'top top',
-                onEnter: () => {
-                    mapSection.classList.add('show');
+            gsap.to('.canvas-wrap', {
+                scrollTrigger: {
+                    trigger: '.hpmapsection',
+                    start: 'top bottom',
+                    end: 'top top',
+                    // markers: true,
+                    scrub: true,
+                    // onEnter: () => {
+                    //     mapSection.classList.add('show');
+                    // },
+                    // onLeaveBack: () => {
+                    //     mapSection.classList.remove('show');
+                    // }
+                    onLeave: ()=> {
+                        gsap.set('.canvas-wrap', { position: 'absolute' });
+                    },
+                    onEnterBack: ()=> {
+                        gsap.set('.canvas-wrap', { position: 'fixed' });
+                    }
                 },
-                onLeaveBack: () => {
-                    mapSection.classList.remove('show');
-                }
+                opacity: 1,
             });
 
             // MOBILE MAP ZOOM
@@ -1261,15 +1273,27 @@ export function homepageMap() {
                 onEnterBack: pinHandler,
             });
 
-            ScrollTrigger.create({
-                trigger: '.hpmapsection-reveal',
-                start: 'top top',
-                onEnter: () => {
-                    mapSection.classList.add('show');
+            gsap.to('.canvas-wrap', {
+                scrollTrigger: {
+                    trigger: '.hpmapsection',
+                    start: 'top center',
+                    end: 'top top',
+                    // markers: true,
+                    scrub: true,
+                    // onEnter: () => {
+                    //     mapSection.classList.add('show');
+                    // },
+                    // onLeaveBack: () => {
+                    //     mapSection.classList.remove('show');
+                    // }
+                    onLeave: ()=> {
+                        gsap.set('.canvas-wrap', { position: 'absolute' });
+                    },
+                    onEnterBack: ()=> {
+                        gsap.set('.canvas-wrap', { position: 'fixed' });
+                    }
                 },
-                onLeaveBack: () => {
-                    mapSection.classList.remove('show');
-                }
+                opacity: 1
             });
 
             // camera zooms out from introZoom to topView between the fade-in and the scroll lock,
