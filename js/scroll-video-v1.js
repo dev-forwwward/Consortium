@@ -101,7 +101,7 @@ export function scrollVideo() {
        (hp-map.js: '.hpmapsection-reveal' at 'top top'), so the video length no longer
        depends on the wrapper's full height. Raise SCRUB_END_OFFSET to end later.
        Falls back to the wrapper's bottom if the map section isn't on the page. */
-    const SCRUB_END_OFFSET = '15%'; // of the viewport height, past the map reveal
+    const SCRUB_END_OFFSET = '0%'; // of the viewport height, past the map reveal
     const mapReveal = document.querySelector('.hpmapsection-reveal');
     const scrubRange = mapReveal
         ? { start: 'top top', endTrigger: mapReveal, end: `top -${SCRUB_END_OFFSET}` }
