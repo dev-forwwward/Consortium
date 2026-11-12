@@ -115,8 +115,8 @@ export function mainInit() {
 
                 if (hasMockAchiev.length > 0) {
                     hasMockAchiev.forEach((mock, i) => {
-                        let xVal = (i + 1) * 100 / achievsList.length;
-                        mock.style.left = `${xVal}%`;
+                        let xVal = (i + 1) * 90 / achievsList.length;
+                        mock.style.left = `${xVal/2}%`;
                     });
                 }
             });
