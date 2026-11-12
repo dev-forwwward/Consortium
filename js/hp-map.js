@@ -865,7 +865,8 @@ export function homepageMap() {
                 }
             });
             canvas.addEventListener('contextmenu', e => e.preventDefault());
-            const MIN_RADIUS = 5, MAX_RADIUS = 55;
+            // MAX_RADIUS: zoom-out capped at 55% of the original 5–55 range (5 + 50 * 0.55)
+            const MIN_RADIUS = 5, MAX_RADIUS = 32.5;
             const clampRadius = r => Math.min(MAX_RADIUS, Math.max(MIN_RADIUS, r));
 
             canvas.addEventListener('wheel', e => {
