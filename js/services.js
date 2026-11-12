@@ -257,8 +257,8 @@ export function services() {
                     align: '#carousel-path',
                     alignOrigin: [0.5, 0.5],
                     autoRotate: true,
-                    start: 0,
-                    end: 0,
+                    start: 1,
+                    end: 1,
                 },
             });
         };
@@ -290,9 +290,11 @@ export function services() {
                     path: '#carousel-path',
                     align: '#carousel-path',
                     alignOrigin: [0.5, 0.5],
-                    autoRotate: true,
-                    start: 0,
-                    end: 1,
+                    // Travelling 1 -> 0 makes autoRotate face backwards along
+                    // the path; the 180 offset keeps logos upright.
+                    autoRotate: 180,
+                    start: 1,
+                    end: 0,
                 },
                 duration: itemDuration,
                 ease: 'none',
