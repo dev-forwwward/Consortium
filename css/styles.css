@@ -154,7 +154,8 @@ input[type="checkbox"]:checked::before {
 }
 
 .map-button-toggles.locked {
-    .close-map-btn {
+    .close-map-btn,
+    #scrollTop {
         opacity: 1;
         pointer-events: all;
     }

@@ -11,6 +11,14 @@ export function homepageMap() {
     const closeBtn = document.getElementById('closeMap');
     const openBtn = document.getElementById('openMap');
 
+    const scrollTopBtn = document.getElementById('scrollTop');
+
+    if(scrollTopBtn) {
+        scrollTopBtn.addEventListener('click', () => {
+            location.reload();
+        });
+    }
+
     // MAP HINT
     const mapHintTrigger = document.querySelector('.map-hint-trigger');
     const mapHint = document.querySelector('.map-hint');
