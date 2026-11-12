@@ -291,10 +291,10 @@ export function homepage() {
     const navigatorItems = gsap.utils.toArray('.circle_navigator_item');
     const taglineText = document.querySelector('.tagline-written-text');
     const taglineWords = [
-        'The way is to',
-        'Always aiming to',
-        'As we carry the responsibility to',
-        'Our goal is to',
+        'To shape the future',
+        'Striving to',
+        'We seek to',
+        'Projects that',
     ];
 
     if (rotatorSection && circle) {
