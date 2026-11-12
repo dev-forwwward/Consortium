@@ -1,51 +1,50 @@
 const PROCESS_TAG_CONTENT = {
     'master-planning': {
         bullets: [
-            'Long-term development roadmap',
-            'Aligning vision with feasibility',
-            'Site and zoning strategy',
+            'Develops or improves land, community, or buildings',
+            'Envisions through a long-range plan',
+            'Balances and harmonizes all elements',
         ],
-        tagline: '// The blueprint before the build',
+        tagline: '// An overarching planning document used to structure land use and development',
     },
     'architecture': {
         bullets: [
-            'Concept through construction documentation',
-            'Contextual and sustainable design',
-            'Detailed technical coordination',
+            'Includes planning, studies, and design development',
+            'Specifications and working drawings',
+            'General administration of construction contracts',
         ],
-        tagline: '// Where form meets function',
+        tagline: '// The art and science of designing buildings and structures',
     },
     'feasibility': {
         bullets: [
-            'Site and market assessment',
-            'Risk and cost evaluation',
-            'Informed go / no-go decisions',
+            'Analyzes and evaluates a proposed project',
+            'Determines if it´s technically feasible',
+            'Evalutates within the estimated cost parameters',
         ],
-        tagline: '// Testing the vision before investing',
+        tagline: '// An assessment of the practicality of a proposed plan or method',
     },
     'project-management': {
         bullets: [
-            'Initiating, planning, and execution',
-            'Process to achieve your goals',
-            'Meet specific success criteria on time',
+            'The art or practice of planning',
+            'Assistance in getting a project off the ground',
+            'Achieve specific goals',
         ],
-        tagline: '// The art or practice of planning',
+        tagline: '// The practice of initiaing, planning, and executing the work of a team to achieve specific goals and meet specific success criteria at the right time',
     },
     'building-survey': {
         bullets: [
-            'Structural condition assessment',
-            'Defect identification and reporting',
-            'Guidance for renovation planning',
+            'Documents walls, floors, and roof conditions',
+            'Documents existing building structure',
+            'Verifies any other major building elements',
         ],
-        tagline: '// Know the building before you build',
+        tagline: '// Documentation of the conditions within an existing structure',
     },
     'rendering': {
         bullets: [
-            'Photorealistic 3D renderings',
-            'Immersive walkthroughs and animation',
-            'Clear visual communication of intent',
+            'Interprets ideas in visual terms',
+            'Puts into visible form',
         ],
-        tagline: "// Seeing the design before it's real",
+        tagline: "// To reproduce or represent by artistic means",
     },
 };
 
