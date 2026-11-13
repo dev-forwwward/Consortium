@@ -11,11 +11,18 @@ export function homepageMap() {
     const closeBtn = document.getElementById('closeMap');
     const openBtn = document.getElementById('openMap');
 
+    // START OVER: resets the map (assigned in the desktop block below, where the map
+    // state lives) and scrolls smoothly back to the top of the page. No reload
     const scrollTopBtn = document.getElementById('scrollTop');
+    let resetMap = null;
 
-    if(scrollTopBtn) {
+    if (scrollTopBtn) {
         scrollTopBtn.addEventListener('click', () => {
-            location.reload();
+            if (resetMap) {
+                resetMap();
+            } else {
+                lenis.scrollTo(0, { duration: 3.5, force: true });
+            }
         });
     }
 
@@ -1177,6 +1184,7 @@ export function homepageMap() {
             let permanentlyUnpinned = false;
             let locked = false;
             let mapActive = false;
+            let resetting = false; // true while "Start Over" scrolls back to the top
 
             const BLOCKED_KEYS = new Set([
                 'ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '
@@ -1225,10 +1233,12 @@ export function homepageMap() {
                 // hide bottom border element
                 bottomBorder.classList.add('hide-down');
 
-                // hide navbar
+                // hide navbar. overwrite: kills an unlock fade still running (and its
+                // onComplete), so the two can't end on mismatched opacity/pointer-events
                 gsap.to(navWrapper, {
                     opacity: 0,
                     duration: .25,
+                    overwrite: true,
                     onComplete: () => {
                         gsap.set(navWrapper, { pointerEvents: 'none' });
                     }
@@ -1251,10 +1261,12 @@ export function homepageMap() {
                 // reveal back bottom border element
                 bottomBorder.classList.remove('hide-down');
 
-                // reveal back navbar
+                // reveal back navbar. overwrite: kills the lock's fade-out if it's still
+                // running, or its onComplete would set pointer-events: none after this one
                 gsap.to(navWrapper, {
                     opacity: 1,
                     duration: .25,
+                    overwrite: true,
                     onComplete: () => {
                         gsap.set(navWrapper, { pointerEvents: 'all' });
                     }
@@ -1319,7 +1331,7 @@ export function homepageMap() {
             });
 
             function pinHandler() {
-                if (locked) return;
+                if (locked || resetting) return;
 
                 setMapHintActive(false);
 
@@ -1380,6 +1392,51 @@ export function homepageMap() {
                     window.goToCameraView(btn.dataset.cameraView);
                 });
             });
+
+            // START OVER: put the map back in its first-visit state and scroll smoothly to the top
+            resetMap = () => {
+                if (resetting) return;
+                resetting = true;
+
+                // scroll lock, blocked inputs, map interaction, navbar and bottom border
+                if (locked) unlockScroll();
+
+                // reaching the map again locks it and replays the camera intro, as on the first visit
+                permanentlyUnpinned = false;
+                mapActive = false;
+
+                // camera: stop any view/zoom tween; the intro trigger keeps it on introZoom while scrolling down again
+                camTween?.kill();
+                zoomTween?.kill();
+                viewBtns.forEach(collapseViewBtn);
+
+                // about panel: closed, label back to its data-closed text ("[?]"), and any
+                // typing still running (open or just closed) stopped
+                if (aboutBtn) {
+                    clearInterval(aboutBtn._typeInterval);
+                    aboutBtn.textContent = aboutBtn.dataset.closed;
+                }
+                aboutMenuContainer?.classList.remove('active');
+
+                // map buttons and hint
+                openBtn.classList.remove('show');
+                mapToggleBtnWrapper.classList.remove('show');
+                setMapHintActive(false);
+
+                // The scroll up passes back through the map trigger: `resetting` keeps
+                // pinHandler from re-locking the map on the way. lock: the visitor can't
+                // interrupt it, or onComplete would never run and `resetting` would stick.
+                // force: lenis may still be stopped if the lock's scrollTo hadn't landed yet
+                lenis.scrollTo(0, {
+                    duration: 2,
+                    lock: true,
+                    force: true,
+                    onComplete: () => {
+                        resetting = false;
+                        setIntroProgress(0);
+                    }
+                });
+            };
 
         } // if window.innerWidth > 767
     } // if mapSection
