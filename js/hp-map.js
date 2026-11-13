@@ -21,7 +21,7 @@ export function homepageMap() {
             if (resetMap) {
                 resetMap();
             } else {
-                lenis.scrollTo(0, { duration: 3.5, force: true });
+                lenis.scrollTo(0, { duration: 6, force: true });
             }
         });
     }
