@@ -794,6 +794,12 @@ input[type="checkbox"]:checked::before {
     }
 }
 
+@media screen and (max-width: 991px) {
+    img.map-explorer {
+        height: 100%;
+    }
+}
+
 
 /*
 *   DEGUBGING
