@@ -160,11 +160,20 @@ export function nextPage() {
                         opacity: 0,
                         duration: .15,
                     })
+                },
+                // Redirect once the scroll reaches where it can actually stop, not on
+                // the tween completing: `start` is rounded from the footer's fractional
+                // height, so `end` can land 1px past the furthest scrollable point.
+                // Progress then tops out at ~0.9995, the bar looks full and onComplete
+                // never fires (reproduced on the homepage at 1728x963)
+                onUpdate: (self) => {
+                    if (self.scroll() >= Math.min(self.end, lenis.limit) - 1) {
+                        // skip the lenis scroll: nextPageContainer is pinned here, so
+                        // driving the scroll to .footer would fight the pin
+                        runExitAnimation({ scrollTo: false });
+                    }
                 }
-            },
-            // skip the lenis scroll: nextPageContainer is pinned here, so driving
-            // the scroll to .footer would fight the pin
-            onComplete: () => runExitAnimation({ scrollTo: false })
+            }
         });
     }
 }
