@@ -43,6 +43,12 @@ window.mobileBreakpoint = 767;
 if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
 }
+// ScrollTrigger saves the value it found at init ('auto') and writes it back after every
+// refresh, undoing the line above: a reload (e.g. "Start Over") could then land back mid-page
+// on the map. clearScrollMemory('manual') changes the value ScrollTrigger writes back
+if (window.ScrollTrigger) {
+    ScrollTrigger.clearScrollMemory('manual');
+}
 
 function init() {
     // scroll to top of page before any scripts load (including lenis init)
