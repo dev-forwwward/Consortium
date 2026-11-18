@@ -1,16 +1,55 @@
 # White-label Defaults
 
-Shared JS/CSS asset bundle served via jsDelivr and embedded as custom code across Forwwward's Webflow sites. Rather than being built/bundled per project, this repo is loaded directly from the CDN, so every push to `main` should be treated as an immediate production deploy.
+Shared JS/CSS asset bundle served via jsDelivr and embedded as custom code across Forwwward's Webflow sites. Rather than being built/bundled per project, this repo is loaded directly from the CDN. The Consortium site loads it from a **pinned commit**, so a push to `main` only goes live once that commit hash is updated in Webflow and the site is published — see [Pinned commit (Webflow)](#pinned-commit-webflow).
 
 ## How it loads
 
 [`js/script-loader.js`](js/script-loader.js) is the single entry point embedded in Webflow. It:
 
-- Cache-busts every module import with a `Date.now()` query param, so pushes to `main` show up immediately on jsDelivr without waiting on CDN/browser cache.
+- Cache-busts every module import with a `Date.now()` query param, so browsers never serve a stale copy of the modules at the loaded commit (or from the local dev server).
 - Dynamically imports and initializes each feature module (`main`, `menu`, `swiper`, `works`, `form`, `faqs`, `footer-date`) once fonts are ready, on `DOMContentLoaded`.
 - Exposes global breakpoints (`window.tabletBreakpoint = 991`, `window.mobileBreakpoint = 767`) for other modules to consume.
 
 Add a new module to the `modules` array in `script-loader.js` to have it loaded and initialized automatically.
+
+## Pinned commit (Webflow)
+
+The Consortium site (`fwd-consortium.webflow.io`) doesn't load `@main`. It loads a specific commit, pinned by its full hash in the site's custom code:
+
+```
+https://cdn.jsdelivr.net/gh/dev-forwwward/Consortium@<commit-hash>/css/styles.css
+https://cdn.jsdelivr.net/gh/dev-forwwward/Consortium@<commit-hash>/js/script-loader.js
+```
+
+**Currently pinned:** `116349a7482ef22047e270911d3f3b371762baa9` (2026-11-18, merge of `services` into `main`: Services hero background fill). Update this line whenever the pin changes.
+
+The hash lives in **two places**, both in Webflow → Site settings → [Custom code](https://webflow.com/dashboard/sites/fwd-consortium/custom-code):
+
+| Where | What it loads |
+|---|---|
+| Head code (`cdnHref`) | `css/styles.css` |
+| Footer code (`cdnSrc`) | `js/script-loader.js` (which imports every module from the same commit) |
+
+**To release a change:**
+
+1. Merge it into `main` and push.
+2. Copy the full commit hash: `git rev-parse HEAD` (the README bot commit that follows a push works too; any commit containing the change does).
+3. Replace the old hash with the new one in **both** places above, and save.
+4. Publish the site. Until it's published, the live site keeps running the old commit.
+5. Check it: the page source (or the Network tab) should show the new hash in both URLs.
+
+Pushing to `main` alone changes nothing on the live site, which also means a bad push can't break it: to roll back, put the previous hash back and publish.
+
+**Other references to a commit hash:** the homepage hero video (a Designer embed with class `video_background`, not the site custom code) loads `media/Consortium_idle-loop-*.mp4` at `8f2dea8cc74f7eefdf849b59e35e267778166d1c`. It only needs bumping when those media files change.
+
+### Testing locally (`?dev=true`)
+
+Add `?dev=true` to any page URL (e.g. `https://fwd-consortium.webflow.io/services?dev=true`) and the custom code loads `css/styles.css` and `js/script-loader.js` from `http://127.0.0.1:5500` instead of the pinned commit. Serve the repo root there with VS Code Live Server. It needs:
+
+- **CORS on in Live Server:** add `"liveServer.settings.cors": true` to VS Code settings, then restart Live Server. The script loader is a module, and the browser blocks a module from another origin without an `Access-Control-Allow-Origin` header.
+- **Chrome's local network access permission:** allow it when Chrome asks on the first `?dev=true` load. If it was blocked, re-allow it in the site settings (icon left of the URL).
+
+If either is missing, the page **silently falls back to the pinned commit** while the CSS may still load locally, so it looks half-working. Check the console for `Local JS failed, loading CDN fallback...`. Also note `?dev=true` is read from the URL only: it's lost when you navigate to another page.
 
 ## Features
 
