@@ -10,6 +10,7 @@ export function nextPage() {
 
     let loadBarScrollAnimation;
     let revealScrollAnimation;
+    let exitTimeline;
 
     // Re-entrancy guard only: prevents a second exit sequence from stacking on top
     // of one already running. It must never be used to skip the animation itself
@@ -22,7 +23,7 @@ export function nextPage() {
         isExiting = true;
 
         const href = nextUpLink.href;
-        const footerParent = footer.parentElement;
+        const footerParent = footer?.parentElement;
 
         // With a cross-document View Transition the browser snapshots this page at
         // navigation commit, so whatever the exit animation leaves on screen IS the
@@ -44,10 +45,15 @@ export function nextPage() {
         // moving when navigation commits and the old snapshot is taken
         if (scrollTo) { lenis.scrollTo(useViewTransition ? nextPageContainer : footer, { duration: .25 }) }
 
-        // kill scrollTrigger load animation to avoid animation conflicts on page exit (one animation has scrub, other is auto)
-        loadBarScrollAnimation.kill();
+        // Stop the scroll-driven load bar so it doesn't fight the exit tween (one has
+        // scrub, the other is auto). Disable, don't kill: neither reverts the pin, so
+        // .next-up-container (which holds the footer) stays as it is on screen, but a
+        // killed trigger is gone for good and a back/forward-cache restore would come
+        // back with the footer stuck in position: fixed. A disabled one can be
+        // re-enabled in the pageshow handler below
+        loadBarScrollAnimation?.scrollTrigger?.disable(false);
 
-        const exitTimeline = gsap.timeline({
+        exitTimeline = gsap.timeline({
             onComplete: () => {
                 // set as late as possible: an exit that never navigates must not
                 // leave the flag behind to suppress an unrelated later preloader
@@ -73,17 +79,18 @@ export function nextPage() {
             // A direct click can land while the reveal scrub is only part-way
             // open. Kill the scrub and finish the reveal on the timeline so the
             // transition is handed a fully open block instead of a clipped one.
-            // kill(false, true) drops the trigger but keeps (and doesn't revert)
-            // the timeline; pausing it stops the scrub from writing over the
-            // exit, and the set puts back whatever the visitor was looking at
-            revealScrollAnimation?.scrollTrigger?.kill(false, true);
+            // disable(false, true) stops the trigger without reverting the
+            // timeline (and keeps it for the pageshow restore); pausing stops the
+            // scrub from writing over the exit, and the set puts back whatever
+            // the visitor was looking at
+            revealScrollAnimation?.scrollTrigger?.disable(false, true);
             revealScrollAnimation?.pause();
             gsap.set(nextPageRevealContainer, { clipPath: revealClip });
             exitTimeline.to(nextPageRevealContainer, {
                 clipPath: 'inset(0%)',
                 duration: .25,
             }, 0);
-        } else {
+        } else if (footerParent) {
             exitTimeline.fromTo(footerParent, {
                 clipPath: 'inset(0% 0 0)'
             }, {
@@ -100,13 +107,39 @@ export function nextPage() {
         runExitAnimation();
     });
 
-    // restored from the back/forward cache: the closure survives, so clear the
-    // guard or the next click would navigate with no animation
+    // Restored from the back/forward cache: the page comes back exactly as the exit
+    // left it (pin frozen in position: fixed, reveal open, footer clipped on the
+    // fallback path, triggers disabled). Undo the exit and re-arm the triggers
     window.addEventListener('pageshow', (e) => {
-        if (e.persisted) {
-            isExiting = false;
-            sessionStorage.removeItem('skipPreloader');
+        if (!e.persisted) { return }
+
+        // clear the guard or the next click would navigate with no animation
+        isExiting = false;
+        sessionStorage.removeItem('skipPreloader');
+
+        exitTimeline?.kill();
+        exitTimeline = null;
+
+        // exit-only inline styles
+        gsap.set(nextUpLoader, { opacity: 0 });
+        gsap.set('.next-up-load-bar', { clearProps: 'width' });
+        footer?.parentElement && gsap.set(footer.parentElement, { clearProps: 'clipPath' });
+        nextPageRevealContainer && gsap.set(nextPageRevealContainer, { clearProps: 'clipPath' });
+
+        // enable() refreshes the trigger: it reverts the pin to its original
+        // styles and re-applies it for the current scroll position
+        revealScrollAnimation?.scrollTrigger?.enable();
+        const loadBarTrigger = loadBarScrollAnimation?.scrollTrigger;
+        loadBarTrigger?.enable();
+
+        // Back would otherwise land at max scroll with a full bar whose onComplete
+        // already fired. Return to the start of the load-bar range instead: the
+        // next-up block in view, the bar empty and the auto-advance re-armed
+        if (loadBarTrigger) {
+            lenis.scrollTo(loadBarTrigger.start, { immediate: true, force: true });
         }
+
+        ScrollTrigger.refresh();
     });
 
     revealScrollAnimation = gsap.timeline({

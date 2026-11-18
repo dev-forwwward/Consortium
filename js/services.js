@@ -240,6 +240,11 @@ export function services() {
         let itemStagger = .135;
         let itemDuration = 1.5;
 
+        // Share of each item's run spent fading in (opacity 0 -> 1). 0.14 covers the
+        // entrance tail: progress 1 -> ~0.91 is above the viewBox, and ~0.86 is where
+        // the vertical stretch meets the curve, so logos are fully visible by then
+        const FADE_IN_SHARE = 0.14;
+
         if (window.innerWidth < 991) {
             document.querySelector('.brand-carousel-item').offsetWidth * 0.25 / 100;
         }
@@ -296,6 +301,17 @@ export function services() {
                     end: 0,
                 },
                 duration: itemDuration,
+                ease: 'none',
+            }, i * itemStagger);
+
+            // fade in while entering, on the same scrubbed timeline so scrolling back
+            // fades it out again. fromTo renders opacity 0 immediately, so every
+            // logo starts hidden on load
+            carouselTimeline.fromTo(item, {
+                opacity: 0,
+            }, {
+                opacity: 1,
+                duration: itemDuration * FADE_IN_SHARE,
                 ease: 'none',
             }, i * itemStagger);
         });
