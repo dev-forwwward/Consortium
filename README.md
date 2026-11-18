@@ -143,10 +143,10 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - Accordion behaviour: collapse any other open tag first.
 - The circle doesn't necessarily resize when crossing 767px, so re-lay out
 - on the breakpoint change too.
-- SCROLL-IN TABLE SECTION
-- mobile
-- CURVED PARTNER-LOGO CAROUSEL
-- otherwise join the path queue and double the pinned scroll length.
+- HERO BACKGROUND FILL
+- slides up over it, leaving a hard edge where the image's white bottom meets it.
+- A canvas laid between the image and the orange circle fills the white and dark
+- cells with beige, bottom to top, as the hero scrolls away, so the whole screen is
 
 ### [`js/swiper.js`](js/swiper.js) — `swiperInit()`
 
