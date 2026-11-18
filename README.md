@@ -48,14 +48,14 @@ _Entire file is commented out — not currently active or wired into `script-loa
 
 - HERO REVEAL
 - The logo and both text blocks start at opacity 0 from the head custom
+- STICKY TEXT REVEAL
+- Timeline runs on a 0 -> 1 scale: words reveal over the first 75%,
+- the whole text fades out over the last 5%
 - WORKS + TEXT SCROLLER
 - 2. hand-off: the pile slides out, the end photo and both lines travel into their in-flow
 - 3. release: the page scrolls on and the line slides left until "PILLARS" meets the right edge
-- Cards are built once and kept: the scrubbed timeline fades them in and out, so
-- scrolling back up replays the sequence in reverse
-- Position of an element inside the stage, ignoring transforms
-- Scroll distances, in viewport heights
-- markers: true,
+- Cards are built once and kept: the scrubbed timeline fades them in, so
+- scrolling back up replays the sequence in reverse.
 
 ### [`js/hp-map.js`](js/hp-map.js) — `homepageMap()`
 
@@ -129,6 +129,7 @@ _Entire file is commented out — not currently active or wired into `script-loa
 ### [`js/scroll-video-v1.js`](js/scroll-video-v1.js) — `scrollVideo()`
 
 - SCROLL-SCRUBBED VIDEO
+- rewind only once the fade-out finishes, so the jump to frame 0 isn't visible
 - stop just short of the end: seeking to exactly `duration` can show a blank frame
 - fall back to the <source> children so the scrub never stays frozen
 - the swap resets iOS's activation, so unlock again on the next touch
