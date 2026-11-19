@@ -1,0 +1,21 @@
+/*
+*   SERVICES HERO BACKGROUND
+*   Drawn by initHeroBackground (js/services.js). These rules apply before the
+*   script runs, so the old image background never shows.
+*/
+
+/* The image background it replaces (until it's removed in Webflow) */
+.services-background-wrapper .bg_img {
+    display: none;
+}
+
+/* Sized, placed and clipped by the script; it draws the orange squares inside */
+.services-background-circle {
+    background-image: none;
+}
+
+/* The grid stays visible behind the top of the next section after the transition
+   (on mobile it ends as white squares on beige). Same beige as the body behind it. */
+.section-services-hero + .background-beige {
+    background-color: transparent;
+}

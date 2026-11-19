@@ -1,3 +1,11 @@
+import {
+    HERO_PATTERN_COLUMNS,
+    HERO_PATTERN_ROWS,
+    HERO_PATTERN_SQUARES,
+    HERO_PATTERN_DARK,
+    HERO_PATTERN_CIRCLE,
+} from './services-hero-pattern.js';
+
 const PROCESS_TAG_CONTENT = {
     'master-planning': {
         bullets: [
@@ -147,130 +155,117 @@ function initProcessCircleLabels(scope) {
     mobileQuery.addEventListener('change', () => svgs.forEach(layout));
 }
 
-// HERO BACKGROUND FILL
-// The hero background is one flat image (a grid of beige/white cells, plus a few
-// dark ones) pinned full-screen behind the page. The next section is solid beige and
-// slides up over it, leaving a hard edge where the image's white bottom meets it.
-// A canvas laid between the image and the orange circle fills the white and dark
-// cells with beige, bottom to top, as the hero scrolls away, so the whole screen is
-// beige by the time the next section arrives. The orange circle shows the same
-// pattern in orange (its own fixed background, aligned with the image), so a second
-// canvas, clipped to the circle, fills the same cells with orange at the same moment
-// and the pattern stays continuous across the circle's edge. The fill follows scroll
-// progress, so scrolling back up empties the cells again.
+// HERO BACKGROUND
+// The hero background is drawn here instead of being an image: the design's grid of
+// beige squares (dense at the top, thinning out downwards), a few dark squares, and
+// an orange circle showing the same squares in orange. Pattern, dark squares and
+// circle are all set in grid cells (services-hero-pattern.js), so the squares inside
+// the circle are the very same cells as outside and line up exactly.
+//
+// The grid covers the screen like object-fit: cover, from the top, and stays still
+// while the hero scrolls away; the circle scrolls with the hero. On the way out, the
+// squares turn into the next section's look, bottom to top: plain beige on desktop,
+// inverted on mobile (beige background, white squares). Then the grid leaves with the
+// top of the next section. Scrolling back up turns them back.
 
-// Cell grid of services_bg_pattern_beige.avif, measured on its 2880x1800 original.
-// Cells aren't square, and the export isn't perfectly even (rows drift by up to
-// ~4px), so this is only the starting estimate: each line is then snapped to the
-// edges actually found in the image (see measureLines).
-const HERO_BG_GRID = {
-    width: 2880,
-    height: 1800,
-    cellW: 17.3714,
-    cellH: 18.64,
-    // left/top edge of the first full column/row; anything before it is a partial cell
-    offsetX: 9.19,
-    offsetY: 6.6,
+const HERO_COLORS = ['#ffffff', '#ede5de', '#ff6e3e', '#2b2b2b'];
+const HERO_WHITE = 0;
+const HERO_BEIGE = 1;
+const HERO_ORANGE = 2;
+const HERO_DARK = 3;
+
+// Colour of each kind of cell [before, after] the transition, on the grid and inside
+// the circle. Kinds: empty, square, dark square on an empty cell, dark square on a
+// square. Dark squares sit under the circle in the design, so it shows the cell below.
+const HERO_LOOKS = {
+    // desktop: everything ends beige (the circle orange)
+    plain: {
+        grid: [[HERO_WHITE, HERO_BEIGE], [HERO_BEIGE, HERO_BEIGE], [HERO_DARK, HERO_BEIGE], [HERO_DARK, HERO_BEIGE]],
+        circle: [[HERO_WHITE, HERO_ORANGE], [HERO_ORANGE, HERO_ORANGE], [HERO_WHITE, HERO_ORANGE], [HERO_ORANGE, HERO_ORANGE]],
+    },
+    // mobile: every cell swaps colours
+    inverted: {
+        grid: [[HERO_WHITE, HERO_BEIGE], [HERO_BEIGE, HERO_WHITE], [HERO_DARK, HERO_BEIGE], [HERO_DARK, HERO_WHITE]],
+        circle: [[HERO_WHITE, HERO_ORANGE], [HERO_ORANGE, HERO_WHITE], [HERO_WHITE, HERO_ORANGE], [HERO_ORANGE, HERO_WHITE]],
+    },
 };
-const HERO_FILL_COLOR = '#ede5de';
-// Orange of services_bg_pattern_orange.avif (the circle's background)
-const HERO_FILL_CIRCLE_COLOR = '#fe6f3f';
-// The fill completes when this share of the hero has scrolled past the top
+
+// The transition completes when this share of the hero has scrolled past the top
 const HERO_FILL_END = '70% top';
-// Height of the dithered front, as a share of the fill: 0 = a hard horizontal
-// line sweeping up, 1 = cells fill at random with no direction at all
+// Height of the dithered front, as a share of the transition: 0 = a hard horizontal
+// line sweeping up, 1 = cells turn at random with no direction at all
 const HERO_FILL_BAND = 0.3;
 // Front starts fast so the edge above the incoming section dissolves within the
 // first bit of scroll, then slows down as it climbs
 const HERO_FILL_EASE = 'power1.out';
 
-// Cell kinds read from the image. CELL_WHITE (any white in them) and CELL_DARK cells
-// get filled; beige ones already match.
-const CELL_BEIGE = 0;
-const CELL_WHITE = 1;
-const CELL_DARK = 2;
-
-// Grid line positions (in the image's 2880px units) for one axis, from the image
-// itself. `edges[i]` counts colour changes between sample pixel i-1 and i along that
-// axis; each estimated line moves to the centroid of the changes around it. Lines
-// with too few changes nearby (large plain areas) keep the drift of their measured
-// neighbours, interpolated.
-function measureLines(size, offset, pitch, edges, toSample) {
-    const lines = [0];
-    for (let position = offset; position < size; position += pitch) { lines.push(position) }
-    lines.push(size);
-
-    const window = Math.max(1, Math.floor((pitch * toSample) / 3));
-    const drift = new Array(lines.length).fill(null);
-    drift[0] = 0;
-    drift[lines.length - 1] = 0;
-    for (let j = 1; j < lines.length - 1; j++) {
-        const center = lines[j] * toSample;
-        const lo = Math.max(1, Math.round(center) - window);
-        const hi = Math.min(edges.length - 1, Math.round(center) + window);
-        let count = 0;
-        let weighted = 0;
-        for (let i = lo; i <= hi; i++) {
-            count += edges[i];
-            weighted += i * edges[i];
-        }
-        if (count >= 8) { drift[j] = weighted / count / toSample - lines[j] }
+// One kind (see HERO_LOOKS) per cell, row by row
+function decodeHeroPattern() {
+    const bytes = atob(HERO_PATTERN_SQUARES.replace(/\s/g, ''));
+    const kinds = new Uint8Array(HERO_PATTERN_COLUMNS * HERO_PATTERN_ROWS);
+    for (let i = 0; i < kinds.length; i++) {
+        kinds[i] = (bytes.charCodeAt(i >> 3) >> (7 - (i & 7))) & 1;
     }
-
-    // fill the gaps: linear between the nearest measured lines on either side
-    for (let j = 1; j < lines.length - 1; j++) {
-        if (drift[j] !== null) { continue }
-        let before = j - 1;
-        while (drift[before] === null) { before-- }
-        let after = j + 1;
-        while (drift[after] === null) { after++ }
-        // the image borders aren't real measurements: don't pull drift towards 0 there
-        const from = before === 0 && after < lines.length - 1 ? drift[after] : drift[before];
-        const to = after === lines.length - 1 && before > 0 ? drift[before] : drift[after];
-        drift[j] = from + ((to - from) * (j - before)) / (after - before);
-    }
-
-    return lines.map((line, j) => Math.min(Math.max(line + drift[j], 0), size));
+    HERO_PATTERN_DARK.forEach(([column, row]) => { kinds[row * HERO_PATTERN_COLUMNS + column] |= 2 });
+    return kinds;
 }
 
-function initHeroBackgroundFill(hero) {
+function initHeroBackground(hero) {
     const wrapper = hero.querySelector('.services-background-wrapper');
-    const img = wrapper?.querySelector('img.bg_img');
-    const src = img?.getAttribute('src');
-    if (!img || !src || typeof createImageBitmap !== 'function') { return }
+    if (!wrapper) { return }
 
-    const createCanvas = (className) => {
+    const kinds = decodeHeroPattern();
+    const columns = HERO_PATTERN_COLUMNS;
+    const mobileQuery = window.matchMedia('(max-width: 767px)');
+
+    const createCanvas = () => {
         const element = document.createElement('canvas');
-        element.className = className;
         element.setAttribute('aria-hidden', 'true');
-        Object.assign(element.style, { position: 'fixed', pointerEvents: 'none' });
+        Object.assign(element.style, { display: 'block', opacity: '0', transition: 'opacity 0.6s ease' });
         return element;
     };
-    // Right after the image: above it, below the orange circle (same stacking
-    // context, painted in DOM order)
-    const canvas = createCanvas('services-background-fill');
-    img.after(canvas);
-    // Right after the circle, clipped to it (see syncCircleClip)
+
+    // The grid: a sticky canvas in a track running from the top of the hero to one
+    // screen into the next section, so it holds still at the top of the screen until
+    // the hero has scrolled past, then leaves with the next section. The track sits
+    // behind the hero (both z-index -1, the track first) and the next section (made
+    // transparent in services.css).
+    const track = document.createElement('div');
+    track.className = 'services-background-track';
+    track.setAttribute('aria-hidden', 'true');
+    Object.assign(track.style, { position: 'absolute', left: '0', width: '100%', zIndex: '-1', pointerEvents: 'none' });
+    const canvas = createCanvas();
+    Object.assign(canvas.style, { position: 'sticky', top: '0', width: '100%' });
+    track.append(canvas);
+    hero.before(track);
+
+    // The circle's squares: a canvas fixed to the screen like the grid, inside the
+    // circle and clipped to it. Wherever the circle has scrolled to, it shows the
+    // cells of the grid behind it, with no script keeping the two in step.
     const circle = wrapper.querySelector('.services-background-circle');
-    const circleCanvas = circle ? createCanvas('services-background-fill-circle') : null;
-    circle?.after(circleCanvas);
+    let circleCanvas = null;
+    if (circle) {
+        circleCanvas = createCanvas();
+        Object.assign(circleCanvas.style, { position: 'fixed', top: '0' });
+        circle.append(circleCanvas);
+        Object.assign(circle.style, {
+            position: 'absolute',
+            margin: '0',
+            maxWidth: 'none',
+            maxHeight: 'none',
+            clipPath: 'circle(50%)',
+        });
+    }
+
     const layers = [
-        { canvas, ctx: canvas.getContext('2d'), color: HERO_FILL_COLOR },
-        circleCanvas && { canvas: circleCanvas, ctx: circleCanvas.getContext('2d'), color: HERO_FILL_CIRCLE_COLOR },
-    ].filter(Boolean);
+        { canvas, look: 'grid' },
+        circleCanvas && { canvas: circleCanvas, look: 'circle' },
+    ].filter(Boolean).map((layer) => ({ ...layer, ctx: layer.canvas.getContext('2d'), cells: [], drawn: 0 }));
 
-    let colLines = null; // cell edges, in the image's 2880px units
-    let rowLines = null;
-    let cellTypes = null; // Uint8Array of CELL_*, one per cell, row by row
-    let darkBoxes = new Map(); // dark cell id -> [x0, y0, x1, y1] of its dot, in 2880px units
-    let cols = 0;
-    let rows = 0;
-    let cells = []; // visible cells to fill, sorted by the progress at which they fill
-    let rankOf = null; // Int32Array: cell id -> index in `cells` (-1 if not filled)
-    let drawn = 0; // cells[0..drawn) are currently painted
     let progress = 0;
+    let shown = false;
 
-    // Same seed every time, so the fill pattern is identical across resizes/reloads
+    // Same seed every time, so the order cells turn in is identical across resizes/reloads
     const random = (seed) => {
         let t = (seed + 0x6d2b79f5) | 0;
         t = Math.imul(t ^ (t >>> 15), t | 1);
@@ -278,252 +273,147 @@ function initHeroBackgroundFill(hero) {
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
 
-    // Read the full-size image once: find its exact grid lines and each cell's colour.
-    // Reading the image (instead of hardcoding a map) keeps this working if the
-    // pattern is re-exported on the same grid.
-    async function readCells() {
-        const response = await fetch(src, { mode: 'cors' });
-        const bitmap = await createImageBitmap(await response.blob());
-        const { width, height, cellW, cellH, offsetX, offsetY } = HERO_BG_GRID;
-        // grid constants are in 2880px units; sample at half that
-        const toSample = (bitmap.width / width) * 0.5;
-        const sw = Math.round(width * toSample);
-        const sh = Math.round(height * toSample);
-        const sample = document.createElement('canvas');
-        sample.width = sw;
-        sample.height = sh;
-        const sctx = sample.getContext('2d', { willReadFrequently: true });
-        sctx.drawImage(bitmap, 0, 0, sw, sh);
-        bitmap.close?.();
-        const data = sctx.getImageData(0, 0, sw, sh).data;
+    // Paint a layer's cells in [columnFrom, columnTo) x [0, rowTo) at the current
+    // progress, and list the ones that change colour, sorted by when they do
+    function paintLayer(layer, looks, grid, columnFrom, columnTo, rowTo, offsetX) {
+        const { ctx, canvas: element } = layer;
+        const { xs, ys, rowAt } = grid;
+        const look = looks[layer.look];
+        ctx.fillStyle = HERO_COLORS[HERO_WHITE];
+        ctx.fillRect(0, 0, element.width, element.height);
 
-        // white (255) vs beige (229) / dark, on the green channel
-        const isLight = (x, y) => data[(y * sw + x) * 4 + 1] > 242;
-        const colEdges = new Uint32Array(sw);
-        const rowEdges = new Uint32Array(sh);
-        for (let y = 0; y < sh; y++) {
-            for (let x = 0; x < sw; x++) {
-                const light = isLight(x, y);
-                if (x > 0 && light !== isLight(x - 1, y)) { colEdges[x]++ }
-                if (y > 0 && light !== isLight(x, y - 1)) { rowEdges[y]++ }
+        const byColor = HERO_COLORS.map(() => []);
+        layer.cells = [];
+        for (let row = 0; row < rowTo; row++) {
+            const y = ys(row);
+            const height = ys(row + 1) - y;
+            if (height === 0) { continue }
+            for (let column = columnFrom; column < columnTo; column++) {
+                const x = xs[column] - offsetX;
+                const width = xs[column + 1] - xs[column];
+                if (width === 0) { continue }
+                // past the bottom of the pattern (very tall screens): empty cells
+                const kind = row < HERO_PATTERN_ROWS ? kinds[row * columns + column] : 0;
+                const [from, to] = look[kind];
+                const cell = { x, y, width, height, from, to, at: rowAt(row) + random(row * columns + column) * HERO_FILL_BAND };
+                if (from !== to) { layer.cells.push(cell) }
+                byColor[cell.at <= progress ? to : from].push(cell);
             }
         }
-        colLines = measureLines(width, offsetX, cellW, colEdges, toSample);
-        rowLines = measureLines(height, offsetY, cellH, rowEdges, toSample);
-        cols = colLines.length - 1;
-        rows = rowLines.length - 1;
-
-        // A few squares in the export sit slightly off the grid, so a cell can be
-        // beige in the middle with a strip of white inside it. Any pure white inside
-        // a cell (away from its soft edges) makes it a cell to fill: painting beige
-        // over its beige part changes nothing.
-        const inside = (from, to) => [
-            Math.max(Math.ceil(from + (to - from) * 0.15), 0),
-            Math.floor(to - (to - from) * 0.15),
-        ];
-        const isWhitePixel = (i) => data[i] > 250 && data[i + 1] > 250 && data[i + 2] > 250;
-        // The dots don't sit exactly on the grid either, and their soft edges show
-        // up clearly on beige. Measure each dot's real extent (anything darker than
-        // the beige, within a cell's reach of its centre) so the fill can cover it.
-        const measureDot = (cx, cy, reach) => {
-            let x0 = cx;
-            let y0 = cy;
-            let x1 = cx;
-            let y1 = cy;
-            const span = Math.ceil(reach);
-            for (let y = Math.max(cy - span, 0); y <= Math.min(cy + span, sh - 1); y++) {
-                for (let x = Math.max(cx - span, 0); x <= Math.min(cx + span, sw - 1); x++) {
-                    if (data[(y * sw + x) * 4 + 1] >= 222) { continue }
-                    x0 = Math.min(x0, x);
-                    y0 = Math.min(y0, y);
-                    x1 = Math.max(x1, x);
-                    y1 = Math.max(y1, y);
-                }
-            }
-            // back to 2880px units, one sample pixel of margin on every side
-            return [x0 - 1, y0 - 1, x1 + 2, y1 + 2].map((value) => value / toSample);
-        };
-        darkBoxes = new Map();
-        cellTypes = new Uint8Array(cols * rows);
-        for (let r = 0; r < rows; r++) {
-            const [top, bottom] = inside(rowLines[r] * toSample, rowLines[r + 1] * toSample);
-            const cy = Math.min(Math.floor(((rowLines[r] + rowLines[r + 1]) / 2) * toSample), sh - 1);
-            for (let c = 0; c < cols; c++) {
-                const [left, right] = inside(colLines[c] * toSample, colLines[c + 1] * toSample);
-                const cx = Math.min(Math.floor(((colLines[c] + colLines[c + 1]) / 2) * toSample), sw - 1);
-                // the dots are dark (~34), the beige is 238,229,222
-                if (data[(cy * sw + cx) * 4 + 1] < 150) {
-                    cellTypes[r * cols + c] = CELL_DARK;
-                    darkBoxes.set(r * cols + c, measureDot(cx, cy, (colLines[c + 1] - colLines[c]) * toSample));
-                    continue;
-                }
-                let type = CELL_BEIGE;
-                for (let y = top; y <= Math.min(bottom, sh - 1) && type === CELL_BEIGE; y++) {
-                    for (let x = left; x <= Math.min(right, sw - 1); x++) {
-                        if (isWhitePixel((y * sw + x) * 4)) {
-                            type = CELL_WHITE;
-                            break;
-                        }
-                    }
-                }
-                cellTypes[r * cols + c] = type;
-            }
-        }
-    }
-
-    // Map the grid onto the screen the same way object-fit: cover places the image,
-    // and work out when each visible white cell fills
-    function layout() {
-        if (!cellTypes) { return }
-
-        const box = img.getBoundingClientRect();
-        if (box.width === 0 || box.height === 0) { return }
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        layers.forEach((layer) => {
-            Object.assign(layer.canvas.style, {
-                left: `${box.left}px`,
-                top: `${box.top}px`,
-                width: `${box.width}px`,
-                height: `${box.height}px`,
-            });
-            layer.canvas.width = Math.round(box.width * dpr);
-            layer.canvas.height = Math.round(box.height * dpr);
+        byColor.forEach((cells, color) => {
+            if (color === HERO_WHITE || cells.length === 0) { return }
+            ctx.fillStyle = HERO_COLORS[color];
+            cells.forEach(({ x, y, width, height }) => ctx.fillRect(x, y, width, height));
         });
-        syncCircleClip(true);
-
-        const { width, height } = HERO_BG_GRID;
-        const scale = Math.max(box.width / width, box.height / height);
-        const [posX, posY] = getComputedStyle(img).objectPosition.split(' ')
-            .map((value) => (value.endsWith('%') ? parseFloat(value) / 100 : 0.5));
-        const dx = (box.width - width * scale) * posX;
-        const dy = (box.height - height * scale) * posY;
-
-        // Shared, rounded cell edges in device pixels: neighbouring cells meet with
-        // no gaps or overlaps
-        const xs = colLines.map((x) => Math.round((dx + x * scale) * dpr));
-        const ys = rowLines.map((y) => Math.round((dy + y * scale) * dpr));
-
-        // The image's cell edges are soft (resampled), so a square cut exactly on the
-        // edge leaves a faint light outline where it meets a beige cell. Each square
-        // bleeds a little into its beige neighbours to hide it, and each dark cell
-        // covers its whole measured dot. Beige cells are never drawn themselves; where
-        // two squares' bleeds overlap, render() repaints the one still filled.
-        const bleed = Math.max(1, Math.round(dpr));
-        const typeAt = (r, c) => (r >= 0 && r < rows && c >= 0 && c < cols ? cellTypes[r * cols + c] : -1);
-        const isBeige = (r, c) => typeAt(r, c) === CELL_BEIGE;
-        const isFilled = (r, c) => typeAt(r, c) === CELL_WHITE || typeAt(r, c) === CELL_DARK;
-        const toDeviceX = (x) => (dx + x * scale) * dpr;
-        const toDeviceY = (y) => (dy + y * scale) * dpr;
-
-        cells = [];
-        for (let r = 0; r < rows; r++) {
-            const y0 = ys[r];
-            const y1 = ys[r + 1];
-            if (y1 <= 0 || y0 >= canvas.height || y1 === y0) { continue }
-            // 0 at the bottom of the screen, 1 at the top
-            const fromBottom = Math.min(Math.max(1 - (y0 + y1) / 2 / canvas.height, 0), 1);
-            for (let c = 0; c < cols; c++) {
-                const x0 = xs[c];
-                const x1 = xs[c + 1];
-                if (!isFilled(r, c) || x1 <= 0 || x0 >= canvas.width || x1 === x0) { continue }
-
-                const id = r * cols + c;
-                const rects = [[x0, y0, x1 - x0, y1 - y0]];
-                const dot = darkBoxes.get(id);
-                if (dot) {
-                    const left = Math.min(x0, Math.floor(toDeviceX(dot[0])));
-                    const top = Math.min(y0, Math.floor(toDeviceY(dot[1])));
-                    const right = Math.max(x1, Math.ceil(toDeviceX(dot[2])));
-                    const bottom = Math.max(y1, Math.ceil(toDeviceY(dot[3])));
-                    rects[0] = [left, top, right - left, bottom - top];
-                } else {
-                    if (isBeige(r - 1, c)) { rects.push([x0, y0 - bleed, x1 - x0, bleed]) }
-                    if (isBeige(r + 1, c)) { rects.push([x0, y1, x1 - x0, bleed]) }
-                    if (isBeige(r, c - 1)) { rects.push([x0 - bleed, y0, bleed, y1 - y0]) }
-                    if (isBeige(r, c + 1)) { rects.push([x1, y0, bleed, y1 - y0]) }
-                }
-
-                const at = fromBottom * (1 - HERO_FILL_BAND) + random(id) * HERO_FILL_BAND;
-                cells.push({ at, rects, id });
-            }
-        }
-        cells.sort((a, b) => a.at - b.at);
-        rankOf = new Int32Array(cols * rows).fill(-1);
-        cells.forEach((cell, index) => { rankOf[cell.id] = index });
-
-        // Resizing the canvases wiped them (and their fill style): repaint up to the
-        // current progress
-        drawn = 0;
-        layers.forEach((layer) => { layer.ctx.fillStyle = layer.color });
-        render(progress);
+        layer.cells.sort((a, b) => a.at - b.at);
+        layer.drawn = countReached(layer.cells, progress);
     }
 
-    // The circle scrolls with the hero while its pattern stays fixed to the screen,
-    // so its fill canvas (fixed, full-screen) is clipped to wherever the circle is.
-    // Runs every frame while the hero is on screen: the circle can also move or
-    // resize without a scroll (intro animations, breakpoints).
-    let lastClip = '';
-    function syncCircleClip(force = false) {
-        if (!circleCanvas || (!heroOnScreen && !force)) { return }
-        const area = circleCanvas.getBoundingClientRect();
-        const rect = circle.getBoundingClientRect();
-        const clip = `ellipse(${rect.width / 2}px ${rect.height / 2}px at ${rect.left + rect.width / 2 - area.left}px ${rect.top + rect.height / 2 - area.top}px)`;
-        if (clip !== lastClip) {
-            circleCanvas.style.clipPath = clip;
-            lastClip = clip;
-        }
-    }
-    let heroOnScreen = true;
-    if (circleCanvas) {
-        ScrollTrigger.create({
-            trigger: hero,
-            start: 'top bottom',
-            end: 'bottom top',
-            onToggle: (self) => { heroOnScreen = self.isActive },
-        });
-        gsap.ticker.add(() => syncCircleClip());
-    }
-
-    function render(value) {
-        progress = value;
-        if (cells.length === 0) { return }
-
-        // number of cells whose fill point has been reached
+    // Number of cells (sorted by `at`) that have turned at `value`
+    function countReached(cells, value) {
         let lo = 0;
         let hi = cells.length;
         while (lo < hi) {
             const mid = (lo + hi) >> 1;
             if (cells[mid].at <= value) { lo = mid + 1 } else { hi = mid }
         }
+        return lo;
+    }
 
-        const fill = (ctx, cell) => cell.rects.forEach(([x, y, w, h]) => ctx.fillRect(x, y, w, h));
-        if (lo > drawn) {
-            layers.forEach(({ ctx }) => {
-                for (let i = drawn; i < lo; i++) { fill(ctx, cells[i]) }
+    function layout() {
+        const width = document.documentElement.clientWidth;
+        // The grid is sized on the hero's height (100svh), not the window's: on mobile
+        // the window grows and shrinks with the address bar while scrolling, which would
+        // rescale the squares mid-scroll. The canvas still covers the whole window.
+        const heroHeight = hero.offsetHeight;
+        const height = window.innerHeight;
+        if (!width || !heroHeight || !height) { return }
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const cell = Math.max(width / columns, heroHeight / HERO_PATTERN_ROWS);
+        const left = (width - columns * cell) / 2;
+        // Cell edges in device pixels, shared by neighbours: no gaps, no overlaps
+        const grid = {
+            xs: Array.from({ length: columns + 1 }, (_, i) => Math.round((left + i * cell) * dpr)),
+            ys: (row) => Math.round(row * cell * dpr),
+            // when a row starts turning: 0 at the bottom of the hero, up to 1 - band at the top
+            rowAt: (row) => Math.min(Math.max(1 - ((row + 0.5) * cell) / heroHeight, 0), 1) * (1 - HERO_FILL_BAND),
+        };
+        const looks = mobileQuery.matches ? HERO_LOOKS.inverted : HERO_LOOKS.plain;
+        const deviceWidth = Math.round(width * dpr);
+        // only the columns on screen (the grid is wider than the screen on mobile)
+        const columnFrom = Math.max(grid.xs.findIndex((x) => x > 0) - 1, 0);
+        const lastEdge = grid.xs.findIndex((x) => x >= deviceWidth);
+        const columnTo = lastEdge === -1 ? columns : lastEdge;
+        const rowTo = Math.ceil(height / cell);
+
+        track.style.top = `${hero.offsetTop}px`;
+        track.style.height = `${heroHeight + height}px`;
+        canvas.style.height = `${height}px`;
+        canvas.width = deviceWidth;
+        canvas.height = Math.round(height * dpr);
+        paintLayer(layers[0], looks, grid, columnFrom, columnTo, rowTo, 0);
+
+        if (circleCanvas) {
+            const { x, y, radius } = HERO_PATTERN_CIRCLE;
+            const size = 2 * radius * cell;
+            const centerX = left + x * cell;
+            const centerY = y * cell;
+            // Where the grid's circle is with the hero at the top of the screen, in the
+            // wrapper's coordinates
+            const wrapperBox = wrapper.getBoundingClientRect();
+            const heroBox = hero.getBoundingClientRect();
+            Object.assign(circle.style, {
+                left: `${centerX - size / 2 - wrapperBox.left}px`,
+                top: `${heroBox.top - wrapperBox.top + centerY - size / 2}px`,
+                width: `${size}px`,
+                height: `${size}px`,
             });
-        } else if (lo < drawn) {
-            // Bleeds of cells up to two apart can overlap (both reaching into the beige
-            // cell between them), so clearing a cell can nick a neighbour that's still
-            // filled: repaint those neighbours afterwards.
-            const repaint = new Set();
-            for (let i = lo; i < drawn; i++) {
-                const r = Math.floor(cells[i].id / cols);
-                const c = cells[i].id % cols;
-                for (let nr = Math.max(r - 2, 0); nr <= Math.min(r + 2, rows - 1); nr++) {
-                    for (let nc = Math.max(c - 2, 0); nc <= Math.min(c + 2, cols - 1); nc++) {
-                        const rank = rankOf[nr * cols + nc];
-                        if (rank !== -1 && rank < lo) { repaint.add(rank) }
-                    }
-                }
-            }
-            layers.forEach(({ ctx }) => {
-                for (let i = lo; i < drawn; i++) {
-                    cells[i].rects.forEach(([x, y, w, h]) => ctx.clearRect(x, y, w, h));
-                }
-                repaint.forEach((rank) => fill(ctx, cells[rank]));
+
+            // Only the columns the circle spans, and the rows down to its bottom (it
+            // only ever scrolls up from there). Starts on a device pixel so its cells
+            // land exactly on the grid's.
+            const circleFrom = Math.max(Math.floor(x - radius) - 1, 0);
+            const circleTo = Math.min(Math.ceil(x + radius) + 1, columns);
+            const circleRows = Math.ceil(y + radius) + 1;
+            const offsetX = grid.xs[circleFrom];
+            Object.assign(circleCanvas.style, {
+                left: `${offsetX / dpr}px`,
+                width: `${(grid.xs[circleTo] - offsetX) / dpr}px`,
+                height: `${grid.ys(circleRows) / dpr}px`,
             });
+            circleCanvas.width = grid.xs[circleTo] - offsetX;
+            circleCanvas.height = grid.ys(circleRows);
+            paintLayer(layers[1], looks, grid, circleFrom, circleTo, circleRows, offsetX);
         }
-        drawn = lo;
+
+        if (!shown) {
+            shown = true;
+            requestAnimationFrame(() => layers.forEach((layer) => { layer.canvas.style.opacity = '1' }));
+        }
+    }
+
+    // Repaint only the cells that changed colour since the last call
+    function render(value) {
+        progress = value;
+        layers.forEach((layer) => {
+            const { cells, ctx } = layer;
+            const reached = countReached(cells, value);
+            if (reached === layer.drawn) { return }
+            const forward = reached > layer.drawn;
+            const [start, end] = forward ? [layer.drawn, reached] : [reached, layer.drawn];
+            let fillColor = -1;
+            for (let i = start; i < end; i++) {
+                const { x, y, width, height, from, to } = cells[i];
+                const color = forward ? to : from;
+                if (color !== fillColor) {
+                    ctx.fillStyle = HERO_COLORS[color];
+                    fillColor = color;
+                }
+                ctx.fillRect(x, y, width, height);
+            }
+            layer.drawn = reached;
+        });
     }
 
     const ease = gsap.parseEase(HERO_FILL_EASE);
@@ -538,16 +428,20 @@ function initHeroBackgroundFill(hero) {
         },
     });
 
-    // ScrollTrigger skips refreshes for mobile address-bar resizes, but the fixed
-    // image still changes size: follow the image directly
-    new ResizeObserver(() => layout()).observe(img);
-
-    readCells()
-        .then(layout)
-        .catch((error) => {
-            console.error('Hero background fill: could not read the background image', error);
-            layers.forEach((layer) => layer.canvas.remove());
+    // ScrollTrigger skips refreshes for mobile address-bar resizes, but the canvas
+    // still has to cover the window
+    let pending = false;
+    const scheduleLayout = () => {
+        if (pending) { return }
+        pending = true;
+        requestAnimationFrame(() => {
+            pending = false;
+            layout();
         });
+    };
+    window.addEventListener('resize', scheduleLayout);
+    mobileQuery.addEventListener('change', scheduleLayout);
+    layout();
 }
 
 export function services() {
@@ -556,7 +450,7 @@ export function services() {
 
     initProcessTags(document);
     initProcessCircleLabels(document);
-    initHeroBackgroundFill(servicesHeroSection);
+    initHeroBackground(servicesHeroSection);
 
 
     // SCROLL-IN TABLE SECTION
