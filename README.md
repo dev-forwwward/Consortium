@@ -177,6 +177,15 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - the swap resets iOS's activation, so unlock again on the next touch
 - keep streaming from the original source
 
+### [`js/services-hero-pattern.js`](js/services-hero-pattern.js)
+
+- SERVICES HERO PATTERN
+- The grid of squares behind the Services hero, cell by cell, as designed in Figma
+- first, base64. Whitespace is ignored.
+- The dark squares drawn on top of the pattern, as [column, row]. Same cells in the
+- desktop and mobile designs.
+- both are the same grid, so the squares line up across the circle's edge.
+
 ### [`js/services.js`](js/services.js) — `services()`
 
 - EXPANDABLE "OUR PROCESS" TAGS
@@ -185,10 +194,10 @@ _Entire file is commented out — not currently active or wired into `script-loa
 - Accordion behaviour: collapse any other open tag first.
 - The circle doesn't necessarily resize when crossing 767px, so re-lay out
 - on the breakpoint change too.
-- HERO BACKGROUND FILL
-- slides up over it, leaving a hard edge where the image's white bottom meets it.
-- A canvas laid between the image and the orange circle fills the white and dark
-- cells with beige, bottom to top, as the hero scrolls away, so the whole screen is
+- HERO BACKGROUND
+- The hero background is drawn here instead of being an image: the design's grid of
+- an orange circle showing the same squares in orange. Pattern, dark squares and
+- the circle are the very same cells as outside and line up exactly.
 
 ### [`js/swiper.js`](js/swiper.js) — `swiperInit()`
 
@@ -215,6 +224,10 @@ _Not currently imported by `css/styles.css` — verify it is still in use._
 Imported by `css/styles.css`.
 
 ### [`css/process.css`](css/process.css)
+
+Imported by `css/styles.css`.
+
+### [`css/services.css`](css/services.css)
 
 Imported by `css/styles.css`.
 
