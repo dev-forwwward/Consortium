@@ -159,16 +159,19 @@ export function nextPage() {
 
     if (footer) {
 
-        const newPadding = footer.offsetHeight + 60;
-        gsap.set(nextUpLoader, {
-            bottom: `${newPadding}`
-        });
-
-        window.addEventListener('resize', () => {
-            gsap.set(nextUpLoader, {
-                bottom: `${newPadding}`
-            });
-        });
+        // Sit the loader's bottom edge on the footer's top edge at the pinned end
+        // state, where the footer covers the bottom of the hero.
+        // (re-read on every ScrollTrigger refresh rather than once)
+        const placeLoader = () => {
+            const section = nextUpLoader.closest('.section_next-up');
+            const containingBlock = nextUpLoader.offsetParent;
+            const overshoot = (section && containingBlock)
+                ? containingBlock.getBoundingClientRect().bottom - section.getBoundingClientRect().bottom
+                : 0;
+            gsap.set(nextUpLoader, { bottom: footer.getBoundingClientRect().height + overshoot });
+        };
+        placeLoader();
+        ScrollTrigger.addEventListener('refreshInit', placeLoader);
 
         loadBarScrollAnimation = gsap.to('.next-up-load-bar', {
             delay: 2,
