@@ -116,7 +116,7 @@ export function mainInit() {
                 if (hasMockAchiev.length > 0) {
                     hasMockAchiev.forEach((mock, i) => {
                         let xVal = (i + 1) * 90 / achievsList.length;
-                        mock.style.left = `${xVal/2}%`;
+                        mock.style.left = `${xVal / 2}%`;
                     });
                 }
             });
@@ -286,6 +286,31 @@ export function mainInit() {
             }));
         }
     });
+
+
+    // BACK TO Template button (WORKS & JOURNAL template page)
+    const backBtns = document.querySelectorAll('.works-breadcrumb-nav');
+    if (backBtns.length > 0) {
+        // where did the visitor come from? (empty for direct visits, so the default button stays)
+        let cameFromServices = false;
+        try {
+            const ref = new URL(document.referrer);
+            cameFromServices = ref.origin === location.origin &&
+                ref.pathname.replace(/\/+$/, '') === '/services';
+        } catch (e) { /* no/invalid referrer */ }
+
+        if (cameFromServices) {
+            backBtns.forEach(btn => {
+                const link = btn.matches('a') ? btn : btn.querySelector('a');
+                if (!link) return;
+                link.href = '/services';
+
+                // change only the label so the arrow icon is kept
+                const label = link.querySelector(':scope > div:not(:has(*))') || link.firstElementChild;
+                if (label) label.textContent = 'Services';
+            });
+        }
+    }
 
     console.log("Loading mainInit()");
 
