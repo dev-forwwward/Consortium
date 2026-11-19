@@ -305,8 +305,8 @@ export function mainInit() {
                 if (!link) return;
                 link.href = '/services';
 
-                // change only the label so the arrow icon is kept
-                const label = link.querySelector(':scope > div:not(:has(*))') || link.firstElementChild;
+                // change only the label (.button-text) so the arrow icon is kept
+                const label = link.querySelector('.button-text');
                 if (label) label.textContent = 'Services';
             });
         }
