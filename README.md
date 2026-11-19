@@ -14,33 +14,36 @@ Add a new module to the `modules` array in `script-loader.js` to have it loaded 
 
 ## Pinned commit (Webflow)
 
-The Consortium site (`fwd-consortium.webflow.io`) doesn't load `@main`. It loads a specific commit, pinned by its full hash in the site's custom code:
+The Consortium site (`fwd-consortium.webflow.io`) doesn't load `@main`. It loads a specific commit, pinned by its full hash:
 
 ```
-https://cdn.jsdelivr.net/gh/dev-forwwward/Consortium@<commit-hash>/css/styles.css
-https://cdn.jsdelivr.net/gh/dev-forwwward/Consortium@<commit-hash>/js/script-loader.js
+https://cdn.jsdelivr.net/gh/dev-forwwward/Consortium@<commit-hash>/<path>
 ```
 
-**Currently pinned:** `116349a7482ef22047e270911d3f3b371762baa9` (2026-11-18, merge of `services` into `main`: Services hero background fill). Update this line whenever the pin changes.
+> **Rule: every commit that lands on `main` gets pinned.** After each push to `main` (merges included), update **all four places below** to the new commit's full hash, so the site always runs the latest `main` and every file comes from the same commit. No exceptions for "small" or docs-only commits.
 
-The hash lives in **two places**, both in Webflow → Site settings → [Custom code](https://webflow.com/dashboard/sites/fwd-consortium/custom-code):
+| # | Where in Webflow | What it loads |
+|---|---|---|
+| 1 | Site settings → [Custom code](https://webflow.com/dashboard/sites/fwd-consortium/custom-code) → Head code (`cdnHref`) | `css/styles.css` |
+| 2 | Site settings → Custom code → Footer code (`cdnSrc`) | `js/script-loader.js` (it imports every module from the same commit) |
+| 3 | Home page → hero video embed (class `video-loop_embed`) | `media/Consortium_idle-loop-mobile.mp4`, `media/Consortium_idle-loop-compressed.mp4` and the two `media/c-*-vid-poster.webp` posters |
+| 4 | Home page → `video_background_container_outer` → attribute `data-frame-base` | `video/frames/` (the scroll-scrubbed hero frames) |
 
-| Where | What it loads |
-|---|---|
-| Head code (`cdnHref`) | `css/styles.css` |
-| Footer code (`cdnSrc`) | `js/script-loader.js` (which imports every module from the same commit) |
+To see what's pinned right now, view the page source of the live site and search for `Consortium@`. (A hash written in this README would always be one commit behind: committing it creates a new commit.)
 
 **To release a change:**
 
 1. Merge it into `main` and push.
-2. Copy the full commit hash: `git rev-parse HEAD` (the README bot commit that follows a push works too; any commit containing the change does).
-3. Replace the old hash with the new one in **both** places above, and save.
-4. Publish the site. Until it's published, the live site keeps running the old commit.
-5. Check it: the page source (or the Network tab) should show the new hash in both URLs.
+2. If the push touched `js/` or `css/`, wait for the README bot ([`update-readme.yml`](.github/workflows/update-readme.yml)) to push its `docs: auto-update README features [skip readme]` commit, then `git pull`. That commit is the new `main`.
+3. Copy the full hash: `git rev-parse HEAD`.
+4. Replace the old hash with the new one in **all four places** above, and save.
+5. Check that the new URLs load: `curl -sI https://cdn.jsdelivr.net/gh/dev-forwwward/Consortium@<hash>/js/script-loader.js` should return `200`.
+6. Publish the site. Until it's published, the live site keeps running the old commit (Designer changes and custom code only go live on publish).
+7. Check it: the page source (or the Network tab) should show the new hash in every URL.
 
-Pushing to `main` alone changes nothing on the live site, which also means a bad push can't break it: to roll back, put the previous hash back and publish.
+Pushing to `main` alone changes nothing on the live site, which also means a bad push can't break it: to roll back, put the previous hash back in all four places and publish.
 
-**Other references to a commit hash:** the homepage hero video (a Designer embed with class `video_background`, not the site custom code) loads `media/Consortium_idle-loop-*.mp4` at `8f2dea8cc74f7eefdf849b59e35e267778166d1c`. It only needs bumping when those media files change.
+The `Video Scroll Test v1` test page has its own `data-frame-base` pin; it isn't part of the live site and isn't kept up to date.
 
 ### Testing locally (`?dev=true`)
 
