@@ -20,14 +20,15 @@ The Consortium site (`fwd-consortium.webflow.io`) doesn't load `@main`. It loads
 https://cdn.jsdelivr.net/gh/dev-forwwward/Consortium@<commit-hash>/<path>
 ```
 
-> **Rule: every commit that lands on `main` gets pinned.** After each push to `main` (merges included), update **all four places below** to the new commit's full hash, so the site always runs the latest `main` and every file comes from the same commit. No exceptions for "small" or docs-only commits.
+> **Rule: every commit that lands on `main` gets pinned.** After each push to `main` (merges included), update **all five places below** to the new commit's full hash, so the site always runs the latest `main` and every file comes from the same commit. No exceptions for "small" or docs-only commits, and no branch names (`@main`, `@home-v8`) in any URL.
 
 | # | Where in Webflow | What it loads |
 |---|---|---|
 | 1 | Site settings → [Custom code](https://webflow.com/dashboard/sites/fwd-consortium/custom-code) → Head code (`cdnHref`) | `css/styles.css` |
 | 2 | Site settings → Custom code → Footer code (`cdnSrc`) | `js/script-loader.js` (it imports every module from the same commit) |
-| 3 | Home page → hero video embed (class `video-loop_embed`) | `media/Consortium_idle-loop-mobile.mp4`, `media/Consortium_idle-loop-compressed.mp4` and the two `media/c-*-vid-poster.webp` posters |
-| 4 | Home page → `video_background_container_outer` → attribute `data-frame-base` | `video/frames/` (the scroll-scrubbed hero frames) |
+| 3 | Home page → hero loop video embed (class `video-loop_embed`) | `media/Consortium_idle-loop-mobile.mp4`, `media/Consortium_idle-loop-compressed.mp4` and the two `media/c-*-vid-poster.webp` posters |
+| 4 | Home page → scroll video embed (class `video_embed`) | `media/mobile-highres-test-v8-2.mp4`, `media/desktop-highres-test-v8-2.mp4` and the same two posters |
+| 5 | Home page → `video_background_container_outer` → attribute `data-frame-base` | `video/frames/` (the scroll-scrubbed hero frames) |
 
 To see what's pinned right now, view the page source of the live site and search for `Consortium@`. (A hash written in this README would always be one commit behind: committing it creates a new commit.)
 
@@ -36,12 +37,12 @@ To see what's pinned right now, view the page source of the live site and search
 1. Merge it into `main` and push.
 2. If the push touched `js/` or `css/`, wait for the README bot ([`update-readme.yml`](.github/workflows/update-readme.yml)) to push its `docs: auto-update README features [skip readme]` commit, then `git pull`. That commit is the new `main`.
 3. Copy the full hash: `git rev-parse HEAD`.
-4. Replace the old hash with the new one in **all four places** above, and save.
-5. Check that the new URLs load: `curl -sI https://cdn.jsdelivr.net/gh/dev-forwwward/Consortium@<hash>/js/script-loader.js` should return `200`.
+4. Check that every file the site loads works at the new hash, retrying any `403`: the repo is over jsDelivr's 50 MB package limit, so a file's first request at a new commit can randomly fail with "Package size exceeded"; a retry a minute later works and is then cached for a year. Do this before the site loads the new hash.
+5. Replace the old hash with the new one in **all five places** above, and save.
 6. Publish the site. Until it's published, the live site keeps running the old commit (Designer changes and custom code only go live on publish).
 7. Check it: the page source (or the Network tab) should show the new hash in every URL.
 
-Pushing to `main` alone changes nothing on the live site, which also means a bad push can't break it: to roll back, put the previous hash back in all four places and publish.
+Pushing to `main` alone changes nothing on the live site, which also means a bad push can't break it: to roll back, put the previous hash back in all five places and publish.
 
 The `Video Scroll Test v1` test page has its own `data-frame-base` pin; it isn't part of the live site and isn't kept up to date.
 
