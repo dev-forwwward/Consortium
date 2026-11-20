@@ -104,6 +104,14 @@ export function nextPage() {
                     ease: 'power2.in',
                 }, 0);
             }
+
+            // Fade the background gradient out alongside the footer, ~20% faster
+            // (.4s vs .5s) so it is gone just before the footer clears the screen
+            exitTimeline.to('.bg-gradient-2', {
+                opacity: 0,
+                duration: .4,
+                ease: 'power2.in',
+            }, 0);
         } else if (footerParent) {
             exitTimeline.fromTo(footerParent, {
                 clipPath: 'inset(0% 0 0)'
@@ -137,6 +145,7 @@ export function nextPage() {
         // exit-only inline styles
         gsap.set(nextUpLoader, { opacity: 0 });
         gsap.set('.next-up-load-bar', { clearProps: 'width' });
+        gsap.set('.bg-gradient-2', { clearProps: 'opacity' });
         footer?.parentElement && gsap.set(footer.parentElement, { clearProps: 'clipPath,transform' });
         nextPageRevealContainer && gsap.set(nextPageRevealContainer, { clearProps: 'clipPath' });
 
