@@ -199,6 +199,21 @@ const HERO_FILL_BAND = 0.3;
 // first bit of scroll, then slows down as it climbs
 const HERO_FILL_EASE = 'power1.out';
 
+// Load animation: the grid starts blank and its cells are coloured from the top of the
+// screen to the bottom, with the same dithered front as the scroll transition
+const HERO_INTRO_DURATION = 1.2;
+// Wait for the preloader to fade out (see mainInit) so the sweep isn't hidden behind it
+const HERO_INTRO_DELAY = 0.35;
+const HERO_INTRO_BAND = 0.3;
+const HERO_INTRO_EASE = 'power1.inOut';
+// Different from the scroll transition's order, so the two dithers don't mirror each other
+const HERO_INTRO_SEED = 100003;
+
+// Arriving through the next-up view transition: the hero has already morphed in from the
+// previous page, so sweeping the grid in on top of it would fight the morph. Read when
+// the module loads: the head code drops the class once the transition has finished
+const HERO_ARRIVED_BY_MORPH = document.documentElement.classList.contains('vt-hero-in');
+
 // One kind (see HERO_LOOKS) per cell, row by row
 function decodeHeroPattern() {
     const bytes = atob(HERO_PATTERN_SQUARES.replace(/\s/g, ''));
@@ -218,10 +233,14 @@ function initHeroBackground(hero) {
     const columns = HERO_PATTERN_COLUMNS;
     const mobileQuery = window.matchMedia('(max-width: 767px)');
 
+    // How far the load animation has got (0 = blank grid, 1 = done), shared by both layers
+    const introPlays = !HERO_ARRIVED_BY_MORPH && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const intro = { value: introPlays ? 0 : 1 };
+
     const createCanvas = () => {
         const element = document.createElement('canvas');
         element.setAttribute('aria-hidden', 'true');
-        Object.assign(element.style, { display: 'block', opacity: '0', transition: 'opacity 0.6s ease' });
+        element.style.display = 'block';
         return element;
     };
 
@@ -260,10 +279,16 @@ function initHeroBackground(hero) {
     const layers = [
         { canvas, look: 'grid' },
         circleCanvas && { canvas: circleCanvas, look: 'circle' },
-    ].filter(Boolean).map((layer) => ({ ...layer, ctx: layer.canvas.getContext('2d'), cells: [], drawn: 0 }));
+    ].filter(Boolean).map((layer) => ({
+        ...layer,
+        ctx: layer.canvas.getContext('2d'),
+        cells: [],
+        drawn: 0,
+        introCells: [],
+        introDrawn: 0,
+    }));
 
     let progress = 0;
-    let shown = false;
 
     // Same seed every time, so the order cells turn in is identical across resizes/reloads
     const random = (seed) => {
@@ -284,6 +309,7 @@ function initHeroBackground(hero) {
 
         const byColor = HERO_COLORS.map(() => []);
         layer.cells = [];
+        layer.introCells = [];
         for (let row = 0; row < rowTo; row++) {
             const y = ys(row);
             const height = ys(row + 1) - y;
@@ -295,9 +321,18 @@ function initHeroBackground(hero) {
                 // past the bottom of the pattern (very tall screens): empty cells
                 const kind = row < HERO_PATTERN_ROWS ? kinds[row * columns + column] : 0;
                 const [from, to] = look[kind];
-                const cell = { x, y, width, height, from, to, at: rowAt(row) + random(row * columns + column) * HERO_FILL_BAND };
+                const index = row * columns + column;
+                const cell = {
+                    x, y, width, height, from, to,
+                    at: rowAt(row) + random(index) * HERO_FILL_BAND,
+                    // when the load animation reaches it: top of the screen first
+                    introAt: grid.introRowAt(row) + random(index + HERO_INTRO_SEED) * HERO_INTRO_BAND,
+                };
                 if (from !== to) { layer.cells.push(cell) }
-                byColor[cell.at <= progress ? to : from].push(cell);
+                // only cells that are ever coloured need painting by the load animation
+                if (from !== HERO_WHITE || to !== HERO_WHITE) { layer.introCells.push(cell) }
+                // cells the load animation hasn't reached yet stay blank
+                if (cell.introAt <= intro.value) { byColor[cell.at <= progress ? to : from].push(cell) }
             }
         }
         byColor.forEach((cells, color) => {
@@ -306,16 +341,18 @@ function initHeroBackground(hero) {
             cells.forEach(({ x, y, width, height }) => ctx.fillRect(x, y, width, height));
         });
         layer.cells.sort((a, b) => a.at - b.at);
-        layer.drawn = countReached(layer.cells, progress);
+        layer.drawn = countReached(layer.cells, progress, 'at');
+        layer.introCells.sort((a, b) => a.introAt - b.introAt);
+        layer.introDrawn = countReached(layer.introCells, intro.value, 'introAt');
     }
 
-    // Number of cells (sorted by `at`) that have turned at `value`
-    function countReached(cells, value) {
+    // Number of cells (sorted by `key`) whose `key` has been reached at `value`
+    function countReached(cells, value, key) {
         let lo = 0;
         let hi = cells.length;
         while (lo < hi) {
             const mid = (lo + hi) >> 1;
-            if (cells[mid].at <= value) { lo = mid + 1 } else { hi = mid }
+            if (cells[mid][key] <= value) { lo = mid + 1 } else { hi = mid }
         }
         return lo;
     }
@@ -338,6 +375,8 @@ function initHeroBackground(hero) {
             ys: (row) => Math.round(row * cell * dpr),
             // when a row starts turning: 0 at the bottom of the hero, up to 1 - band at the top
             rowAt: (row) => Math.min(Math.max(1 - ((row + 0.5) * cell) / heroHeight, 0), 1) * (1 - HERO_FILL_BAND),
+            // when the load animation reaches a row: 0 at the top of the screen, down to 1 - band at the bottom
+            introRowAt: (row) => Math.min((row * cell) / height, 1) * (1 - HERO_INTRO_BAND),
         };
         const looks = mobileQuery.matches ? HERO_LOOKS.inverted : HERO_LOOKS.plain;
         const deviceWidth = Math.round(width * dpr);
@@ -386,11 +425,6 @@ function initHeroBackground(hero) {
             circleCanvas.height = grid.ys(circleRows);
             paintLayer(layers[1], looks, grid, circleFrom, circleTo, circleRows, offsetX);
         }
-
-        if (!shown) {
-            shown = true;
-            requestAnimationFrame(() => layers.forEach((layer) => { layer.canvas.style.opacity = '1' }));
-        }
     }
 
     // Repaint only the cells that changed colour since the last call
@@ -398,13 +432,15 @@ function initHeroBackground(hero) {
         progress = value;
         layers.forEach((layer) => {
             const { cells, ctx } = layer;
-            const reached = countReached(cells, value);
+            const reached = countReached(cells, value, 'at');
             if (reached === layer.drawn) { return }
             const forward = reached > layer.drawn;
             const [start, end] = forward ? [layer.drawn, reached] : [reached, layer.drawn];
             let fillColor = -1;
             for (let i = start; i < end; i++) {
-                const { x, y, width, height, from, to } = cells[i];
+                const { x, y, width, height, from, to, introAt } = cells[i];
+                // the load animation hasn't reached it yet: it will paint it in the right colour
+                if (introAt > intro.value) { continue }
                 const color = forward ? to : from;
                 if (color !== fillColor) {
                     ctx.fillStyle = HERO_COLORS[color];
@@ -413,6 +449,27 @@ function initHeroBackground(hero) {
                 ctx.fillRect(x, y, width, height);
             }
             layer.drawn = reached;
+        });
+    }
+
+    // Load animation: paint the cells the sweep has reached since the last call, in the
+    // colour they have at the current scroll position. Only ever moves forward
+    function renderIntro() {
+        layers.forEach((layer) => {
+            const { introCells, ctx } = layer;
+            const reached = countReached(introCells, intro.value, 'introAt');
+            let fillColor = -1;
+            for (let i = layer.introDrawn; i < reached; i++) {
+                const { x, y, width, height, from, to, at } = introCells[i];
+                const color = at <= progress ? to : from;
+                if (color === HERO_WHITE) { continue }
+                if (color !== fillColor) {
+                    ctx.fillStyle = HERO_COLORS[color];
+                    fillColor = color;
+                }
+                ctx.fillRect(x, y, width, height);
+            }
+            layer.introDrawn = Math.max(layer.introDrawn, reached);
         });
     }
 
@@ -442,6 +499,25 @@ function initHeroBackground(hero) {
     window.addEventListener('resize', scheduleLayout);
     mobileQuery.addEventListener('change', scheduleLayout);
     layout();
+
+    if (intro.value < 1) {
+        // mainInit hides the preloader instantly when it's skipped, so nothing to wait for
+        const preloader = document.querySelector('.preloader');
+        const preloaderFading = preloader && preloader.style.display !== 'none';
+        // Start it after this frame is painted, not now: the rest of the page's inits run in
+        // this same task, and GSAP's clock would keep ticking through them, so the sweep
+        // would already be part-way (or over) by the first frame it can be seen in. Worst on
+        // a refresh, when everything is cached and the inits run back to back
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            gsap.to(intro, {
+                value: 1,
+                duration: HERO_INTRO_DURATION,
+                delay: preloaderFading ? HERO_INTRO_DELAY : 0,
+                ease: HERO_INTRO_EASE,
+                onUpdate: renderIntro,
+            });
+        }));
+    }
 }
 
 export function services() {
