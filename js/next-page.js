@@ -90,6 +90,20 @@ export function nextPage() {
                 clipPath: 'inset(0%)',
                 duration: .25,
             }, 0);
+
+            // Slide the footer down out of the viewport. The clip-path wipe in the
+            // fallback below can't be used here (see above), and the footer is not a
+            // named view-transition element: left alone it would sit in the "root"
+            // snapshot and just cross-fade with the page. Moving it off screen now,
+            // well before the timeline ends (~.9s), means the old snapshot is taken
+            // with the footer already gone and the hero underneath
+            if (footerParent) {
+                exitTimeline.to(footerParent, {
+                    yPercent: 100,
+                    duration: .5,
+                    ease: 'power2.in',
+                }, 0);
+            }
         } else if (footerParent) {
             exitTimeline.fromTo(footerParent, {
                 clipPath: 'inset(0% 0 0)'
@@ -108,8 +122,8 @@ export function nextPage() {
     });
 
     // Restored from the back/forward cache: the page comes back exactly as the exit
-    // left it (pin frozen in position: fixed, reveal open, footer clipped on the
-    // fallback path, triggers disabled). Undo the exit and re-arm the triggers
+    // left it (pin frozen in position: fixed, reveal open, footer slid off screen
+    // (or clipped on the fallback path), triggers disabled). Undo the exit and re-arm the triggers
     window.addEventListener('pageshow', (e) => {
         if (!e.persisted) { return }
 
@@ -123,7 +137,7 @@ export function nextPage() {
         // exit-only inline styles
         gsap.set(nextUpLoader, { opacity: 0 });
         gsap.set('.next-up-load-bar', { clearProps: 'width' });
-        footer?.parentElement && gsap.set(footer.parentElement, { clearProps: 'clipPath' });
+        footer?.parentElement && gsap.set(footer.parentElement, { clearProps: 'clipPath,transform' });
         nextPageRevealContainer && gsap.set(nextPageRevealContainer, { clearProps: 'clipPath' });
 
         // enable() refreshes the trigger: it reverts the pin to its original
