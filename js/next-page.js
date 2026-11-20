@@ -8,6 +8,16 @@ export function nextPage() {
 
     if (!nextPageContainer) { return }
 
+    // The element that carries the footer's slide-out. Home/About/Contact wrap the
+    // Footer in a black div that has to go with it (or it would stay behind as a
+    // black block). Services/Projects put the Footer straight inside
+    // .next-up-container, which is the pinned block holding the whole next-up
+    // preview: sliding its parent there would drag the entire page content down,
+    // so slide the footer itself
+    const footerExit = footer?.parentElement && footer.parentElement !== nextPageContainer
+        ? footer.parentElement
+        : footer;
+
     let loadBarScrollAnimation;
     let revealScrollAnimation;
     let exitTimeline;
@@ -97,8 +107,8 @@ export function nextPage() {
             // snapshot and just cross-fade with the page. Moving it off screen now,
             // well before the timeline ends (~.9s), means the old snapshot is taken
             // with the footer already gone and the hero underneath
-            if (footerParent) {
-                exitTimeline.to(footerParent, {
+            if (footerExit) {
+                exitTimeline.to(footerExit, {
                     yPercent: 100,
                     duration: .5,
                     ease: 'power2.in',
@@ -146,7 +156,8 @@ export function nextPage() {
         gsap.set(nextUpLoader, { opacity: 0 });
         gsap.set('.next-up-load-bar', { clearProps: 'width' });
         gsap.set('.bg-gradient-2', { clearProps: 'opacity' });
-        footer?.parentElement && gsap.set(footer.parentElement, { clearProps: 'clipPath,transform' });
+        footer?.parentElement && gsap.set(footer.parentElement, { clearProps: 'clipPath' });
+        footerExit && gsap.set(footerExit, { clearProps: 'transform' });
         nextPageRevealContainer && gsap.set(nextPageRevealContainer, { clearProps: 'clipPath' });
 
         // enable() refreshes the trigger: it reverts the pin to its original
