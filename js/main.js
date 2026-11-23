@@ -95,6 +95,13 @@ export function mainInit() {
                 stagger: 0,
                 width: "0%",
                 duration: 1,
+            }, "<")
+            .fromTo('.about-text-pin-section .inline-image', {
+                marginLeft: '0em',
+            },{
+                marginLeft: '.2em',
+                duration: .5,
+                stagger: 0,
             }, "<");
     }
 
